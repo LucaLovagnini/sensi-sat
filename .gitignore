@@ -1,0 +1,18 @@
+# Cached OSM/Nominatim/Overpass responses — regenerable, ~49MB
+geeLocalTesting/cache/
+
+# Jupyter
+.ipynb_checkpoints/
+__pycache__/
+*.py[cod]
+
+# Claude Code local settings (machine-specific permissions)
+.claude/settings.local.json
+
+# Earth Engine / cloud credentials — never commit
+.config/earthengine/
+*credentials*.json
+service-account*.json
+
+# macOS
+.DS_Store
