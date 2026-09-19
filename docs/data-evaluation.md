@@ -41,11 +41,14 @@ source · **estimate** = our arithmetic, shown.
    join (section 6).
 6. **Extent and surface disagree in *opposite directions* depending on density** —
    the cleanest empirical demonstration of the distinction so far (section 3).
-7. **The 1985 baseline problem is real but island-specific**, and much smaller than
-   feared: 72 % archipelago-wide, but ranging from 14 % to 90 % by island in a
-   pattern that matches known development history (section 4). Note that WSF
-   Tracker has the same shape of problem, worse: 90.5 % of its footprint is in its
-   first frame.
+7. **The 1985 baseline is half-confirmed and WSF Evolution misses the other half of
+   the island.** Against the cadastre (98.5 % of Canary buildings carry a construction
+   year), about half of WSF's "built by 1985" pixels sit on cells with a pre-1985
+   building, a quarter to a third on cells with **no building at all**. And WSF has no
+   built pixel in ~50 % of the cells that held a pre-1985 building — 89 % on La Gomera.
+   WSF maps *settlement*, not *buildings*; dispersed rural stock is largely invisible
+   to it (section 6c). The cadastre-derived HISDAC-ES becomes a serious candidate for
+   the pre-2016 "when" layer in Spain.
 
 ---
 
@@ -320,11 +323,94 @@ Gran Canaria 2016 baseline.
 Timanfaya remains clean; the *lava* mask is still unnecessary. The two masks answer
 different failure modes.
 
+## 6c. The cadastre as an independent witness (analysis 8)
+
+Spain's cadastre records a construction year for every building; HISDAC-ES (Uhl et
+al. 2023, CC BY 4.0) grids it at 100 m: earliest construction year per cell, and
+building footprint area per 5-year epoch 1900–2020. It shares no data and no failure
+mode with any satellite product. In the Canaries it is unusually complete: **only
+1.5 % of 470,942 buildings lack a construction year** (worst municipality 10 %), and
+cells whose only buildings are undated account for 0.1–0.4 % of the area below —
+so "no dated building" can be read as "no building". **measured**
+
+**Is WSF Evolution's 1985 baseline real?** For its "built by 1985" pixels, what the
+cadastre has in the same 100 m cell:
+
+| island | WSF 1985 km² | building dated ≤ 1985 | earliest building after 1985 | **no building at all** |
+|---|---:|---:|---:|---:|
+| Tenerife | 115.6 | 53.0 % | 21.9 % | **25.0 %** |
+| Gran Canaria | 109.7 | 51.4 % | 17.7 % | **30.5 %** |
+| Lanzarote | 18.5 | 51.7 % | 24.8 % | 23.2 % |
+| La Palma | 15.6 | 61.4 % | 16.4 % | 22.1 % |
+| Fuerteventura | 7.6 | 42.0 % | 29.1 % | 28.7 % |
+
+About half is confirmed. A quarter to a third sits in cells with **no building** —
+roads, ports, airports and quarries (the cadastre excludes them, and they *are*
+built-up under our definition), greenhouses, or bare-soil commission. A fifth sits
+where the earliest surviving building post-dates 1985 — WSF early, or the whole cell
+rebuilt. Because a 100 m cell is generous (any building within it counts), the
+confirmed share is an upper bound and the no-building share a lower bound.
+
+**And the other direction: what WSF Evolution never saw.** Of the cadastre's cells
+with a building dated ≤ 1985:
+
+| island | cells | WSF has a ≤ 1985 pixel | WSF dates it later | **WSF never flags the cell** |
+|---|---:|---:|---:|---:|
+| Lanzarote | 4,517 | 56.4 % | 20.4 % | 23.2 % |
+| Tenerife | 23,494 | 52.6 % | 1.6 % | **45.7 %** |
+| Gran Canaria | 19,785 | 47.0 % | 1.6 % | **51.4 %** |
+| Fuerteventura | 3,362 | 19.0 % | 38.3 % | 42.7 % |
+| La Palma | 7,665 | 29.8 % | 1.1 % | **69.1 %** |
+| El Hierro | 1,028 | 27.5 % | 1.8 % | **70.6 %** |
+| La Gomera | 2,173 | 10.4 % | 0.8 % | **88.9 %** |
+
+**WSF Evolution has no built pixel at all in roughly half of the 100 m cells that
+held a pre-1985 building — 89 % on La Gomera.** This is the fair reading: WSF maps
+*settlement* — clusters dense enough to register at 30 m — not *buildings*. A lone
+farmhouse in a ravine is a building to the cadastre and nothing to WSF. It is not a
+classification error so much as a definition, but it means WSF Evolution
+under-represents dispersed rural building stock badly, worst on the steep western
+islands. It explains two earlier puzzles at once: La Gomera's "127 % full" (GHSL
+surface exceeding WSF extent — WSF simply misses most of the island's buildings),
+and the Tracker undated class, **51–65 % of which sits in cells that do contain
+cadastral buildings** — dispersed houses that 10 m radar sees and 30 m Landsat
+indices did not.
+
+**Does WSF's year match the cadastre's?** For pixels WSF dates 1986–2015, the
+cadastre's earliest building in the cell agrees within ±5 years in only 9–16 % of
+cases; it is *earlier* in 32–53 %. WSF's year is the year a pixel became detectably
+settled, which comes after the first building. The honest label is **"settlement
+detected by year X"**, not "built in X".
+
+**A third surface series across the seam.** Cadastral building footprint per island
+(surviving buildings, by construction year), km²:
+
+| | 1975 | 1985 | 1990 | 2000 | 2010 | 2015 | 2020 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Tenerife | 14.5 | 20.4 | 23.8 | 31.3 | 40.1 | 40.7 | 41.1 |
+| Gran Canaria | 12.8 | 18.5 | 21.3 | 27.2 | 33.3 | 33.8 | 34.1 |
+| Lanzarote | 2.3 | 4.0 | 5.7 | 7.7 | 9.9 | 10.0 | 10.1 |
+| Fuerteventura | 1.1 | 1.9 | 2.7 | 4.4 | 7.2 | 7.4 | 7.5 |
+| **archipelago** | **34.1** | **49.2** | **58.5** | **77.6** | **96.1** | **99.5** | **100.3** |
+
+Growth 1990→2015: **cadastre +70 %**, GHSL surface +42 %, WSF Evolution extent
++36 %. The cadastre's is an upper bound — demolished buildings vanish and a rebuild
+takes the rebuild's date — and the near-flat 2015→2020 (+0.8 %) is registration lag
+as much as a slowdown. Three products, three definitions, growth rates from +36 % to
++70 % for the same islands and years.
+
+**Verdict.** The cadastre is the strongest reference we have for *buildings* in the
+Canaries, and a serious candidate for the pre-2016 "when" layer in Spain — 98.5 %
+dated, 1900→2020, 100 m. WSF Evolution remains the right product for *settlement
+extent* and the only global option; the two answer different questions and the map
+must say which one it is showing.
+
 ## 7. What each dataset is good for
 
 | dataset | verdict | use it for | do not use it for |
 |---|---|---|---|
-| **WSF Evolution** (30 m, 1985–2015) | **GO** | the 1985–2015 extent timeline; the only annual series we have | anything on Gran Canaria/Tenerife before 1985; loss; comparison with 10 m products |
+| **WSF Evolution** (30 m, 1985–2015) | **GO, as "settlement detected by year"** | the 1985–2015 *settlement* extent timeline; the only annual global series | dispersed rural buildings (misses ~half the cells with a pre-1985 building, 89 % on La Gomera); "built in year X" semantics (its year trails the cadastre's); loss; comparison with 10 m products |
+| **HISDAC-ES / cadastre** (100 m, 1900–2020) | **GO** | building-level truth for the Canaries (98.5 % dated); the pre-2016 "when" layer candidate for Spain; a third surface series across the seam | roads and infrastructure (not in the cadastre); demolished buildings (vanish); anywhere outside Spain |
 | **GHSL built surface** (~92 m, 1975–2020) | **GO** | surface/density; 1975–1985 context; the only pre-1985 source in hand | extent; sub-100 m detail; loss (non-decreasing by construction) |
 | **WSF 2019** (10 m) | **GO, as a snapshot** | one accurate modern extent figure; validating a 10 m footprint | any time series with WSF 2015 |
 | **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |

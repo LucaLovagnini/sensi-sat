@@ -214,6 +214,19 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   growth. Any Tracker-derived urban statistic for the Canaries needs the greenhouse mask
   applied before it is comparable with WSF Evolution, GHSL or official artificial-land
   figures.
+- **The cadastre reframes the undated class and the dated one** (analysis 8, HISDAC-ES,
+  98.5 % of Canary buildings dated). 51–65 % of Tracker's undated 2016 pixels sit in
+  100 m cells that *do* contain cadastral buildings: dispersed houses that 10 m radar
+  sees and WSF Evolution's 30 m Landsat indices never did. WSF Evolution has no built
+  pixel at all in ~50 % of cells with a pre-1985 building (89 % on La Gomera) — it maps
+  *settlement clusters*, not buildings. Two consequences for this design: (i) the
+  10 m history layer's `dated` class must be labelled "settlement detected by year X",
+  since WSF's year trails the cadastre's first building by more than 5 years in most
+  cells; (ii) **for Spain, the cadastre (HISDAC-ES: earliest construction year per
+  100 m cell, 1900–2020) is a candidate pre-2016 "when" source that has no seam with
+  anything** — it spans 1900–2020 in one method. Whether it becomes the primary
+  pre-2016 layer for the Canaries, with WSF Evolution as the global fallback, is an
+  M1 decision.
 - Define the `seam` record schema in the catalog and the per-island offsets table.
 - Decide the common support for the fraction grid (100 m, aligned to GHSL's 3-arcsecond
   grid so GHSL needs no resampling).
