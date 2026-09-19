@@ -137,14 +137,23 @@ never picked up.
 1985 – present" as a next step. If that ships, the seam disappears at source. The
 adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrite.
 
-## 6. What stays open for Luca
+## 6. Decisions (Luca, 2026-09-19)
 
-1. Viewer behaviour at the seam — explicit two-era transition (5.2) vs a single
-   blended slider that hides it.
-2. Whether the `pre-2016, undated` class is shown by default, shown on request, or
-   held back until M3 says what it is.
-3. Whether to spend a manual-sampling stratum on the undated class in M3 (≈ 100 points,
-   ~2 hours), which is the only way to learn what those 115 km² are.
+1. **Viewer behaviour at the seam: explicit method-change transition.** The slider
+   pauses on a marker ("dataset changes here — 30 m Landsat → 10 m Sentinel"), shows
+   both figures side by side, then the new era takes over. No blended sweep.
+2. **The `pre-2016, undated` class is shown**, in its own colour, appearing when the
+   slider reaches 2016, badged "built before 2016, year unknown".
+3. **M3 gets an extra stratum** of ~100 points on the undated class (~2 hours of
+   interpretation) to establish what those 115 km² actually are.
+
+## 7. Open technical items (ours to resolve, not decisions)
+
+- Test the "roads and dispersed structures" hypothesis cheaply before M3: share of
+  undated pixels within 15 m of an OpenStreetMap road, per island.
+- Define the `seam` record schema in the catalog and the per-island offsets table.
+- Decide the common support for the fraction grid (100 m, aligned to GHSL's 3-arcsecond
+  grid so GHSL needs no resampling).
 
 ## Sources read for this design
 
