@@ -146,6 +146,14 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
    slider reaches 2016, badged "built before 2016, year unknown".
 3. **M3 gets an extra stratum** of ~100 points on the undated class (~2 hours of
    interpretation) to establish what those 115 km² actually are.
+4. **Greenhouses are masked out of WSF Tracker everywhere — map and statistics**
+   (decided 2026-09-19 after analyses 11–12). Source: Gobierno de Canarias Mapa de
+   Cultivos, parcels with `TECNICA_NA == "Invernadero"`. Consistent with decision 2;
+   removes ≈ 18 % of Tracker's 2016 baseline on Gran Canaria and ≈ 13 % on Tenerife.
+   The undated remainder stays visible, labelled "built before 2016, year unknown".
+   Known caveat: the crop map is a 2023–24 survey applied to a 2016 footprint; the
+   mask is a plug-in per island (SIOSE's greenhouse class is the equivalent for
+   mainland Spain).
 
 ## 7. Open technical items (ours to resolve, not decisions)
 
@@ -165,11 +173,42 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   covered-agriculture belts.
   **Consequence for decision 14:** the class cannot be labelled "built before 2016"
   without qualification; much of it is not urban under decision 2 (buildings + roads +
-  paved). Options: mask covered agriculture out of Tracker (Global-PCG-10 greenhouse
-  map, 10 m, 2020, CC BY 4.0 — 311 MiB, being fetched; or the Canary Mapa de
-  Cultivos), or label the class "structures Tracker counts as built-up — largely
-  greenhouses and covered crops". Quantify the overlap first; the M3 stratum then
-  measures what remains.
+  paved). Options: mask covered agriculture out of Tracker, or label the class
+  "structures Tracker counts as built-up — largely greenhouses and covered crops".
+  Quantify the overlap first; the M3 stratum then measures what remains.
+  **Global-PCG-10 cannot be the mask: it has no result cells over the Canary Islands**
+  (its fine grid covers Almería's greenhouse belt but neither Gran Canaria nor
+  Lanzarote; its coarse classification grid only touches the eastern islands) —
+  verified from the dataset's own grid shapefiles, 2026-09-19. The mask source is the
+  Gobierno de Canarias **Mapa de Cultivos** (1:2 000, per-island shapefiles, field
+  dictionary and methodology published; licence per the portal's legal notice, stated
+  as CC-BY 4.0 for Gobierno de Canarias datasets `[partial]`), whose cultivation-
+  technique field distinguishes greenhouse and mesh cover. Canaries-only; for Spain/EU
+  later, SIOSE carries an equivalent greenhouse class.
+  **Quantified (analysis 12, Gran Canaria, Mapa de Cultivos 2023-24, 104,976 parcels):**
+
+  | class of Tracker's 2016 footprint | km² | in greenhouse parcels | in any agricultural parcel | outside all parcels |
+  |---|---:|---:|---:|---:|
+  | dated (has a WSF Evolution year) — control | 52.7 | 4.6 % | 6.1 % | 93.9 % |
+  | undated (no WSF Evolution year) | 39.7 | **36.5 %** | 42.4 % | **57.6 %** |
+
+  Two more islands (same method):
+
+  | island | undated km² | in greenhouse parcels | in any parcel | outside all parcels | control (dated) in greenhouse |
+  |---|---:|---:|---:|---:|---:|
+  | Gran Canaria | 39.7 | 36.5 % | 42.4 % | 57.6 % | 4.6 % |
+  | Tenerife | 53.3 | 26.6 % | 32.4 % | 67.6 % | 2.9 % |
+  | Fuerteventura | 7.8 | 5.4 % | 8.6 % | 91.4 % | 0.2 % |
+
+  Greenhouses explain a quarter to a third of the undated class on the two
+  agricultural islands and almost none of it on Fuerteventura, which has few. Roads add
+  ≈ 11 km² on Gran Canaria (analysis 11). **The majority of the class — 58 % to 91 % —
+  sits outside any agricultural parcel and remains unexplained**: candidates are
+  dispersed rural buildings, industrial estates and infrastructure that Landsat indices
+  under-detected, quarries and solar farms, or Tracker commission on bare terraces. That
+  residue is what the M3 stratum (decision 15) must sample. Applying the greenhouse mask
+  removes ≈ 17 km² from Tracker's Gran Canaria 2016 baseline (14.5 undated + 2.4 dated),
+  about 18 % of it, and ≈ 16 km² from Tenerife's.
 - **Tracker's definition is over-inclusive relative to ours.** On this evidence a large
   part of the 1.66× definitional factor at the seam is covered agriculture, not urban
   growth. Any Tracker-derived urban statistic for the Canaries needs the greenhouse mask

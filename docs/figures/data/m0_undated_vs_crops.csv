@@ -1,0 +1,7 @@
+island,class,km2,in_greenhouse_pct,in_banana_pct,in_any_parcel_pct,outside_parcels_pct
+Gran Canaria,dated (has Evo year),52.69,4.6,0.1,6.1,93.9
+Gran Canaria,undated (no Evo year),39.65,36.5,0.4,42.4,57.6
+Tenerife,dated (has Evo year),57.52,2.9,0.0,4.8,95.2
+Tenerife,undated (no Evo year),53.33,26.6,0.4,32.4,67.6
+Fuerteventura,dated (has Evo year),15.88,0.2,0.0,0.7,99.3
+Fuerteventura,undated (no Evo year),7.84,5.4,0.0,8.6,91.4

@@ -24,11 +24,14 @@ source · **estimate** = our arithmetic, shown.
    bare-rock/built confusion does not materialise here. No lava mask is needed.
 3. **WSF 2015 and WSF 2019 are not a time series.** They imply 9.7 %/yr growth,
    against WSF Evolution's own 0.49 %/yr. The difference is method, not building.
-4. **No product can measure demolition — including WSF Tracker.** WSF 2019 is a
-   strict superset of WSF 2015 (measured loss 0.02 km² archipelago-wide), and
-   Tracker's values encode the *earliest* epoch a pixel was seen built, with
-   overviews aggregating by minimum. The whole DLR family is growth-only by
-   construction. The loss question needs a source we do not yet have.
+4. **The WSF family and GHSL cannot measure demolition — Copernicus can, and the
+   answer is "almost none".** WSF 2019 is a strict superset of WSF 2015 (loss
+   0.02 km²), and Tracker encodes the *earliest* epoch a pixel was seen built. But
+   Copernicus Impervious Built-Up Change 2018–2021 (downloaded 2026-09-19) records
+   gain and loss separately: **0.259 km² lost against 1.95 km² gained** across the
+   archipelago — **0.052 %/yr**. A growth-only encoding therefore misplaces ~2 % of
+   built pixels over 40 years. Decision 5 stands; the two-image "real view" is not
+   needed (section 5).
 
 5. **WSF Tracker passes its tests and is a GO** — 1.11 %/yr growth archipelago-wide,
    a smooth epoch histogram, a clean Timanfaya, and only 0.5 % of the Tajogaite
@@ -202,11 +205,29 @@ Two consequences for the plan:
   same producer four years apart differ by 39 %, splicing WSF Evolution (ends
   2015) onto WSF Tracker (starts 2016-07) will produce a step change that looks
   like a building boom. Calibration across the seam is mandatory, not optional.
-- **The loss question needs a source we do not have.** Candidates, in order of
-  preference: Copernicus HRL Built-up Change 2018–2021 (official gain *and* loss
-  layer — **needs a free CLMS account**), Esri/Impact Observatory annual LULC via
-  Microsoft Planetary Computer (2017–2023, no login), or WSF Tracker's own
-  biannual series tested against the Tajogaite lava.
+- ~~The loss question needs a source we do not have.~~ **Answered** (analysis 13,
+  Copernicus Impervious Built-Up Change 2018–2021, 20 m, EPSG:3035, ten 100 km tiles
+  covering all islands; class codes read from the shipped SLD style):
+
+  | island | built 2018 | built 2021 | new | **lost** | loss %/yr |
+  |---|---:|---:|---:|---:|---:|
+  | Tenerife | 59.94 | 60.38 | 0.572 | **0.130** | 0.072 |
+  | Gran Canaria | 55.56 | 56.00 | 0.536 | **0.098** | 0.059 |
+  | Lanzarote | 24.77 | 25.10 | 0.349 | 0.020 | 0.027 |
+  | Fuerteventura | 13.31 | 13.68 | 0.374 | 0.011 | 0.027 |
+  | La Palma | 7.62 | 7.63 | 0.006 | 0.000 | 0.000 |
+  | La Gomera | 2.07 | 2.13 | 0.061 | 0.000 | 0.006 |
+  | El Hierro | 1.51 | 1.56 | 0.052 | 0.000 | 0.000 |
+  | **archipelago** | **164.97** | **166.67** | **1.950** | **0.259** | **0.052** |
+
+  (km², 20 m pixels = exactly 400 m² in the LAEA grid, no latitude correction.)
+  **Real loss is 0.052 %/yr** — a growth-only encoding misplaces ~2.1 % of built pixels
+  over 40 years. Gain is 0.394 %/yr, about a third of Tracker's 1.11 %/yr; Copernicus
+  counts buildings within sealed areas, Tracker counts more (including greenhouses,
+  section 6b). Two caveats: the "technical vs real change" support layer was not in the
+  download, so 0.259 km² is an upper bound on real loss; and La Palma shows **zero**
+  loss, so the 2021 reference imagery predates the Sep–Dec 2021 eruption — the 2024
+  layer is the one that will show Todoque disappear.
 
 ## 6. WSF Tracker: plausible, but the seam is worse than we thought (analysis 10)
 
@@ -287,6 +308,14 @@ Two consequences. WSF Tracker's "built-up" is over-inclusive against our definit
 with anything else — the plan's "plan B" greenhouse mask returns, but for Tracker
 specifically, not for WSF Evolution or GHSL. And a substantial part of the 1.66×
 definitional jump at the 2015/2016 seam is agriculture, not urban growth.
+
+**Quantified against the Gobierno de Canarias Mapa de Cultivos** (1:2 000, surveyed
+2023–24; Global-PCG-10 turned out to have no cells over the Canaries): on Gran Canaria
+**36.5 % of the undated class lies on greenhouse parcels, against 4.6 % of the dated
+class**; 42.4 % on any agricultural parcel; **57.6 % (≈ 23 km²) outside every parcel
+and mostly away from roads — unexplained**, and the target of the M3 stratum
+(analysis 12). The greenhouse mask alone removes ≈ 17 km² (18 %) from Tracker's
+Gran Canaria 2016 baseline.
 
 Timanfaya remains clean; the *lava* mask is still unnecessary. The two masks answer
 different failure modes.
