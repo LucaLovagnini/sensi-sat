@@ -272,6 +272,25 @@ pixel was seen built, and its overviews aggregate by minimum — growth-only by
 construction, like everything else in the family **verified from the array's own
 metadata**. The La Palma burial is invisible to it.
 
+## 6b. The greenhouse question, answered sideways (analysis 11)
+
+43 % of Tracker's 2016 footprint has no WSF Evolution year. Roads do not explain it:
+28.7 % of those pixels lie within 15 m of an OpenStreetMap road, against 47.0 % of the
+dated pixels (60,603 highway ways, Gran Canaria) **measured**. A map does: the two
+largest undated clusters (129 ha by Vecindario, 63 ha by Gáldar) are greenhouses and
+plastic- or mesh-covered plantations, drawn precisely along the plot boundaries, with
+the dated pixels on the adjacent towns. Sentinel-1 radar sees metal and plastic
+frames as structure; Landsat spectral indices did not.
+
+Two consequences. WSF Tracker's "built-up" is over-inclusive against our definition
+(decision 2) and needs covered agriculture masked out before its totals are comparable
+with anything else — the plan's "plan B" greenhouse mask returns, but for Tracker
+specifically, not for WSF Evolution or GHSL. And a substantial part of the 1.66×
+definitional jump at the 2015/2016 seam is agriculture, not urban growth.
+
+Timanfaya remains clean; the *lava* mask is still unnecessary. The two masks answer
+different failure modes.
+
 ## 7. What each dataset is good for
 
 | dataset | verdict | use it for | do not use it for |
@@ -281,7 +300,7 @@ metadata**. The La Palma burial is invisible to it.
 | **WSF 2019** (10 m) | **GO, as a snapshot** | one accurate modern extent figure; validating a 10 m footprint | any time series with WSF 2015 |
 | **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |
 | **Dynamic World** (10 m) | **NO-GO** | — | anything; 2.5–6× over-count here |
-| **WSF Tracker** (10 m, 2016–2026) | **GO** | the 2016–2026 spine; 1.11 %/yr growth is credible; passes Timanfaya; not fooled by fresh lava | splicing onto WSF Evolution without calibration; loss (growth-only) |
+| **WSF Tracker** (10 m, 2016–2026) | **GO, with a greenhouse mask** | the 2016–2026 spine; 1.11 %/yr growth is credible; passes Timanfaya; not fooled by fresh lava | splicing onto WSF Evolution without calibration; loss (growth-only); **raw totals — its "built-up" includes greenhouses and covered plantations** (analysis 11 + `docs/figures/undated_pixels_gran_canaria.png`), which our definition excludes |
 | **HRL Imperviousness** | **BLOCKED** | loss rate, sealed-surface density | — (needs a free Copernicus account) |
 | **HISDAC-ES** | **NOT YET FETCHED** | testing the 1985 baseline against cadastral dates | — |
 

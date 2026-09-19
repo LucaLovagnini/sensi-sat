@@ -149,8 +149,32 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
 
 ## 7. Open technical items (ours to resolve, not decisions)
 
-- Test the "roads and dispersed structures" hypothesis cheaply before M3: share of
-  undated pixels within 15 m of an OpenStreetMap road, per island.
+- ~~Test the "roads" hypothesis~~ **Tested, not supported** (analysis 11, Gran
+  Canaria, 60,603 OSM highway ways, 15 m buffer): 28.7 % of undated pixels lie within
+  reach of a road, against 47.0 % of dated pixels and 18.8 % of the island. Roads
+  account for at most ~11 of the 39.7 km². The undated class is above background but
+  below settlements in road density, and the roads it does touch are `residential`,
+  `track` and `service` — rural. **Visual check
+  (`docs/figures/undated_pixels_gran_canaria.png`): the two largest undated clusters
+  — 129 ha by Vecindario on the south-east coast, 63 ha by Gáldar on the north-west
+  coast — are greenhouses and plastic- or mesh-covered plantations (bananas in the
+  north-west), drawn along plot boundaries, with the dated pixels on the adjacent town
+  grids.** Sentinel-1 radar responds strongly to metal/plastic frames; Landsat spectral
+  indices do not. 57 % of undated patches are ≤ 4 pixels (isolated sheds and small
+  structures) but 46 % of the undated *area* sits in patches ≥ 1 ha — the
+  covered-agriculture belts.
+  **Consequence for decision 14:** the class cannot be labelled "built before 2016"
+  without qualification; much of it is not urban under decision 2 (buildings + roads +
+  paved). Options: mask covered agriculture out of Tracker (Global-PCG-10 greenhouse
+  map, 10 m, 2020, CC BY 4.0 — 311 MiB, being fetched; or the Canary Mapa de
+  Cultivos), or label the class "structures Tracker counts as built-up — largely
+  greenhouses and covered crops". Quantify the overlap first; the M3 stratum then
+  measures what remains.
+- **Tracker's definition is over-inclusive relative to ours.** On this evidence a large
+  part of the 1.66× definitional factor at the seam is covered agriculture, not urban
+  growth. Any Tracker-derived urban statistic for the Canaries needs the greenhouse mask
+  applied before it is comparable with WSF Evolution, GHSL or official artificial-land
+  figures.
 - Define the `seam` record schema in the catalog and the per-island offsets table.
 - Decide the common support for the fraction grid (100 m, aligned to GHSL's 3-arcsecond
   grid so GHSL needs no resampling).
