@@ -1,0 +1,9 @@
+island,sealed_km2,extent_ge30_km2,extent_ge50_km2,mean_confidence,low_confidence_pct
+El Hierro,2.81,4.31,3.42,96.0,4.5
+La Palma,13.73,19.5,14.53,97.7,3.6
+La Gomera,4.7,6.43,5.09,97.7,2.4
+Tenerife,126.81,159.09,142.13,96.8,5.3
+Gran Canaria,122.2,145.22,136.05,96.4,5.4
+Fuerteventura,37.48,41.93,39.73,99.6,0.7
+Lanzarote,33.62,44.98,39.93,96.8,5.1
+La Graciosa,0.18,0.26,0.25,99.6,0.9
