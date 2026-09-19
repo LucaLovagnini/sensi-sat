@@ -21,9 +21,13 @@ source · **estimate** = our arithmetic, shown.
    alone. The whole archipelago measures 376.9 km² (WSF Evolution, 30 m),
    230.4 km² (WSF 2019, 10 m) or 152.9 km² (GHSL built surface). One island in
    Dynamic World exceeds all eight islands in every independent product.
-2. **Lava is not the problem we feared.** Timanfaya National Park — 51 km² of bare
-   lava — comes back clean in every product (≤ 0.08 %). The documented
-   bare-rock/built confusion does not materialise here. No lava mask is needed.
+2. **Lava is not the problem we feared — and the lava burial IS now recorded by one
+   product.** Timanfaya National Park — 51 km² of bare lava — comes back clean in every
+   product (≤ 0.08 %); no lava mask is needed. And **Copernicus Impervious Built-Up
+   captures Todoque's destruction**: inside the 2021 Tajogaite flow, built-up falls from
+   0.909 km² (2018) to 0.084 (2021) to 0.011 km² (2024), and the 2021→2024 change layer
+   records 0.060 km² of "loss of cover" there — 64 % of all loss in the archipelago for
+   the period. Every WSF product and GHSL still show those buildings (§6f).
 3. **WSF 2015 and WSF 2019 are not a time series.** They imply 9.7 %/yr growth,
    against WSF Evolution's own 0.49 %/yr. The difference is method, not building.
 4. **The WSF family and GHSL cannot measure demolition — Copernicus can, and the
@@ -518,6 +522,79 @@ WSF's detectability limit and add method artefacts of their own. **measured**
 The candidate list for the pre-2016 era is therefore closed: **WSF Evolution for
 settlement extent (global), the cadastre for buildings (Spain), GHSL for surface.**
 
+## 6e. Copernicus status layers 2018 / 2021 / 2024 (analysis 16)
+
+Downloaded 2026-09-19 (five products, 41 tiles, 25 MiB, EPSG:3035). Four results.
+
+**1. The loss test — passed.** Built-up inside the Tajogaite lava polygon (10.4 km²):
+
+| | 2018 | 2021 | 2024 | change layer 2021→2024, "loss of cover" |
+|---|---:|---:|---:|---:|
+| Copernicus Impervious Built-Up | 0.909 km² | 0.084 km² | **0.011 km²** | **0.060 km²** |
+| WSF Evolution / WSF 2015 / 2019 / Tracker / GHSL | still there | still there | still there | cannot express loss |
+
+87 % of the 2021 built-up inside the flow is gone by 2024, and 0.060 of the
+archipelago's 0.094 km² of 2021–2024 loss is that lava field. Copernicus is the only
+product in the stack that records the burial — the curated `loss-events` layer in the
+design now has a measured source. **measured** (The 2021 status already shows most of
+the loss while the 2018→2021 *change* layer showed none on La Palma: the two products
+are not derived from the same 2021 state. Read the PUM before trusting one over the
+other; the 2024 figure is unambiguous.)
+
+**2. Status layers across releases are not a time series either.** Archipelago totals:
+2018 (v011) **215.5 km²** → 2021 (R02) **184.6** → 2024 (R01) **259.3**. Tenerife goes
+97.9 → 59.9 → 101.6. Buildings did not vanish and reappear; the method changed between
+releases — the same lesson as WSF 2015 → 2019, from a producer that *knows* it, which is
+exactly why Copernicus ships change layers with technical-change flags (P6). **Use the
+change layers for change; never subtract status layers across releases.** The
+2021→2024 change layer gives a real loss rate of **0.017 %/yr** (0.094 km²; gain
+1.455 km² = 0.26 %/yr), against 0.052 %/yr for 2018→2021. Both tiny; decision 5
+holds. **measured**
+
+**3. Copernicus does not count greenhouses — the Sentinel-1 products do.** Of Gran
+Canaria's 27.1 km² of greenhouse parcels, Copernicus IBU 2021 flags **9.5 %** as
+built-up; **WSF Tracker 71.5 %; WSF 2019 67.3 %**. This refines §6b: it is the
+radar-based WSF products (2019 and Tracker, both Sentinel-1 + 2) that read plastic and
+mesh frames as structures; Copernicus (Sentinel-2 optical plus ancillary data) and,
+per §6b, the Landsat-based WSF Evolution do not. Copernicus is the product closest to
+our definition (decision 2). **measured**
+
+**4. Copernicus sees buildings about as well as WSF, more cleanly.** Cadastre cell test,
+IBU 2018 against cells with a building dated ≤ 2018: recall Gran Canaria 48.3 %,
+Tenerife 58.6 %, Fuerteventura 44.9 %, **La Gomera 36.9 %** (WSF Evolution: 10 %);
+precision 57–80 % — the highest of any satellite product tested. On Gran Canaria's 10 m
+grid: Copernicus 2021 = 65.0 km², WSF 2019 = 83.2, Tracker by 2021 = 99.5; Copernicus
+vs Tracker IoU 0.40, with 52.9 km² of Tracker not in Copernicus (greenhouses, yards,
+roads) and 18.4 km² the other way. **measured**
+
+**Verdict: GO.** Copernicus Impervious Built-Up is the independent accuracy anchor, the
+loss source, and the closest match to our definition; its status layers are per-release
+snapshots, its change layers the time series. Coverage stops at the EU's border and at
+2018.
+
+## 6f. CORINE 2018: the "official ~6 %" measured (analysis 17)
+
+The CNIG GeoPackage has a dedicated Canarias layer (2,565 polygons, EPSG:4083).
+Artificial surfaces (CORINE class 1xx, 25 ha minimum mapping unit): **469.5 km² =
+6.28 % of the archipelago** — Gran Canaria 9.6 %, Tenerife 8.3 %, Lanzarote 6.9 %,
+Fuerteventura 4.1 %, the western islands 1–2 %. Of it, urban fabric 330.5, industrial /
+commercial 52.6, transport 27.9, quarries / dumps / construction 31.3, green and sport
+27.2 km². **measured**
+
+This completes a ladder of six definitions, all consistent in order:
+
+| product | what a pixel/polygon means | archipelago km² |
+|---|---|---:|
+| CORINE 2018 "artificial" | any artificial land use, ≥ 25 ha blocks, incl. parks, quarries | 469.5 |
+| WSF Evolution 2015 | 30 m pixels containing settlement | 376.9 |
+| WSF 2019 | 10 m pixels containing settlement (incl. greenhouses) | 230.4 |
+| Copernicus IBU 2018 | 10 m pixels with buildings within sealed areas | 215.5 |
+| GHSL 2020 | m² of built surface | 152.9 |
+| cadastre 2020 | building footprints | 100.3 |
+
+Dynamic World's 308 km² for Gran Canaria *alone* exceeds CORINE's artificial total for
+that island (149.8 km²) — every artificial thing CORINE can find, doubled.
+
 ## 6d. How big is it, really? (analysis 9)
 
 Every dataset's Canary window, re-encoded the way we would publish it (GeoTIFF,
@@ -551,20 +628,18 @@ display this — is confirmed by measurement. **measured**
 | **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |
 | **Dynamic World** (10 m) | **NO-GO** | — | anything; 2.5–6× over-count here |
 | **WSF Tracker** (10 m, 2016–2026) | **GO, with a greenhouse mask** | the 2016–2026 spine; 1.11 %/yr growth is credible; passes Timanfaya; not fooled by fresh lava | splicing onto WSF Evolution without calibration; loss (growth-only); **raw totals — its "built-up" includes greenhouses and covered plantations** (analysis 11 + `docs/figures/undated_pixels_gran_canaria.png`), which our definition excludes |
-| **HRL Imperviousness** | **BLOCKED** | loss rate, sealed-surface density | — (needs a free Copernicus account) |
+| **Copernicus Impervious Built-Up 2018/2021/2024 + change layers** | **GO** | the loss source (Todoque captured); independent 10 m accuracy anchor; closest to our definition (no greenhouses); highest precision vs cadastre | comparing *status* layers across releases (215 → 185 → 259 km² is method, not buildings); anything before 2018 or outside the EU |
+| **CORINE 2018** (Canarias layer) | **GO, as the sanity band** | the official artificial-surface share per island (6.28 % archipelago) | anything fine-grained (25 ha minimum mapping unit) |
 | **HISDAC-ES** | **NOT YET FETCHED** | testing the 1985 baseline against cadastral dates | — |
 
-## 7. Blocked — needs your account
+## 7. Blocked — needs your account (resolved 2026-09-19)
 
-Two datasets need a free account that must be created by a human:
-
-- **Copernicus CLMS** (land.copernicus.eu) — HRL Imperviousness 2018/2021/2024 and
-  the Built-up Change 2018–2021 layer. This is the best available answer to the
-  loss question and the best independent accuracy anchor for the Canaries.
-- **CNIG** (centrodedescargas.cnig.es) — CORINE 2018 for provinces 35 and 38.
-  Lower priority; only a coarse sanity band.
-
-Everything else in this document was obtained without any account.
+Both account-gated inputs were downloaded by Luca on 2026-09-19 and are analysed in
+§6e (Copernicus Impervious Built-Up 2018/2021/2024 and the 2018–2021 and 2021–2024
+change layers; package `110252.zip`) and §6f (CORINE 2018, `CLC2018_GPKG.zip` —
+note: Deflate64 compression, open with macOS `unzip`, not Python or `bsdtar`). Still
+not downloaded: the Change *Support* layers (technical vs real change) and the
+Imperviousness *Density* layers. Everything else was obtained without any account.
 
 ## Reproducing
 

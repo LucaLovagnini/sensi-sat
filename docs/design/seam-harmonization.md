@@ -237,6 +237,17 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   join that differs by island. Common-grid agreement r 0.63–0.85, Jaccard 0.37–0.61.
   These are the numbers the `seam` record (5.2) carries. Table in
   `docs/data-evaluation.md` §6, data in `docs/figures/data/m0_seam_factors.csv`.
+- **Loss layer source found (analysis 16):** Copernicus Impervious Built-Up Change
+  2021–2024 records 0.060 km² of "loss of cover" inside the Tajogaite lava, and IBU 2024
+  shows 0.011 km² built there against 0.909 in 2018. The curated `loss-events`
+  collection (decision 5) is fed from Copernicus change layers, not hand-drawn.
+- **P6 confirmed the hard way:** Copernicus's own *status* layers jump 215 → 185 →
+  259 km² across releases (Tenerife 98 → 60 → 102). Status layers are per-release
+  snapshots; only the change layers are a time series. Same rule as our seam.
+- **Greenhouse refinement:** the Sentinel-1-based WSF products (2019: 67 %, Tracker:
+  72 % of greenhouse parcels flagged) read plastic frames as structure; Copernicus
+  (9.5 %) and Landsat-based WSF Evolution do not. The greenhouse mask applies to WSF
+  2019 as well as Tracker.
 - Define the `seam` record schema in the catalog (fields: the five extents, the three
   factors, Jaccard, r, greenhouse km² removed, provenance).
 - Common support for comparison: GHSL's 3-arcsecond grid, so GHSL needs no
