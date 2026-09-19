@@ -24,14 +24,25 @@ source · **estimate** = our arithmetic, shown.
    bare-rock/built confusion does not materialise here. No lava mask is needed.
 3. **WSF 2015 and WSF 2019 are not a time series.** They imply 9.7 %/yr growth,
    against WSF Evolution's own 0.49 %/yr. The difference is method, not building.
-4. **No product available without a login can measure demolition.** WSF 2019 is a
-   strict superset of WSF 2015: measured loss is 0.02 km² across the entire
-   archipelago, i.e. zero. The loss question is still open.
-5. **Extent and surface disagree in *opposite directions* depending on density** —
+4. **No product can measure demolition — including WSF Tracker.** WSF 2019 is a
+   strict superset of WSF 2015 (measured loss 0.02 km² archipelago-wide), and
+   Tracker's values encode the *earliest* epoch a pixel was seen built, with
+   overviews aggregating by minimum. The whole DLR family is growth-only by
+   construction. The loss question needs a source we do not yet have.
+
+5. **WSF Tracker passes its tests and is a GO** — 1.11 %/yr growth archipelago-wide,
+   a smooth epoch histogram, a clean Timanfaya, and only 0.5 % of the Tajogaite
+   lava field newly flagged as built (most likely the rebuilt LP-2 road, not
+   fresh-lava confusion). But its 2016 baseline is 1.66× WSF 2015 from eighteen
+   months earlier, which makes the 2015/2016 seam a calibration problem, not a
+   join (section 6).
+6. **Extent and surface disagree in *opposite directions* depending on density** —
    the cleanest empirical demonstration of the distinction so far (section 3).
-6. **The 1985 baseline problem is real but island-specific**, and much smaller than
+7. **The 1985 baseline problem is real but island-specific**, and much smaller than
    feared: 72 % archipelago-wide, but ranging from 14 % to 90 % by island in a
-   pattern that matches known development history (section 4).
+   pattern that matches known development history (section 4). Note that WSF
+   Tracker has the same shape of problem, worse: 90.5 % of its footprint is in its
+   first frame.
 
 ---
 
@@ -197,7 +208,71 @@ Two consequences for the plan:
   Microsoft Planetary Computer (2017–2023, no login), or WSF Tracker's own
   biannual series tested against the Tajogaite lava.
 
-## 6. What each dataset is good for
+## 6. WSF Tracker: plausible, but the seam is worse than we thought (analysis 10)
+
+Read directly from the GeoZarr on source.coop over anonymous HTTP range requests —
+no bulk download of the 1.54M × 4.01M global grid, only the windows we ask for.
+
+**Its internal growth rate is credible.** This is the single most important test it
+passes, and the one WSF 2015 → 2019 failed badly:
+
+| island | built 2026 | baseline (2016-07) | baseline share | added | growth |
+|---|---:|---:|---:|---:|---:|
+| Tenerife | 122.61 | 110.85 | 90.4 % | 11.76 | 1.12 %/yr |
+| Gran Canaria | 101.91 | 92.33 | 90.6 % | 9.58 | 1.09 %/yr |
+| Lanzarote | 30.57 | 28.11 | 92.0 % | 2.46 | 0.92 %/yr |
+| Fuerteventura | 27.02 | 23.72 | 87.8 % | 3.31 | 1.47 %/yr |
+| La Palma | 16.25 | 14.91 | 91.8 % | 1.34 | 0.95 %/yr |
+| La Gomera | 3.69 | 3.27 | 88.5 % | 0.43 | 1.37 %/yr |
+| El Hierro | 3.02 | 2.75 | 91.2 % | 0.26 | 1.01 %/yr |
+| La Graciosa | 0.17 | 0.16 | 95.6 % | 0.01 | 0.48 %/yr |
+| **archipelago** | **305.23** | **276.10** | **90.5 %** | **29.14** | **1.11 %/yr** |
+
+0.5–1.5 %/yr is what real urban growth looks like. The epoch histogram is smooth —
+1.0 to 3.6 km² per half-year with no spikes — which is what genuine construction
+looks like and what a method change does not. **measured**
+
+**Timanfaya: PASS.** 0.029 km² in 50.7 km² of lava = 0.06 %.
+
+**Tajogaite: the sharpest result in M0.** Tracker reports 0.839 km² of built-up
+inside the 2021 lava field, split by when it was *first* detected:
+
+- 0.776 km² first seen **before** 2021-07 — the buildings the lava buried. Correct.
+- 0.062 km² first seen **after** 2021-07 — built-up appearing *on* the lava.
+
+That 6.2 hectares is most likely the LP-2 road rebuilt across the flow, which is
+real construction. It is only 0.5 % of the lava field, far too little for
+systematic fresh-lava-reads-as-built confusion. **This is the strongest available
+evidence that Tracker is not fooled by fresh basalt** — the risk the plan worried
+about most. A visual check against 2023+ imagery would settle it; not done here.
+
+**But Tracker confirms the seam is a real hazard.** There are now *three*
+incompatible 10 m footprints from DLR for essentially the same moment:
+
+| product | date | archipelago built-up |
+|---|---|---:|
+| WSF 2015 | 2015 | 165.8 km² |
+| **WSF Tracker epoch 1** | **2016-07** | **276.1 km²** |
+| WSF 2019 | 2019 | 230.4 km² |
+
+Tracker's 2016 baseline is **1.66× WSF 2015** eighteen months earlier, and larger
+than WSF 2019 from three years *later*. Per island the ratio to WSF 2015 ranges
+1.12× (La Graciosa) to 2.02× (La Palma). These are definitional differences, not
+construction. **measured**
+
+Consequence for the plan: WSF Evolution (ends 2015, 30 m) and WSF Tracker (starts
+2016-07, 10 m) **cannot simply be spliced**. The 30 m → 10 m change would shrink
+the footprint while the definitional change would inflate it, by different amounts
+per island. The two effects partially cancel archipelago-wide (376.9 → 276.1) and
+would be read as a 27 % collapse in urban area at the seam. Calibration is
+mandatory.
+
+**And Tracker cannot show loss either.** Its values encode the *earliest* epoch a
+pixel was seen built, and its overviews aggregate by minimum — growth-only by
+construction, like everything else in the family **verified from the array's own
+metadata**. The La Palma burial is invisible to it.
+
+## 7. What each dataset is good for
 
 | dataset | verdict | use it for | do not use it for |
 |---|---|---|---|
@@ -206,7 +281,7 @@ Two consequences for the plan:
 | **WSF 2019** (10 m) | **GO, as a snapshot** | one accurate modern extent figure; validating a 10 m footprint | any time series with WSF 2015 |
 | **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |
 | **Dynamic World** (10 m) | **NO-GO** | — | anything; 2.5–6× over-count here |
-| **WSF Tracker** (10 m, 2016–2026) | **UNTESTED** | — | — (next priority; the Tajogaite test is ready for it) |
+| **WSF Tracker** (10 m, 2016–2026) | **GO** | the 2016–2026 spine; 1.11 %/yr growth is credible; passes Timanfaya; not fooled by fresh lava | splicing onto WSF Evolution without calibration; loss (growth-only) |
 | **HRL Imperviousness** | **BLOCKED** | loss rate, sealed-surface density | — (needs a free Copernicus account) |
 | **HISDAC-ES** | **NOT YET FETCHED** | testing the 1985 baseline against cadastral dates | — |
 
@@ -230,12 +305,15 @@ python scripts/fetch_m0.py                        # 90 MiB, all public URLs
 python scripts/analysis_01_totals.py              # per-island totals
 python scripts/analysis_02_negative_controls.py   # lava control and loss test
 python scripts/analysis_07_loss_rate.py           # WSF 2015 vs 2019
+python scripts/analysis_10_wsf_tracker.py        # WSF Tracker, read from source.coop
+python docs/figures/src/m0_results.py            # the summary figure
 ```
 
 Tables are written to `docs/figures/data/m0_*.csv`.
 
 Sources: WSF Evolution / 2015 / 2019 © DLR (CC-BY-4.0, CC0-1.0) via
 download.geoservice.dlr.de · GHS-BUILT-S R2023A © European Union, JRC (CC BY 4.0)
-via jeodpp.jrc.ec.europa.eu · island and control boundaries © OpenStreetMap
+via jeodpp.jrc.ec.europa.eu · WSF Tracker © DLR / MindEarth / ESA GDA (CC BY 4.0)
+via source.coop/mindearth/wsf · island and control boundaries © OpenStreetMap
 contributors (ODbL) via Nominatim and Overpass · Dynamic World figures from the
 project's own earlier notebook.
