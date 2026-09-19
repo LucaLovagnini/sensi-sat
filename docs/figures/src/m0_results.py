@@ -45,8 +45,10 @@ def main():
                 for i in order]
         ax.bar(x + (k - 1) * width, vals, width, label=label, color=colour)
     ax.axhline(DW_GRAN_CANARIA_2016, color="#ff8c00", ls="--", lw=2)
-    ax.text(len(order) - 0.4, DW_GRAN_CANARIA_2016, f" Dynamic World:\n {DW_GRAN_CANARIA_2016:.0f} km² for\n Gran Canaria ALONE",
-            va="center", ha="right", fontsize=9, color="#cc6600", fontweight="bold")
+    ax.text(len(order) - 0.4, DW_GRAN_CANARIA_2016 - 14,
+            f"Dynamic World: {DW_GRAN_CANARIA_2016:.0f} km² for Gran Canaria ALONE",
+            va="top", ha="right", fontsize=9, color="#cc6600", fontweight="bold")
+    ax.set_ylim(0, DW_GRAN_CANARIA_2016 * 1.12)
     ax.set_xticks(x); ax.set_xticklabels(order, rotation=30, ha="right", fontsize=9)
     ax.set_ylabel("built-up, km²"); ax.legend(fontsize=9)
     ax.set_title("1. Built-up per island. The dashed line is Dynamic World's figure for\n"
@@ -64,13 +66,15 @@ def main():
     ax.barh(x + 0.2, sur, 0.38, label="SURFACE — amount built (GHSL)", color="#7a1f1f")
     ax.set_yticks(x); ax.set_yticklabels(order, fontsize=9); ax.invert_yaxis()
     ax.set_xscale("symlog", linthresh=10)
-    ax.set_xlabel("growth 1990 → 2015, % (log scale)"); ax.legend(fontsize=9, loc="lower right")
+    ax.set_xlabel("growth 1990 → 2015, % (log scale)")
+    ax.legend(fontsize=9, loc="upper center", bbox_to_anchor=(0.5, -0.09), ncol=2, frameon=False)
     ax.set_title("2. The two measures disagree in OPPOSITE directions.\n"
                  "Dense islands: surface outruns extent. Sparse islands: the reverse.", fontsize=11)
     for xi, (e, s, isl) in enumerate(zip(ext, sur, order)):
         note = "saturated" if s > e * 2 else ("sparse" if e > s * 1.5 else "")
         if note:
-            ax.text(max(e, s) * 1.15, xi, note, va="center", fontsize=8, style="italic", color="#555")
+            ax.text(max(e, s) * 1.18, xi, note, va="center", fontsize=8, style="italic", color="#555")
+    ax.set_xlim(right=max(max(ext), max(sur)) * 2.2)
 
     # --- 3. how much of WSF Evolution is already in its first frame -----------
     ax = axs[1, 0]
