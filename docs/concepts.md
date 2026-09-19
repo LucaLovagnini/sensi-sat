@@ -68,10 +68,27 @@ growth for this neighbourhood forever.
   the only measure that would register a demolition inside an already-dense pixel. GHSL built surface
   (m² per 100 m cell) and Copernicus Imperviousness (% sealed per pixel) are surface products.
 
-On real data (Gran Canaria, 1990 → 2015, measured): **WSF Evolution extent +12 %** (112 → 125 km²);
-**GHSL built surface +58 %** (27 → 43 km²). Neither is wrong; they measure different things. SensiSat
-reports both, each with its definition attached. The **fraction grid** — share of each 100 m cell that is
-built — is the bridge: summing fractions gives surface; counting cells above a threshold gives extent.
+On real data (Gran Canaria, 1990 → 2015, same island polygon for both, measured): **WSF Evolution
+extent +11 %** (112.7 → 125.5 km²); **GHSL built surface +57 %** (27.5 → 43.3 km²).
+
+But Gran Canaria is not the rule — measured across all eight islands, **the gap reverses direction
+depending on how densely built the island already is**:
+
+| island | extent (WSF) | surface (GHSL) | |
+|---|---:|---:|---|
+| Gran Canaria | +11 % | +57 % | dense: extent saturated in 1990, infill adds surface only |
+| Tenerife | +10 % | +13 % | dense |
+| La Palma / La Gomera | +17 / +18 % | +15 / +15 % | balanced |
+| Lanzarote | +183 % | +192 % | balanced |
+| Fuerteventura | +400 % | +162 % | sparse: each new building lights a whole 30 m pixel |
+| La Graciosa | +620 % | +285 % | sparse |
+
+In an already-urbanised island the pixels are switched on long ago, so extent stalls while surface keeps
+climbing. In a sparsely developing one the opposite happens: scattered new buildings each claim a whole
+coarse pixel while adding little real cover, so extent outruns surface. Neither product is wrong, and
+reporting only one would misrepresent whichever half of the archipelago it suits less. SensiSat reports
+both, each with its definition attached. The **fraction grid** — share of each 100 m cell that is built —
+is the bridge: summing fractions gives surface; counting cells above a threshold gives extent.
 
 ## 4. State view vs change view — why two frames can look identical
 

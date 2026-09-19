@@ -1,111 +1,80 @@
 """Shared helpers for the documentation figures.
 
-Everything here is deliberately small: download a public raster if missing,
-cut out the Gran Canaria window, fetch a few basemap tiles, and reproject our
-overlay onto the tile grid so both can be drawn in the same picture.
+This is now a thin layer over the `sensisat` package so there is one download
+cache and one implementation of the geometry maths. It keeps the names the figure
+scripts already use.
+
+Install the package once (editable) so these imports resolve from anywhere:
+
+    pip install -e .
 """
+
 from __future__ import annotations
 
-import io
-import math
-from pathlib import Path
-
 import numpy as np
-import rasterio
-import requests
-from PIL import Image
-from rasterio.merge import merge
-from rasterio.transform import from_bounds
-from rasterio.warp import Resampling, reproject
 
-ROOT = Path(__file__).resolve().parents[3]          # repository root
-DATA = ROOT / "data" / "raw" / "wsf_evo"            # gitignored download cache
-FIG = ROOT / "docs" / "figures"
+from sensisat.config import (
+    CANARIES_BBOX,
+    ESRI_LIGHT_GRAY as ESRI_GRAY,
+    ESRI_SATELLITE as ESRI_SAT,
+    FIGURES as FIG,
+    HTTP_HEADERS as UA,
+    ISLAND_BBOX,
+    RAW,
+    ROOT,
+    pixel_area_m2,
+)
+from sensisat.datasets import wsf
+from sensisat.raster import area_km2, read_window, row_areas_m2, to_web_mercator
+from sensisat.tiles import basemap_window, mosaic, tile_bounds_3857, tile_xy
 
-UA = {"User-Agent": "SensiSat-docs/0.1 (research prototype; github.com/LucaLovagnini/sensi-sat)"}
+DATA = RAW / "wsf_evolution"
+GC_BBOX = ISLAND_BBOX["Gran Canaria"]
+GRAN_CANARIA_TILES = [(-16, 26), (-16, 28)]
 
-# DLR World Settlement Footprint Evolution: 2°x2° tiles named by their lower-left corner.
-WSF_EVO_BASE = "https://download.geoservice.dlr.de/WSF_EVO/files"
-GRAN_CANARIA_TILES = ["WSFevolution_v1_-16_26", "WSFevolution_v1_-16_28"]
-GC_BBOX = (-15.87, 27.71, -15.33, 28.20)            # lon_min, lat_min, lon_max, lat_max
-# A WSF Evolution pixel is 0.00026949° on both axes: ~30 m north-south but only
-# ~26.5 m east-west at 28° N, hence ~793 m² rather than 900 m².
-PX_AREA_M2 = 793.0
+# A WSF Evolution pixel is 0.00026949 deg square: ~29.9 m north-south but only
+# ~26.4 m east-west at 28 N, so ~790 m2 rather than the nominal 900 m2.
+PX_AREA_M2 = pixel_area_m2(0.00026949458523585647, 27.95)
 
-# Basemap tile services (streamed for the figure only; nothing is stored).
-ESRI_SAT = "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
-ESRI_GRAY = "https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}"
-ATTRIBUTION = "Basemaps: Esri World Light Gray · Esri World Imagery (streamed, not stored). Overlay: WSF Evolution © DLR, CC-BY-4.0."
+ATTRIBUTION = (
+    "Basemaps: Esri World Light Gray / Esri World Imagery (streamed, not stored). "
+    "Overlay: WSF Evolution © DLR, CC-BY-4.0."
+)
+
+__all__ = [
+    "ROOT", "DATA", "FIG", "UA", "GC_BBOX", "GRAN_CANARIA_TILES", "PX_AREA_M2", "ATTRIBUTION",
+    "ESRI_SAT", "ESRI_GRAY", "CANARIES_BBOX",
+    "fetch_wsf_evo", "load_wsf_evo", "built_by", "km2",
+    "tile_xy", "tile_bounds_3857", "mosaic", "basemap_window", "overlay_on",
+]
 
 
-def fetch_wsf_evo(tiles=GRAN_CANARIA_TILES) -> list[Path]:
-    DATA.mkdir(parents=True, exist_ok=True)
-    out = []
-    for t in tiles:
-        p = DATA / f"{t}.tif"
-        if not p.exists():
-            r = requests.get(f"{WSF_EVO_BASE}/{t}/{t}.tif", headers=UA, timeout=180)
-            r.raise_for_status()
-            p.write_bytes(r.content)
-        out.append(p)
-    return out
+def fetch_wsf_evo(tiles=None):
+    """Download the WSF Evolution tiles covering Gran Canaria (cached)."""
+    return wsf.fetch_tiles("wsf_evolution", GC_BBOX, tiles=tiles or GRAN_CANARIA_TILES, quiet=True)
 
 
 def load_wsf_evo(bbox=GC_BBOX):
-    """Return (array, transform, crs) of 'year first built' (0 = not built) for the bbox."""
-    srcs = [rasterio.open(p) for p in fetch_wsf_evo()]
-    arr, tr = merge(srcs, bounds=bbox, nodata=0)
-    return arr[0], tr, srcs[0].crs
+    """(array of 'year first built' with 0 = never, transform, crs) for bbox."""
+    return wsf.load("wsf_evolution", bbox, paths=fetch_wsf_evo())
 
 
 def built_by(arr, year):
     return (arr > 0) & (arr <= year)
 
 
-def km2(mask) -> float:
-    return float(mask.sum()) * PX_AREA_M2 / 1e6
+def km2(mask, transform=None) -> float:
+    """Area of a mask in km2.
 
-
-# ---- Web-Mercator tile arithmetic -------------------------------------------------
-def tile_xy(lon, lat, z):
-    n = 2 ** z
-    la = math.radians(lat)
-    return int((lon + 180) / 360 * n), int((1 - math.log(math.tan(la) + 1 / math.cos(la)) / math.pi) / 2 * n)
-
-
-def tile_bounds_3857(x0, y0, x1, y1, z):
-    n, R = 2 ** z, 6378137.0
-    lon = lambda x: x / n * 360 - 180
-    lat = lambda y: math.degrees(math.atan(math.sinh(math.pi * (1 - 2 * y / n))))
-    mx = lambda lo: math.radians(lo) * R
-    my = lambda la: math.log(math.tan(math.pi / 4 + math.radians(la) / 2)) * R
-    return mx(lon(x0)), my(lat(y1 + 1)), mx(lon(x1 + 1)), my(lat(y0))
-
-
-def mosaic(url_fmt, x0, y0, x1, y1, z):
-    im = Image.new("RGB", ((x1 - x0 + 1) * 256, (y1 - y0 + 1) * 256), (235, 235, 235))
-    for x in range(x0, x1 + 1):
-        for y in range(y0, y1 + 1):
-            try:
-                r = requests.get(url_fmt.format(z=z, x=x, y=y), headers=UA, timeout=30)
-                r.raise_for_status()
-                im.paste(Image.open(io.BytesIO(r.content)).convert("RGB"), ((x - x0) * 256, (y - y0) * 256))
-            except Exception as e:  # a missing tile leaves a grey square; the figure still renders
-                print("tile failed", z, x, y, type(e).__name__)
-    return im
-
-
-def basemap_window(bbox, z, url_fmt):
-    """Tiles covering bbox at zoom z → (image, bounds_3857, extent_for_imshow)."""
-    x0, y0 = tile_xy(bbox[0], bbox[3], z)
-    x1, y1 = tile_xy(bbox[2], bbox[1], z)
-    b = tile_bounds_3857(x0, y0, x1, y1, z)
-    return mosaic(url_fmt, x0, y0, x1, y1, z), b, (b[0], b[2], b[1], b[3])
+    With a transform, the area is integrated row by row (correct). Without one,
+    the older flat approximation is used so existing figure captions stay
+    reproducible; pass the transform in new code.
+    """
+    if transform is not None:
+        return area_km2(mask, transform)
+    return float(np.asarray(mask).sum()) * PX_AREA_M2 / 1e6
 
 
 def overlay_on(arr, tr, crs, bounds_3857, width, height):
-    """Nearest-neighbour reprojection of the overlay onto a Web-Mercator tile mosaic."""
-    dst = np.zeros((height, width), dtype=arr.dtype)
-    reproject(arr, dst, src_transform=tr, src_crs=crs, dst_transform=from_bounds(*bounds_3857, width, height),
-              dst_crs="EPSG:3857", resampling=Resampling.nearest, src_nodata=0, dst_nodata=0)
-    return dst
+    """Nearest-neighbour reprojection of the overlay onto a Web-Mercator mosaic."""
+    return to_web_mercator(arr, tr, crs, bounds_3857, width, height)
