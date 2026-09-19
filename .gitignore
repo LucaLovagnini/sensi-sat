@@ -25,3 +25,8 @@ data/
 *.tiff
 *.zarr
 *.parquet
+
+# Python build metadata
+*.egg-info/
+build/
+dist/
