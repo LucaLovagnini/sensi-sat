@@ -5,8 +5,10 @@ trust, and where do they fail?" Nothing here is taken on faith from a dataset's
 documentation; every number was computed locally from the downloaded files.
 
 Run date: 2026-09-19. Reproduce with `python scripts/fetch_m0.py` then the
-`scripts/analysis_*.py` files. Downloads are recorded with size and SHA-256 in
-`data/raw/manifest.json` (90 MiB total, 48 files).
+`scripts/analysis_*.py` files (list at the end). Downloads are recorded with size and
+SHA-256 in `data/raw/manifest.json`; the rasters actually used total ~200 MiB. Two
+inputs are not auto-fetched: the Copernicus Built-Up Change package (needs a free
+CLMS account; place under `data/raw/hrl/110241/`) and the HISDAC-ES municipal tables.
 
 Evidence tags: **measured** = computed here · **verified** = read in a primary
 source · **estimate** = our arithmetic, shown.
@@ -296,6 +298,34 @@ pixel was seen built, and its overviews aggregate by minimum — growth-only by
 construction, like everything else in the family **verified from the array's own
 metadata**. The La Palma burial is invisible to it.
 
+**The seam per island, with the greenhouse mask applied (analysis 3).** Resolution
+factor = WSF Evolution 2015 (30 m) ÷ WSF 2015 (10 m), same producer and year.
+Definition factor = Tracker epoch 1 (2016-07) ÷ WSF 2015, both 10 m, before and after
+removing greenhouse parcels from Tracker. Agreement = WSF Evolution 2015 vs masked
+Tracker 2016 on a common 100 m grid: Jaccard of cells ≥ 10 % built, and correlation
+of cell fractions.
+
+| island | Evo 2015 (30 m) | WSF 2015 (10 m) | Tracker 2016 → masked | resolution × | definition × raw → masked | Evo→Tracker net × | Jaccard | r |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Gran Canaria | 125.5 | 53.3 | 92.3 → 75.4 | 2.35 | 1.73 → **1.41** | 0.60 | 0.53 | 0.77 |
+| Tenerife | 128.6 | 60.9 | 110.9 → 95.0 | 2.11 | 1.82 → **1.56** | 0.74 | 0.53 | 0.78 |
+| La Palma | 18.2 | 7.4 | 14.9 → 11.4 | 2.47 | 2.02 → **1.55** | 0.63 | 0.37 | 0.63 |
+| Fuerteventura | 42.1 | 18.0 | 23.7 → 23.3 | 2.33 | 1.31 → 1.29 | 0.55 | 0.49 | 0.79 |
+| Lanzarote | 57.9 | 22.6 | 28.1 → 28.1 | 2.56 | 1.24 → 1.24 | 0.48 | 0.61 | 0.85 |
+
+The greenhouse mask takes a third off the definitional jump where greenhouses are
+common (Gran Canaria, Tenerife, La Palma) and nothing where they are not. A residual
+×1.24–1.56 remains — the dispersed buildings and infrastructure Landsat never saw
+(section 6c). Spliced naively, the footprint would **drop by 26–52 % at the join,
+differently on every island**; the calibration is per island, as the design requires.
+Spatial agreement between the two eras on a common grid is moderate (r 0.63–0.85),
+worst on La Palma, best on Lanzarote. **measured**
+
+A correction to the plan's wording: averaging a binary mask to 100 m *fractions*
+preserves total area, so the fraction grid does **not** remove coarse-pixel
+inflation — it only provides a common support for cell-by-cell comparison. Only
+surface products (GHSL, HRL, cadastre) are free of the pixel-size effect.
+
 ## 6b. The greenhouse question, answered sideways (analysis 11)
 
 43 % of Tracker's 2016 footprint has no WSF Evolution year. Roads do not explain it:
@@ -405,6 +435,26 @@ dated, 1900→2020, 100 m. WSF Evolution remains the right product for *settleme
 extent* and the only global option; the two answer different questions and the map
 must say which one it is showing.
 
+## 6d. How big is it, really? (analysis 9)
+
+Every dataset's Canary window, re-encoded the way we would publish it (GeoTIFF,
+DEFLATE, sparse blocks, overviews):
+
+| layer | size |
+|---|---:|
+| WSF Evolution 1985–2015, year first built, 30 m, **all 31 years in one file** | **0.48 MiB** |
+| WSF Tracker 2016–2026, epoch first built, 10 m, **all 20 epochs**, 8 island windows | **3.13 MiB** |
+| WSF 2015 binary, 10 m | 1.96 MiB |
+| WSF 2019 binary, 10 m | 2.46 MiB |
+| GHSL built surface 2020, 3 arcsec, m² per cell | 0.83 MiB |
+| **all of the above** | **8.9 MiB** |
+
+The complete 1985–2026 timeline for the whole archipelago at native resolution is
+**3.6 MiB**. The raw download cache is 893 MiB, but 311 MiB of that is the useless
+Global-PCG-10 and 358 MiB the HISDAC-ES municipal tables; the rasters we actually
+use total ~200 MiB. The plan's hosting argument — that no server is needed to
+display this — is confirmed by measurement. **measured**
+
 ## 7. What each dataset is good for
 
 | dataset | verdict | use it for | do not use it for |
@@ -440,7 +490,14 @@ python scripts/analysis_01_totals.py              # per-island totals
 python scripts/analysis_02_negative_controls.py   # lava control and loss test
 python scripts/analysis_07_loss_rate.py           # WSF 2015 vs 2019
 python scripts/analysis_10_wsf_tracker.py        # WSF Tracker, read from source.coop
+python scripts/analysis_11_undated_roads.py      # undated class vs OSM roads
+python scripts/analysis_12_undated_vs_crops.py   # undated class vs greenhouse/crop parcels
+python scripts/analysis_13_hrl_change.py         # Copernicus Built-Up Change 2018-2021 (needs data/raw/hrl/110241/)
+python scripts/analysis_08_cadastre.py           # WSF and Tracker vs the cadastre (HISDAC-ES)
+python scripts/analysis_03_seam_factors.py       # per-island seam factors, greenhouse-masked
+python scripts/analysis_09_sizes.py              # published-layer sizes
 python docs/figures/src/m0_results.py            # the summary figure
+python docs/figures/src/undated_pixels.py        # the undated-class map
 ```
 
 Tables are written to `docs/figures/data/m0_*.csv`.

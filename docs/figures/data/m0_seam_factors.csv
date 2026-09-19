@@ -1,0 +1,6 @@
+island,evo30,wsf15,trk_e1,trk_e1_nogh,resolution_factor,definition_factor_raw,definition_factor_masked,greenhouse_removed_km2,net_evo_to_tracker_masked,cell_jaccard_100m,cell_corr_100m
+Gran Canaria,125.52,53.35,92.33,75.43,2.35,1.73,1.41,16.91,0.6,0.534,0.768
+Tenerife,128.64,60.88,110.85,95.05,2.11,1.82,1.56,15.8,0.74,0.532,0.781
+Fuerteventura,42.07,18.04,23.72,23.26,2.33,1.31,1.29,0.46,0.55,0.491,0.789
+Lanzarote,57.92,22.61,28.11,28.07,2.56,1.24,1.24,0.04,0.48,0.614,0.85
+La Palma,18.21,7.37,14.91,11.4,2.47,2.02,1.55,3.51,0.63,0.369,0.626

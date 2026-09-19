@@ -65,7 +65,11 @@ pixels.
 **P4 — Compare areas only at a common support.** Pixel size alone changes measured
 extent by > 2× here; intercomparison work (Tsendbazar et al.; the CEOS protocol's
 treatment of continuous "built-up surface" fields) aggregates to a common grid before
-comparing. *Consequence:* cross-product statistics use the 100 m **fraction grid**.
+comparing. *Consequence:* cross-product **comparison** happens on the 100 m fraction
+grid. Correction (2026-09-19): the fraction grid does *not* remove coarse-pixel area
+inflation — averaging a mask preserves total area — it only gives a common support
+for cell-by-cell agreement. Cross-era **totals** must come from surface products
+(GHSL, Copernicus Imperviousness, cadastre), never from re-gridded extent.
 
 **P5 — Validate change with strata per epoch and reference data at both dates.** CEOS
 LPV: "for multi-year land cover maps, individual mapped years or epochs can be used as
@@ -227,9 +231,16 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   anything** — it spans 1900–2020 in one method. Whether it becomes the primary
   pre-2016 layer for the Canaries, with WSF Evolution as the global fallback, is an
   M1 decision.
-- Define the `seam` record schema in the catalog and the per-island offsets table.
-- Decide the common support for the fraction grid (100 m, aligned to GHSL's 3-arcsecond
-  grid so GHSL needs no resampling).
+- **Per-island seam factors measured (analysis 3, greenhouse mask applied):**
+  resolution ×2.11–2.56; definition ×1.24–1.56 after masking (was ×1.24–2.02 before);
+  net WSF Evolution → masked Tracker ×0.48–0.74, i.e. a 26–52 % apparent drop at the
+  join that differs by island. Common-grid agreement r 0.63–0.85, Jaccard 0.37–0.61.
+  These are the numbers the `seam` record (5.2) carries. Table in
+  `docs/data-evaluation.md` §6, data in `docs/figures/data/m0_seam_factors.csv`.
+- Define the `seam` record schema in the catalog (fields: the five extents, the three
+  factors, Jaccard, r, greenhouse km² removed, provenance).
+- Common support for comparison: GHSL's 3-arcsecond grid, so GHSL needs no
+  resampling. (Done in analysis 3.)
 
 ## Sources read for this design
 
