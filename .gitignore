@@ -16,3 +16,9 @@ service-account*.json
 
 # macOS
 .DS_Store
+
+# Downloaded source rasters and derived data (regenerable; see docs/figures/src)
+data/
+*.tif
+*.tiff
+*.zarr
