@@ -1,0 +1,11 @@
+dataset,measure,resolution_m,year,built_km2,control_km2,share_pct,control,role,infra_removed_km2,verdict
+WSF Evolution,extent,30,2015,0.0,50.67,0.0,Timanfaya NP,negative control,1.2,PASS (clean)
+WSF 2015,extent,10,2015,0.0,50.67,0.0,Timanfaya NP,negative control,1.2,PASS (clean)
+WSF 2019,extent,10,2019,0.043,50.67,0.08,Timanfaya NP,negative control,1.2,PASS (clean)
+GHSL built surface,surface,92,2015,0.004,50.67,0.01,Timanfaya NP,negative control,1.2,PASS (clean)
+GHSL built surface,surface,92,2020,0.004,50.67,0.01,Timanfaya NP,negative control,1.2,PASS (clean)
+WSF Evolution,extent,30,2015,2.652,10.36,25.57,Tajogaite lava 2021,loss test case,1.7,baseline (built-up here is correct; this is what the lava buried)
+WSF 2015,extent,10,2015,0.556,10.36,5.36,Tajogaite lava 2021,loss test case,1.7,baseline (built-up here is correct; this is what the lava buried)
+WSF 2019,extent,10,2019,0.823,10.36,7.94,Tajogaite lava 2021,loss test case,1.7,baseline (built-up here is correct; this is what the lava buried)
+GHSL built surface,surface,92,2015,0.587,10.36,5.72,Tajogaite lava 2021,loss test case,1.7,baseline (built-up here is correct; this is what the lava buried)
+GHSL built surface,surface,92,2020,0.595,10.36,5.8,Tajogaite lava 2021,loss test case,1.7,baseline (built-up here is correct; this is what the lava buried)

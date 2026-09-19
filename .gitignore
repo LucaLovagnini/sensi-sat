@@ -20,7 +20,7 @@ service-account*.json
 # Downloaded source rasters and derived data.
 # Regenerable: `python -m sensisat.datasets...` re-fetches from the public URLs
 # recorded in data/raw/manifest.json. Zone polygons are cached here too.
-data/
+/data/
 *.tif
 *.tiff
 *.zarr
