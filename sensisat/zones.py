@@ -121,9 +121,18 @@ def islands(names: list[str] | None = None) -> gpd.GeoDataFrame:
     return _save("islands", out)
 
 
+# Verified 2026-09-19 while building M0's controls, and again when this helper's
+# older query silently broke the M2 gate: "Timanfaya" alone also matches a hotel
+# and a bus stop, so the osm type filter is doing real work — and adding
+# ", Lanzarote, Spain" makes the search return NOTHING. The query below is the one
+# that resolves, to OSM relation 1157737 (boundary=national_park).
+TIMANFAYA_QUERY = "Parque Nacional de Timanfaya"
+TIMANFAYA_KEY = "timanfaya_np"
+
+
 def timanfaya() -> gpd.GeoDataFrame:
     """Timanfaya National Park, Lanzarote — a lava desert with no settlement."""
-    return nominatim_polygon("Parque Nacional de Timanfaya, Lanzarote, Spain", key="timanfaya")
+    return nominatim_polygon(TIMANFAYA_QUERY, key=TIMANFAYA_KEY, want="national_park")
 
 
 def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0) -> gpd.GeoDataFrame:
@@ -148,6 +157,7 @@ def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0) -> gpd.GeoDa
     """
     _polite_pause(2.0)
     import requests
+
     from .config import HTTP_HEADERS
     r = requests.post(OVERPASS, data={"data": query}, headers=HTTP_HEADERS, timeout=180)
     r.raise_for_status()

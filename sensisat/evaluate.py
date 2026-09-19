@@ -11,7 +11,6 @@ Inputs are a 'year first built' array (0 = never) with its transform and CRS.
 from __future__ import annotations
 
 import numpy as np
-import pandas as pd
 import rasterio
 from rasterio.warp import Resampling, reproject
 

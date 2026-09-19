@@ -6,8 +6,9 @@ readme = "README.md"
 requires-python = ">=3.11"
 license = { text = "MIT" }
 
-# Milestone 0 (local data evaluation) dependencies only.
-# Serving/catalog dependencies (pystac, titiler, ...) arrive with M2/M4.
+# Milestones 0-2: local data evaluation, then the local processing pipeline.
+# Serving dependencies (titiler, uvicorn, ...) are not needed until M4 — M2's
+# output is a folder of static files, and nothing serves them yet.
 dependencies = [
     "numpy>=1.26",
     "pandas>=2.0",
@@ -19,14 +20,22 @@ dependencies = [
     "scipy>=1.11",          # morphology helpers for change maps / flicker filtering
     "matplotlib>=3.8",
     "pillow>=10.0",
+    "pyproj>=3.6",          # municipality extents come in UTM and must reach lon/lat
+    "pystac>=1.10",         # M2: the STAC catalogue
+    "rio-cogeo>=5.0",       # M2: valid COG writing, not just GeoTIFF + overviews
 ]
 
 [project.optional-dependencies]
 # WSF Tracker ships as GeoZarr (Zarr v3) on an S3-compatible endpoint.
 zarr = ["xarray>=2024.1", "zarr>=3.0", "fsspec>=2024.1", "s3fs>=2024.1", "aiohttp>=3.9"]
-# Cloud-Optimized GeoTIFF creation and validation (analysis 9: real file sizes).
-cog = ["rio-cogeo>=5.0"]
-dev = ["pytest>=8.0", "ruff>=0.5", "jupyterlab>=4.0", "nbformat>=5.9"]
+# fastapi is a TEST dependency, not a runtime one. Decision 7 says the per-zone
+# statistics must have exactly one implementation, shared by the batch build and by
+# a future web API. tests/test_api_parity.py stands up a throwaway route to prove
+# the two callers return byte-identical JSON; nothing in sensisat/ imports fastapi.
+dev = [
+    "pytest>=8.0", "ruff>=0.5", "jupyterlab>=4.0", "nbformat>=5.9",
+    "fastapi>=0.110", "httpx>=0.27", "stac-validator>=3.3",
+]
 
 [build-system]
 requires = ["setuptools>=68"]

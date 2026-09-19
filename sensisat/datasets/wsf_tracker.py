@@ -26,8 +26,6 @@ License: CC BY 4.0. Source: https://source.coop/mindearth/wsf
 
 from __future__ import annotations
 
-
-
 import numpy as np
 from rasterio.transform import Affine
 

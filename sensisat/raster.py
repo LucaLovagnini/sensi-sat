@@ -141,25 +141,68 @@ def iou(a: np.ndarray, b: np.ndarray) -> float:
 
 
 def write_cog(path: Path, arr: np.ndarray, transform: Affine, crs, *,
-              nodata=0, compress: str = "deflate", predictor: int = 2) -> Path:
-    """Write a sparse, tiled, overview-bearing GeoTIFF the way we would publish it.
+              nodata=0, compress: str = "deflate", predictor: int = 2,
+              band_descriptions: list[str] | None = None, tags: dict | None = None,
+              resampling: Resampling = Resampling.nearest) -> Path:
+    """Write a sparse, tiled, overview-bearing Cloud-Optimized GeoTIFF.
+
+    Accepts a 2D array (one band) or a 3D array shaped (bands, height, width), so a
+    year layer can ship its provenance band, and a trend layer its epochs, inside
+    one file that the viewer fetches once.
+
+    **Why this goes through GDAL's COG driver rather than adding overviews to a
+    plain GeoTIFF.** A COG is not just a GeoTIFF with overviews in it - the *order
+    of the bytes* is the whole point. A reader on the other side of an HTTP range
+    request has to be able to fetch the header, learn the layout, and then ask for
+    exactly the tiles it needs. That requires the overviews to be laid out before
+    the full-resolution image. Building overviews in place after writing leaves
+    them at the end, and `rio cogeo validate --strict` rejects the result with "the
+    offset of the first block of the main resolution image should be after the one
+    of the overview of index 4" - which is precisely the failure this replaced.
 
     SPARSE_OK means all-nodata blocks (i.e. ocean) cost no bytes; without it the
-    ocean around an island dominates the file. Overviews are built with nearest
-    resampling because the values are categorical.
+    ocean around an island dominates the file. Overviews default to nearest
+    resampling because most of our values are categorical - a year, an epoch, a
+    class code - and averaging them would invent values nothing measured. Pass
+    `resampling=Resampling.average` for the genuinely continuous layers.
     """
+    from rasterio.io import MemoryFile
+    from rio_cogeo.cogeo import cog_translate
+
     path = Path(path)
     path.parent.mkdir(parents=True, exist_ok=True)
-    profile = {
-        "driver": "GTiff", "height": arr.shape[0], "width": arr.shape[1], "count": 1,
-        "dtype": arr.dtype.name, "crs": crs, "transform": transform, "nodata": nodata,
-        "tiled": True, "blockxsize": 256, "blockysize": 256,
+    stack = arr if arr.ndim == 3 else arr[np.newaxis, ...]
+    count, height, width = stack.shape
+
+    src_profile = {
+        "driver": "GTiff", "height": height, "width": width, "count": count,
+        "dtype": stack.dtype.name, "crs": crs, "transform": transform, "nodata": nodata,
+    }
+    dst_profile = {
+        "driver": "GTiff", "tiled": True, "blockxsize": 256, "blockysize": 256,
         "compress": compress, "predictor": predictor, "SPARSE_OK": True,
     }
-    with rasterio.open(path, "w", **profile) as dst:
-        dst.write(arr, 1)
-        dst.build_overviews([2, 4, 8, 16, 32], Resampling.nearest)
-        dst.update_tags(ns="rio_overview", resampling="nearest")
+    with MemoryFile() as memfile:
+        with memfile.open(**src_profile) as tmp:
+            tmp.write(stack)
+            if band_descriptions:
+                for i, description in enumerate(band_descriptions, 1):
+                    tmp.set_band_description(i, description)
+            if tags:
+                tmp.update_tags(**{k: str(v) for k, v in tags.items()})
+        with memfile.open() as src:
+            cog_translate(
+                src, path, dst_profile,
+                overview_resampling=resampling.name,
+                forward_band_tags=True,
+                use_cog_driver=True,
+                quiet=True,
+            )
+
+    # Band descriptions and tags are set on the in-memory source above and survive
+    # the translate (verified). They cannot be added afterwards: GDAL refuses to
+    # reopen a finished COG for writing, because editing it would break the byte
+    # layout that makes it a COG at all.
     return path
 
 
