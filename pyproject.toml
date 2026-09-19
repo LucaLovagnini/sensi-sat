@@ -47,10 +47,25 @@ include = ["sensisat*"]
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+# The GEE notebooks are kept as history, not as live code: Dynamic World was
+# disqualified in M0 and nothing in sensisat/ touches Earth Engine. They are
+# preserved unmodified, so they are not linted.
+extend-exclude = ["geeLocalTesting"]
 
 [tool.ruff.lint]
 select = ["E", "F", "I", "UP", "B"]
 ignore = ["E501"]  # long lines are tolerated in data tables and URLs
+
+[tool.ruff.lint.per-file-ignores]
+# The M0 analysis scripts are deliberately dense one-off notebooks-as-scripts, and
+# their job is to have produced every published number reproducibly. Reformatting
+# them buys nothing and risks the one thing they are for, so the layout rules are
+# relaxed there rather than the scripts being rewritten. Everything in sensisat/,
+# scripts/build.py, scripts/verify_m2.py and tests/ is held to the full set.
+"scripts/analysis_*.py" = ["E401", "E402", "E701", "E702", "F401", "F541", "I001", "B905"]
+# The figure sources are the same kind of artefact: each one produced a specific
+# published figure and is kept so that figure stays reproducible.
+"docs/figures/src/*.py" = ["E401", "E402", "E701", "E702", "F401", "F541", "I001", "B905", "B007"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

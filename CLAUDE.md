@@ -61,7 +61,7 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 pip install -e ".[zarr,dev]"
 python scripts/build.py --all       # 7 layers x 8 islands -> data/processed/
 python scripts/verify_m2.py
-pytest && ruff check sensisat/ scripts/ tests/
+pytest && ruff check .          # M0 analysis scripts have relaxed layout rules
 ```
 
 ## Things that are easy to get wrong here
