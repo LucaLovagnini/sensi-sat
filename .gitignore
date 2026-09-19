@@ -1,4 +1,4 @@
-# Cached OSM/Nominatim/Overpass responses — regenerable, ~49MB
+# Cached OSM/Nominatim/Overpass responses from the early prototype
 geeLocalTesting/cache/
 
 # Jupyter
@@ -17,8 +17,11 @@ service-account*.json
 # macOS
 .DS_Store
 
-# Downloaded source rasters and derived data (regenerable; see docs/figures/src)
+# Downloaded source rasters and derived data.
+# Regenerable: `python -m sensisat.datasets...` re-fetches from the public URLs
+# recorded in data/raw/manifest.json. Zone polygons are cached here too.
 data/
 *.tif
 *.tiff
 *.zarr
+*.parquet

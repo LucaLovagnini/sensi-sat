@@ -1,0 +1,47 @@
+[project]
+name = "sensisat"
+version = "0.1.0"
+description = "Urban expansion in the Canary Islands from open satellite and cadastral datasets"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+# Milestone 0 (local data evaluation) dependencies only.
+# Serving/catalog dependencies (pystac, titiler, ...) arrive with M2/M4.
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "requests>=2.31",
+    "rasterio>=1.3",
+    "shapely>=2.0",
+    "geopandas>=1.0",
+    "pyogrio>=0.7",         # fast vector I/O backend for geopandas
+    "scipy>=1.11",          # morphology helpers for change maps / flicker filtering
+    "matplotlib>=3.8",
+    "pillow>=10.0",
+]
+
+[project.optional-dependencies]
+# WSF Tracker ships as GeoZarr (Zarr v3) on an S3-compatible endpoint.
+zarr = ["xarray>=2024.1", "zarr>=3.0", "fsspec>=2024.1", "s3fs>=2024.1", "aiohttp>=3.9"]
+# Cloud-Optimized GeoTIFF creation and validation (analysis 9: real file sizes).
+cog = ["rio-cogeo>=5.0"]
+dev = ["pytest>=8.0", "ruff>=0.5", "jupyterlab>=4.0", "nbformat>=5.9"]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["sensisat*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # long lines are tolerated in data tables and URLs
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
