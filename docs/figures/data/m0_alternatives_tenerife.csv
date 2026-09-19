@@ -1,0 +1,5 @@
+product,km2_1985,km2_1990,km2_2000,km2_2010,km2_2015,km2_2019,growth_pct,island,year,cells_with_building,recall_pct,never_flagged_pct,precision_any_building_pct,flagged_cells,km2_2020
+GISA v1 1972-2019 (30 m),0.0,0.0,0.0,0.0,0.0,0.0,,Tenerife,1990,25745,0.0,100.0,0.0,0,
+GISD30 1985-2020 (30 m),13.45,21.28,28.41,33.59,34.85,,165.7,Tenerife,1990,25745,15.3,78.3,62.4,8122,35.73
+WSF Evolution (30 m),115.62,116.79,122.09,126.48,128.64,,11.3,Tenerife,1990,25745,52.5,46.2,68.4,25228,
+GAIA 1985-2018 (30 m),14.8,14.8,14.8,14.8,15.76,,6.5,Tenerife,1990,25745,9.4,90.0,66.3,4772,

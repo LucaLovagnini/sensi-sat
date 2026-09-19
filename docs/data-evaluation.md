@@ -463,11 +463,60 @@ its 1990 built surface lies on cells with no cadastral building, and its surface
 exceeds the cadastral footprint by 1.3–2.5× on most islands. GHSL sees more and
 smears it; WSF sees less and sharper. Neither is a *buildings* map. **measured**
 
+**Can the raw cadastre be turned into a 10 m dated layer? Yes — demonstrated.**
+The INSPIRE Buildings feed for Santa Lucía de Tirajana (Vecindario; one zip of
+6.4 MiB from the province-35 ATOM feed) holds 12,481 building polygons in EPSG:32628,
+**98.7 % with a construction date**, readable with GeoPandas and rasterised by year
+onto Tracker's 10 m grid in seconds; the resulting year-first-built COG for the
+municipality is 58 KiB. On that grid:
+
+| | km² |
+|---|---:|
+| cadastral building footprints, any year | 2.32 |
+| footprints built by 1985 / by 2016 | 1.07 / 2.29 |
+| WSF Tracker built-up by 2016-07 | 18.61 |
+| WSF Evolution, any year | 22.35 |
+
+Footprints are ~12 % of the *extent* products — yards, streets and plots make up the
+rest, as they should. Recall is high where settlement is dense: Tracker covers
+**88.6 %** of the 2016 footprints and WSF Evolution **85.0 %** of the pre-1985 ones in
+this town, against ~50 % for WSF island-wide — the dispersed-building gap is a rural
+phenomenon. And only **3.0 %** of Tracker's undated pixels here fall on a building
+footprint: in Vecindario the undated class is the greenhouse belt, as the map showed.
+Scaling to all 88 Canary municipalities is ~500 MiB of downloads and minutes of
+processing. **measured**
+
 **Verdict.** The cadastre is the strongest reference we have for *buildings* in the
 Canaries, and a serious candidate for the pre-2016 "when" layer in Spain — 98.5 %
 dated, 1900→2020, 100 m. WSF Evolution remains the right product for *settlement
 extent* and the only global option; the two answer different questions and the map
 must say which one it is showing.
+
+## 6c′. The other global candidates, through the same test (analysis 15)
+
+Every remaining global "year first built" product was put through one harness
+(`sensisat/evaluate.py`): extent by year on Gran Canaria, and the cadastre cell test
+at 1990 — recall = share of 100 m cells with a building dated ≤ 1990 that the product
+flags by 1990; precision = share of the cells it flags that contain any building.
+
+| product | source | GC extent 1990 → 2015 | growth | recall | precision | verdict |
+|---|---|---:|---:|---:|---:|---|
+| **WSF Evolution** (30 m, 1985–2015) | DLR | 112.7 → 125.5 | +11 % | **47.0 %** | **59.8 %** | reference |
+| GAIA (30 m, 1985–2018) | Tsinghua, via GEE (host migrated) | 67.0 → 70.0 | +4 %; **flat for 25 years** | 27.7 % | 54.0 % | **NO-GO** |
+| GISA v1 (30 m, 1972–2019) | Zenodo | 36.3 → 102.3 | +181 %, era-shaped jumps; **no data at all on Tenerife** | 13.6 % | 47.1 % | **NO-GO** |
+| GISA-new (30 m, 1985–2021) | Zenodo | 69.0 → 136.6 | +98 %, jumps at 2005/2015; 157 km² in 2020 | 41.0 % | 55.8 % | **NO-GO** |
+| GISD30 (30 m, 1985–2020) | Zenodo (RAR) | 37.8 → 51.4 | +36 %, smooth | 25.6 % | 64.7 % | **NO-GO** as a replacement; usable as a cross-check |
+| GHSL built surface (~92 m, 1975–2030) | JRC | surface, not extent | +58 % | 80.6 % (≥ 100 m²/cell) | ~62 % of surface on building cells | keep, as *surface* (§6c) |
+| Esri / IO annual LULC "Built area" (10 m, 2017–2023) | Planetary Computer, no login | 284.9 (2017) → 288.0 (2023); **2019 spikes to 313.8** | year-to-year "loss" 2.6–11.8 %/yr — flicker | 82.6 % (2017) | 54.5 % | **NO-GO**: Dynamic-World-scale inflation and unusable as a state series |
+
+Tenerife confirms the pattern: GAIA 14.8 km² flat, recall 9 %; GISD30 recall 15 %;
+GISA v1 returns zero pixels for the whole island. **No global product beats WSF
+Evolution on both recall and precision.** The two that see dispersed buildings — GHSL
+and Esri — pay for it with smeared or inflated area; the 30 m Landsat products share
+WSF's detectability limit and add method artefacts of their own. **measured**
+
+The candidate list for the pre-2016 era is therefore closed: **WSF Evolution for
+settlement extent (global), the cadastre for buildings (Spain), GHSL for surface.**
 
 ## 6d. How big is it, really? (analysis 9)
 
@@ -494,7 +543,9 @@ display this — is confirmed by measurement. **measured**
 | dataset | verdict | use it for | do not use it for |
 |---|---|---|---|
 | **WSF Evolution** (30 m, 1985–2015) | **GO, as "settlement detected by year"** | the 1985–2015 *settlement* extent timeline; the only annual global series | dispersed rural buildings (misses ~half the cells with a pre-1985 building, 89 % on La Gomera); "built in year X" semantics (its year trails the cadastre's); loss; comparison with 10 m products |
-| **HISDAC-ES / cadastre** (100 m, 1900–2020) | **GO** | building-level truth for the Canaries (98.5 % dated); the pre-2016 "when" layer candidate for Spain; a third surface series across the seam | roads and infrastructure (not in the cadastre); demolished buildings (vanish); anywhere outside Spain |
+| **HISDAC-ES / cadastre** (100 m, 1900–2020; raw INSPIRE footprints at 10 m) | **GO** | building-level truth for the Canaries (98.5 % dated); the pre-2016 "when" layer candidate for Spain (10 m rasterisation demonstrated, §6c); a third surface series across the seam | roads and infrastructure (not in the cadastre); demolished buildings (vanish); anywhere outside Spain |
+| GAIA, GISA v1, GISA-new, GISD30 (30 m Landsat, global) | **NO-GO** | GISD30 only as a cross-check | replacing WSF Evolution — none beats it on recall and precision; GAIA is flat for 25 years, GISA v1 has no Tenerife, GISA-new jumps with sensor eras (§6c′) |
+| Esri / Impact Observatory annual LULC (10 m, 2017–2023) | **NO-GO** | — | anything: 285–314 km² on Gran Canaria (Dynamic-World scale), 3–12 %/yr flicker between years (§6c′) |
 | **GHSL built surface** (~92 m, 1975–2020) | **GO** | surface/density; 1975–1985 context; the only pre-1985 source in hand | extent; sub-100 m detail; loss (non-decreasing by construction) |
 | **WSF 2019** (10 m) | **GO, as a snapshot** | one accurate modern extent figure; validating a 10 m footprint | any time series with WSF 2015 |
 | **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |
