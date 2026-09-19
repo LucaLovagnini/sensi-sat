@@ -429,6 +429,40 @@ takes the rebuild's date — and the near-flat 2015→2020 (+0.8 %) is registrat
 as much as a slowdown. Three products, three definitions, growth rates from +36 % to
 +70 % for the same islands and years.
 
+**What is the no-building third made of?** (analysis 14, Gran Canaria). Of the
+33.45 km² of WSF's 1985 baseline that sits in cells with no cadastral building:
+
+| explanation | share | cumulative |
+|---|---:|---:|
+| within 15 m of an OpenStreetMap road | 43.3 % | 43.3 % |
+| airport, port, industrial, quarry, marina, golf (OSM) | +7.8 % | 51.1 % |
+| greenhouse parcels (crop map) | +3.5 % | 54.6 % |
+| other agricultural parcels | +7.4 % | 62.0 % |
+| **unexplained — candidate bare-soil commission** | **38.0 % = 12.7 km²** | |
+
+Roads and infrastructure — built-up under our definition, invisible to the cadastre
+— account for half. The unexplained 12.7 km² is **11.6 % of the whole 1985
+baseline** on Gran Canaria and becomes its own stratum in the M3 sample. **measured**
+
+**Is GHSL any better at seeing buildings?** Same cell test, GHSL 1990 against cells
+with a building dated ≤ 1990, with a minimum surface per 100 m cell so that
+interpolation smear does not count:
+
+| island | GHSL ≥ 1 m² | GHSL ≥ 100 m² | GHSL ≥ 500 m² | WSF Evo (any pixel ≤ 1990) | GHSL surface on cells with a building |
+|---|---:|---:|---:|---:|---:|
+| Tenerife | 99 % | 91 % | 55 % | 53 % | 65 % |
+| Gran Canaria | 97 % | 81 % | 39 % | 47 % | 62 % |
+| Lanzarote | 99 % | 81 % | 27 % | 59 % | 62 % |
+| Fuerteventura | 97 % | 73 % | 21 % | 21 % | 51 % |
+| La Palma | 96 % | 82 % | 41 % | 29 % | 70 % |
+| La Gomera | 94 % | 75 % | 33 % | 11 % | 66 % |
+
+GHSL *does* register dispersed buildings that WSF misses — at ≥ 100 m² per cell its
+recall is 73–91 % against WSF's 11–59 % — but it pays for it in precision: 30–49 % of
+its 1990 built surface lies on cells with no cadastral building, and its surface
+exceeds the cadastral footprint by 1.3–2.5× on most islands. GHSL sees more and
+smears it; WSF sees less and sharper. Neither is a *buildings* map. **measured**
+
 **Verdict.** The cadastre is the strongest reference we have for *buildings* in the
 Canaries, and a serious candidate for the pre-2016 "when" layer in Spain — 98.5 %
 dated, 1900→2020, 100 m. WSF Evolution remains the right product for *settlement
