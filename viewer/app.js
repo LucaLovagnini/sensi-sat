@@ -17,6 +17,7 @@ import View from 'ol/View.js';
 import TileLayer from 'ol/layer/Tile.js';
 import WebGLTileLayer from 'ol/layer/WebGLTile.js';
 import XYZ from 'ol/source/XYZ.js';
+import TileWMS from 'ol/source/TileWMS.js';
 import GeoTIFF from 'ol/source/GeoTIFF.js';
 
 
@@ -80,7 +81,7 @@ const LAYERS = {
 const el = (id) => document.getElementById(id);
 const status = (msg, bad) => { const s = el('status'); s.textContent = msg; s.classList.toggle('error', !!bad); };
 
-const state = { catalog: null, stats: null, island: null, layer: 'buildings-dated', mode: 'state', year: 2020, playing: null };
+const state = { catalog: null, stats: null, island: null, layer: 'buildings-dated', mode: 'state', year: 2020, basemap: 'light', playing: null };
 
 /* ---------------------------------------------------------------- catalogue */
 async function json(url) {
@@ -200,28 +201,108 @@ function variables() {
 
 /* ---------------------------------------------------------------------- map */
 /**
- * Basemaps. Esri's, because the project already uses them to render its figures
- * and they need no API key — CARTO's tiles now watermark themselves asking for one.
- * Light grey is the better backdrop for reading an overlay; the satellite view is
- * what you switch to when you want to check whether a flagged pixel is really a
- * building.
+ * Basemaps.
+ *
+ * Two of these are aerial photography, and that is the point: the fastest way to
+ * tell whether a flagged pixel is a real building — or whether a real building was
+ * missed — is to look at a photograph of the ground.
+ *
+ * **PNOA** is Spain's national orthophoto programme at 12–25 cm, an order of
+ * magnitude sharper than the global satellite mosaics, and it is served natively
+ * in EPSG:4326, so it needs no reprojection and stays crisp. It is also the exact
+ * imagery M3's accuracy assessment will be interpreted from, which means checking
+ * a layer against it here is checking it against the reference.
+ *
+ * **PNOA at the slider year** is the one worth knowing about. The historical
+ * service publishes a separate layer per year, PNOA2004 to PNOA2024, so the
+ * photograph underneath can follow the time slider: set the year to 2010 and you
+ * are comparing what we say was built by 2010 against what the aeroplane saw in
+ * 2010. Outside that range it clamps to the nearest available year and says so.
+ *
+ * Esri's global mosaic stays as the fallback that works outside Spain, which
+ * matters the day this is pointed at anywhere else.
  */
+const PNOA_FIRST_YEAR = 2004;
+const PNOA_LAST_YEAR = 2024;
+
 const BASEMAPS = {
   light: {
-    title: 'Light',
+    title: 'Map', kind: 'xyz',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/Canvas/World_Light_Gray_Base/MapServer/tile/{z}/{y}/{x}',
     attributions: 'Tiles © Esri',
   },
+  pnoa: {
+    title: 'Aerial', kind: 'wms',
+    url: 'https://www.ign.es/wms-inspire/pnoa-ma',
+    layers: 'OI.OrthoimageCoverage',
+    attributions: 'PNOA © Instituto Geográfico Nacional de España',
+  },
+  pnoaYear: {
+    title: 'Aerial by year', kind: 'wms-year',
+    url: 'https://www.ign.es/wms/pnoa-historico',
+    attributions: 'PNOA histórico © Instituto Geográfico Nacional de España',
+  },
   satellite: {
-    title: 'Satellite',
+    title: 'Satellite', kind: 'xyz',
     url: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
     attributions: 'Imagery © Esri, Maxar, Earthstar Geographics',
   },
 };
 
+/** The PNOA year actually available for a requested year, clamped to the archive. */
+function pnoaYearFor(year) {
+  return Math.max(PNOA_FIRST_YEAR, Math.min(PNOA_LAST_YEAR, Math.round(year)));
+}
+
 function basemapSource(key) {
   const b = BASEMAPS[key];
-  return new XYZ({url: b.url, attributions: b.attributions, maxZoom: 19, crossOrigin: 'anonymous'});
+  if (b.kind === 'xyz') {
+    return new XYZ({url: b.url, attributions: b.attributions, maxZoom: 19, crossOrigin: 'anonymous'});
+  }
+  const layers = b.kind === 'wms-year' ? `PNOA${pnoaYearFor(activeYear())}` : b.layers;
+  // No `serverType`. It makes OpenLayers send GeoServer vendor parameters and ask
+  // for hi-dpi tiles, and IGN does not run GeoServer — every tile request then
+  // fails, with nothing in the console to say so.
+  const source = new TileWMS({
+    url: b.url, attributions: b.attributions, crossOrigin: 'anonymous',
+    params: {LAYERS: layers, FORMAT: 'image/jpeg'},
+    transition: 250, ratio: 1,
+  });
+  source.on('tileloaderror', () => {
+    el('basemap-note').textContent = 'Aerial imagery unavailable here — PNOA covers Spain only.';
+  });
+  return source;
+}
+
+/** The basemap layer, looked up from the map rather than held in a variable. */
+function baseLayer() {
+  return map.getLayers().item(0);
+}
+
+/** Which basemap is selected — read from the lit button, the thing the user can see. */
+function activeBasemap() {
+  return document.querySelector('#basemaps button.on')?.dataset.base ?? 'light';
+}
+
+/** The year the aerial photograph should show: whatever the slider points at. */
+function activeYear() {
+  const def = LAYERS[state.layer];
+  if (!def || !['year', 'epoch', 'trend'].includes(def.kind)) return PNOA_LAST_YEAR;
+  return sliderYear();
+}
+
+/** Keep the year-following aerial in step with the slider. */
+function syncBasemapYear() {
+  if (activeBasemap() !== 'pnoaYear') return;
+  const wanted = `PNOA${pnoaYearFor(activeYear())}`;
+  const source = baseLayer().getSource();
+  if (source?.getParams && source.getParams().LAYERS !== wanted) {
+    source.updateParams({LAYERS: wanted});
+  }
+  const shown = pnoaYearFor(activeYear());
+  el('basemap-note').textContent = shown === Math.round(activeYear())
+    ? `Aerial photograph from ${shown}.`
+    : `Aerial photograph from ${shown} — PNOA only covers ${PNOA_FIRST_YEAR}–${PNOA_LAST_YEAR}.`;
 }
 
 const base = new TileLayer({source: basemapSource('light')});
@@ -411,16 +492,26 @@ function init(catalog, stats) {
     b.onclick = () => {
       basemapBox.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
       b.classList.add('on');
-      base.setSource(basemapSource(b.dataset.base));
+      state.basemap = b.dataset.base;
+      el('basemap-note').textContent = '';
+      baseLayer().setSource(basemapSource(b.dataset.base));
+      syncBasemapYear();
+      map.renderSync();
     };
   });
 
   islandSel.onchange = () => { state.island = islandSel.value; showLayer(); };
   layerSel.onchange = () => setLayer(layerSel.value);
 
-  document.querySelectorAll('.modes button').forEach((b) => {
+  // Scoped to #viewmodes, NOT to `.modes button`. The basemap switcher reuses the
+  // `.modes` class for its styling, so the broad selector matched those buttons too
+  // and this loop overwrote their click handlers — clicking "Aerial" ran the
+  // view-mode handler, which lit the button, left the basemap untouched, and set
+  // state.mode to undefined. Style classes must never be used as behaviour selectors.
+  const viewModes = el('viewmodes');
+  viewModes.querySelectorAll('button').forEach((b) => {
     b.onclick = () => {
-      document.querySelectorAll('.modes button').forEach((x) => x.classList.remove('on'));
+      viewModes.querySelectorAll('button').forEach((x) => x.classList.remove('on'));
       b.classList.add('on');
       state.mode = b.dataset.mode;
       syncTimeControls(); restyle(); renderLegend();
@@ -436,6 +527,7 @@ function init(catalog, stats) {
     else state.year = value;
     el('year-out').textContent = value;
     el('mode-note').textContent = modeNote();
+    syncBasemapYear();
     restyle(); renderLegend();
   };
 
