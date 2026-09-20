@@ -368,7 +368,9 @@ LAYERS: dict[str, LayerSpec] = {
     "buildings-dated": LayerSpec(
         "buildings-dated", "Buildings, dated by the cadastre", "extent", "year first built", 10,
         ["Catastro INSPIRE Buildings"], _buildings_dated,
-        "Every building the Spanish register knows about, carrying the year it was built, "
+        "Every building the Spanish register knows about, carrying the year it was built "
+        "OR COMPREHENSIVELY REBUILT — the Catastro resets the year on a reforma "
+        "integral, so a 1970 house rebuilt in 2019 reads as 2019. "
         "1900-2020. Sees dispersed rural buildings satellites miss; blind to roads, ports "
         "and anything demolished before today.",
         start="1900-01-01", end="2020-12-31",

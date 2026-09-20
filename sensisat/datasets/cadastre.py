@@ -148,18 +148,39 @@ def fetch_all(*, quiet: bool = True, progress: bool = True) -> list[tuple[str, P
 def buildings(code: str, *, columns=("beginning", "conditionOfConstruction", "end")):
     """Buildings of one municipality as a GeoDataFrame, with an integer `year`.
 
-    `beginning` is the INSPIRE construction date, an ISO timestamp. Buildings with
-    no parseable date keep year 0 and become the UNDATED class, never a guess.
-    Dates before 1900 are clamped to 1900: they are real, but they are also the
-    range where the register is least reliable, and the published HISDAC-ES
-    derivative starts at 1900 too, so clamping keeps the two comparable.
+    **What the year actually means** (established 2026-09-20 against the Catastro's
+    own methodology, not inferred). It is NOT the year the building went up. The
+    Direccion General del Catastro defines it verbatim as:
 
-    Two fields invite misreading, so both were checked against the raw feed for
-    Santa Lucia de Tirajana rather than assumed:
+        "Fecha de finalizacion de la construccion que consta en la base de datos
+         catastral. En el supuesto de rehabilitacion integral de una construccion,
+         la fecha de finalizacion de dicha rehabilitacion tiene la consideracion de
+         fecha de construccion."
 
-    - `end` is *not* a demolition date. It is the end of the construction period,
-      and it equals `beginning` for 67 % of rows. Nothing here uses it to retire a
-      building; the register simply omits what no longer stands.
+    A comprehensive rehabilitation RESETS the year, and the Catastro's own published
+    map from this field is titled "Fecha de construccion o reforma integral". So a
+    1970 house rebuilt in 2019 is a 2019 building here. This is correct for the
+    register's purpose, which is taxation, and it is the measured cause of M3's
+    finding that a quarter to a third of what we date 2016-2024 was already standing
+    in 2015. See `docs/data-evaluation.md` and `scripts/analysis_20_*`.
+
+    `beginning` is an ISO timestamp. Buildings with no parseable date keep year 0
+    and become the UNDATED class, never a guess. Dates before 1900 are clamped to
+    1900: they are real, but they are also the range where the register is least
+    reliable, and the published HISDAC-ES derivative starts at 1900 too, so
+    clamping keeps the two comparable.
+
+    Two fields invite misreading, so both were checked against the raw feed:
+
+    - `end` is *not* a demolition date, and it is *not* the end of a construction
+      period either -- an earlier version of this docstring said so and was wrong.
+      A Building here is a container of several CONSTRUCTION UNITS; per the INSPIRE
+      dataset specification, `beginning` carries the oldest unit's date and `end`
+      the newest. Measured across the feed the gap reaches 213 years, which no
+      construction period explains. **Taking `beginning` is therefore right**: it is
+      the oldest date the register still holds, so it is the least
+      rehabilitation-contaminated estimate available. Nothing here uses `end` to
+      retire a building; the register simply omits what no longer stands.
     - the 163 undated rows (1.3 %) are undated because their dates are malformed -
       `--01-01T00:00:00` with no year at all, or `88-01-01T00:00:00`, which could
       be 1888 or 1988. A two-digit year is ambiguous, so it stays UNDATED instead

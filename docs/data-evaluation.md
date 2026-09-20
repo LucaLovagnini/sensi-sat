@@ -774,3 +774,133 @@ Nothing in the published data. These are the register's own values, and
 substituting different ones would be inventing them. The viewer warns when the
 slider sits below 1980, and names the year when it sits on one of the ten major
 buckets.
+
+## 11. What the cadastre's construction year actually means (analysis 20)
+
+Established 2026-09-20, after M3 found that a quarter to a third of the buildings
+our map dates 2016–2024 were already standing in 2015. That looked like a data
+quality problem. It is not. **The field does not mean what this project assumed**,
+and the Dirección General del Catastro says so in its own methodology:
+
+> *"Fecha de construcción. Fecha de finalización de la construcción que consta en la
+> base de datos catastral. **En el supuesto de rehabilitación integral de una
+> construcción, la fecha de finalización de dicha rehabilitación tiene la
+> consideración de fecha de construcción.**"*
+>
+> — "In the event of comprehensive rehabilitation of a construction, the completion
+> date of that rehabilitation **is considered to be the date of construction**."
+
+The thematic map the Catastro itself publishes from this field is titled
+**"Fecha de construcción o reforma integral"** — *date of construction or
+comprehensive renovation*. A *reforma integral* is defined quantitatively: works
+meeting the planning definition of rehabilitation, or costing **more than 75 %** of
+what the same building would cost to build new.
+
+So a 1970 house comprehensively rebuilt in 2019 is a **2019 building** to the
+Catastro. That is correct for the register's purpose, which is taxation and
+valuation, and wrong only for ours. **M3 did not find an error. It measured a
+definition.**
+
+### A Building is a container of construction units
+
+The INSPIRE dataset specification is explicit:
+
+> *"the values are the dates of construction of each construction unit, if more
+> than one in the field 'beginning' it includes the oldest and field 'end' the
+> latest"*
+
+So `dateOfConstruction` is not an instant but a pair spanning a building's units.
+Measured across all 88 Canary feeds (474,292 buildings, 469,189 dated):
+
+| | |
+|---|---:|
+| `beginning` ≠ `end` | **100,404 (21.40 %)** |
+| of those, `end` later than `beginning` | 100,404 (**100 %**) |
+| gap in years: median / 90th pct / max | 23 / 66 / **1000** |
+| date not on 1 January | 0 (0.00 %) |
+
+`end` is always the later date, and the gap reaches a thousand years — so the
+earlier docstring in `datasets/cadastre.py`, which called it "the end of the
+construction period", was wrong. Nothing is built over a thousand years. It is the
+newest unit's date.
+
+**This confirms that taking `beginning` is the right choice** and was not merely a
+convenient one: it is the oldest date the register still holds, and therefore the
+least rehabilitation-contaminated estimate available. Using `end` would have made
+the layer substantially *more* wrong.
+
+### What cannot be recovered
+
+For the 78.6 % of buildings where `beginning` equals `end` — one construction unit,
+or several sharing a year — a comprehensive rehabilitation has overwritten the
+original date and **nothing in the feed can recover it**. There is no
+`dateOfRenovation`: INSPIRE defines one, Spain does not publish it. The fields
+available are `beginning`, `end`, `conditionOfConstruction`, `beginLifespanVersion`,
+`currentUse`, `numberOfDwellings`, `numberOfFloorsAboveGround` and `officialArea`.
+
+### A test that failed, and why it is worth recording
+
+`beginLifespanVersion` is the moment this version of the record entered the
+database, so a record version cannot predate the building it describes. A building
+"constructed" in 2019 sitting on a 2005 record version would be direct evidence of
+an overwritten date. Measured: **163 of 469,189 (0.03 %)**, and 22 of 6,880 among
+buildings dated 2016 or later.
+
+The test finds nothing because it cannot: when a rehabilitation rewrites the
+construction year it also creates a new record version, so both fields move
+together. The absence of signal here is not evidence that dates are sound.
+
+### Round-year placeholders, measured across the whole archipelago
+
+Eight years hold **32.7 %** of all dated buildings:
+
+| year | buildings | share | vs its neighbours |
+|---|---:|---:|---:|
+| 1960 | 25,143 | 5.36 % | 14.0× |
+| 1970 | 25,051 | 5.34 % | 7.3× |
+| 1980 | 24,907 | 5.31 % | 5.5× |
+| **1900** | 20,136 | 4.29 % | **442.5×** |
+| 1950 | 16,745 | 3.57 % | 28.4× |
+| 1975 | 14,798 | 3.15 % | 4.2× |
+| 2000 | 14,739 | 3.14 % | 2.1× |
+| 1990 | 11,828 | 2.52 % | 2.4× |
+
+1900 is the clamp floor and behaves like one. Note that 1990 and 2000 appear here
+too at 2.1–2.4×, which §10 did not report: the rounding habit weakens after 1980
+but does not stop.
+
+### It depends on what the building is
+
+| use | buildings | dated | on a round year |
+|---|---:|---:|---:|
+| agriculture | 34,416 | 99.9 % | **39.7 %** |
+| public services | 6,723 | 100.0 % | 39.7 % |
+| industrial | 25,589 | 100.0 % | 36.9 % |
+| residential | 387,807 | 100.0 % | 31.8 % |
+| retail | 10,628 | 100.0 % | 26.8 % |
+| office | 1,847 | 100.0 % | **24.4 %** |
+| *(no use recorded)* | 7,282 | **32.1 %** | 47.3 % |
+
+Agricultural buildings are the worst dated and offices the best, which fits how
+each reaches the register. The 7,282 rows with no recorded use are the weakest of
+all: only a third carry any date, and half of those sit on a round year.
+
+Also available and unused: `conditionOfConstruction` marks **17,255 buildings as
+`declined` and 1,829 as `ruin`** (4.1 % together). Our layer counts all of them as
+built, which is defensible — a ruin is still a structure on the ground — but it is a
+choice, and a ruin is one candidate explanation for the buildings M3 found in
+"empty" countryside.
+
+### Consequences
+
+1. **Rename what the layer claims.** It is not "year first built". It is **"year
+   first built or comprehensively rebuilt"**, and the viewer and the public page
+   must say so.
+2. **M3's dating finding is explained, not outstanding.** The register is behaving
+   as documented; our label was wrong.
+3. **The pre-2005 dates remain uncheckable** (see `validation.md` §7b), and this
+   finding makes them harder to interpret rather than easier: an old building
+   rebuilt in 1995 carries 1995, and no photograph before 2005 exists to catch it.
+4. **A possible future layer.** `end` gives, for 21 % of buildings, the date of the
+   most recent construction unit. A "buildings with recorded works since year X"
+   layer is derivable from data already downloaded. Not built; recorded here.

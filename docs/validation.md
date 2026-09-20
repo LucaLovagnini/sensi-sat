@@ -41,11 +41,14 @@ good at all four.
    was judged twice and the two readings differ by about as much as the statistical
    margin. §7 explains. The first two claims came out identical both times.
 
-**Why claim 3 goes wrong.** Our dates come from the Spanish building register, and
-we assumed the year in it means *the year the building went up*. It doesn't always.
-It means *the year someone filed paperwork*. If an owner adds a floor in 2019, or
-finally registers a house that was never on the books, the register says 2019 — but
-the house may be from 1975. So the map shows old buildings as new ones.
+**Why claim 3 goes wrong — and it is our fault, not the register's.** Our dates come
+from the Spanish building register, and we assumed the year in it means *the year
+the building went up*. It doesn't. The Catastro states in its own methodology that
+when a building is comprehensively rebuilt, **the rebuild date becomes the
+construction date**. Their own map from this field is called "date of construction
+*or comprehensive renovation*". So a 1970 house gutted and rebuilt in 2019 is a 2019
+building, and the register is right — we were labelling it wrong. The layer now says
+"built or comprehensively rebuilt".
 
 **One more thing we found.** Where the map says "nothing here", it is wrong about
 2 % of the time. That sounds tiny, but empty land is 95 % of the archipelago, so it
@@ -221,10 +224,24 @@ Of the 30 disputed cells, **8 have a pre-2015 building within 20 m** (against 1 
 = 24 %** with no available explanation but a wrong date. So the range is
 **24–33 %**.
 
-**The cause is re-registration, not misdetection.** The Catastro records the year of
-a *declaration*, and a renovation, extension or the regularisation of a previously
-unregistered building creates or resets it. The roster already listed this
-qualitatively ("renovation can reset the date"); M3 puts a number on it.
+**The cause is now established rather than inferred, and it is not an error.**
+Analysis 20 traced it to the Catastro's own published methodology:
+
+> *"En el supuesto de rehabilitación integral de una construcción, la fecha de
+> finalización de dicha rehabilitación tiene la consideración de fecha de
+> construcción."* — a comprehensive rehabilitation's completion date **is
+> considered to be the construction date**.
+
+The Catastro's own thematic map from this field is titled *"Fecha de construcción
+**o reforma integral**"*, and a *reforma integral* is defined as works costing more
+than 75 % of building new. So a 1970 house rebuilt in 2019 is a 2019 building — and
+the register is right, for its purpose. **M3 did not measure an error in the data.
+It measured a definition this project had misread.** The layer's claim has been
+corrected from "year first built" to "year first built or comprehensively rebuilt".
+
+See `data-evaluation.md` §11 for the full measurement, including why the 21 % of
+buildings whose `beginning` and `end` differ confirm that taking `beginning` was
+the right choice.
 
 **This is the failure mode no automated gate could have found.** Every gate in M0
 and M2 compares our totals against other products' totals, and a building given the
