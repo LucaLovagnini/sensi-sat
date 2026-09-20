@@ -151,7 +151,9 @@ function download() {
 }
 
 (async () => {
-  const sample = await (await fetch('../data/processed/m3_demo/points.json')).json();
+  // ?sample=m3_demo loads the twelve-point trial; the default is the real sample.
+  const which = new URLSearchParams(location.search).get('sample') || 'm3';
+  const sample = await (await fetch(`../data/processed/${which}/points.json`)).json();
   state.points = sample.points;
   state.island = sample.island;
   state.sampleId = sampleFingerprint(sample.points);

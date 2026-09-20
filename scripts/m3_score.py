@@ -47,7 +47,7 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--labels", required=True)
-    ap.add_argument("--claims", default="data/processed/m3_demo/map_claims.json")
+    ap.add_argument("--claims", default="data/processed/m3/map_claims.json")
     args = ap.parse_args()
 
     labels = {r["id"]: r for r in json.loads(Path(args.labels).read_text())["labels"]}

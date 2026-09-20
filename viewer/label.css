@@ -35,6 +35,7 @@ figcaption { font-size:13px; font-weight:600; margin-bottom:7px; }
 kbd { font:11px ui-monospace,monospace; opacity:.5; margin-left:4px; border:1px solid currentColor;
       border-radius:3px; padding:0 3px; }
 
+.guide.alt { border-left-color:#7fa6d4; background:#171f28; color:#b9c7d6; }
 .guide { margin:16px 0 0; padding:11px 14px; background:var(--panel); border-left:3px solid var(--accent);
          border-radius:8px; font-size:13.5px; color:#cbd6e2; }
 footer { display:flex; gap:10px; margin-top:18px; align-items:center; }
