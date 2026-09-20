@@ -15,6 +15,9 @@
 const WMS = 'https://www.ign.es/wms/pnoa-historico';
 const CHIP_M = 100;          // metres across the chip
 const CHIP_PX = 640;
+// PNOA flies the Canaries about every three years: 2005, 2009, 2012, 2015, 2018,
+// 2021, 2024. Any other year returns a blank white frame, so the pair judged here
+// must be chosen from flights that exist.
 const YEARS = [2015, 2024];
 
 const state = { points: [], i: 0, labels: {}, island: '' };

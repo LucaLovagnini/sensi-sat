@@ -41,15 +41,24 @@ STRATA = {
 }
 
 
-def strata_masks(year: np.ndarray) -> dict[str, np.ndarray]:
+def strata_masks(year: np.ndarray, land: np.ndarray) -> dict[str, np.ndarray]:
+    """The four claims the map makes, each restricted to land.
+
+    `land` is not optional. "Not built" means "no building here", which is true of
+    every square metre of the Atlantic inside the raster's bounding box — and since
+    that is most of the box, an unrestricted sample sends the interpreter to look at
+    open sea, where the aerial photography is blank. Worse, it would be blank in
+    both years, so the point counts as a correct "not built" and quietly inflates
+    the accuracy with the easiest question anyone could be asked.
+    """
     dated = (year > 0) & (year != enc.UNDATED)
     by_2015 = dated & (year <= 2015 - enc.YEAR_OFFSET)
     by_2024 = dated & (year <= 2024 - enc.YEAR_OFFSET)
     return {
-        "built_before_2015": by_2015,
-        "new_2015_2024": by_2024 & ~by_2015,
-        "undated": year == enc.UNDATED,
-        "not_built": year == 0,
+        "built_before_2015": by_2015 & land,
+        "new_2015_2024": (by_2024 & ~by_2015) & land,
+        "undated": (year == enc.UNDATED) & land,
+        "not_built": (year == 0) & land,
     }
 
 
@@ -68,7 +77,11 @@ def main() -> int:
         year = src.read(1)
         transform = src.transform
 
-    masks = strata_masks(year)
+    from sensisat.derive import island_mask
+
+    with rasterio.open(path) as src:
+        land = island_mask(args.island, transform, year.shape, src.crs)
+    masks = strata_masks(year, land)
     areas = row_areas_m2(year.shape, transform)
     rng = np.random.default_rng(args.seed)
 
@@ -102,7 +115,11 @@ def main() -> int:
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "points.json").write_text(json.dumps(
-        {"island": args.island, "pixel_m": 10, "points": points}, indent=1))
+        {"island": args.island, "pixel_m": 10,
+         # PNOA flies the Canaries roughly every three years, not annually: over
+         # Gran Canaria only 2005, 2009, 2012, 2015, 2018, 2021 and 2024 have
+         # imagery, and every other year returns a blank white frame.
+         "imagery_years": [2015, 2024], "points": points}, indent=1))
     (out / "map_claims.json").write_text(json.dumps(
         {"strata": STRATA, "claims": truth}, indent=1))
     print(f"\n{len(points)} points -> {out / 'points.json'}")

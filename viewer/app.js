@@ -301,8 +301,15 @@ function variables() {
 const CADASTRE_BUCKETED_UNTIL = 1980;
 const CADASTRE_MAJOR_BUCKETS = new Set([1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1975, 1980]);
 
-const PNOA_FIRST_YEAR = 2004;
-const PNOA_LAST_YEAR = 2024;
+/**
+ * PNOA flies the Canaries roughly every three years, not annually. Measured over
+ * Gran Canaria: only these years return imagery; every other layer between 2004
+ * and 2024 returns a blank white frame. Offering a year with no flight looked like
+ * a working basemap that had gone white, which is worse than not offering it.
+ */
+const PNOA_YEARS = [2005, 2009, 2012, 2015, 2018, 2021, 2024];
+const PNOA_FIRST_YEAR = PNOA_YEARS[0];
+const PNOA_LAST_YEAR = PNOA_YEARS[PNOA_YEARS.length - 1];
 
 const BASEMAPS = {
   light: {
@@ -328,9 +335,11 @@ const BASEMAPS = {
   },
 };
 
-/** The PNOA year actually available for a requested year, clamped to the archive. */
+/** The nearest year PNOA actually flew — never a year that would come back blank. */
 function pnoaYearFor(year) {
-  return Math.max(PNOA_FIRST_YEAR, Math.min(PNOA_LAST_YEAR, Math.round(year)));
+  const y = Math.round(year);
+  return PNOA_YEARS.reduce((best, candidate) =>
+    Math.abs(candidate - y) < Math.abs(best - y) ? candidate : best, PNOA_YEARS[0]);
 }
 
 function basemapSource(key) {
@@ -378,10 +387,12 @@ function syncBasemapYear() {
   if (source?.getParams && source.getParams().LAYERS !== wanted) {
     source.updateParams({LAYERS: wanted});
   }
-  const shown = pnoaYearFor(activeYear());
-  el('basemap-note').textContent = shown === Math.round(activeYear())
+  const asked = Math.round(activeYear());
+  const shown = pnoaYearFor(asked);
+  el('basemap-note').textContent = shown === asked
     ? `Aerial photograph from ${shown}.`
-    : `Aerial photograph from ${shown} — PNOA only covers ${PNOA_FIRST_YEAR}–${PNOA_LAST_YEAR}.`;
+    : `Aerial photograph from ${shown} — the nearest PNOA flight. The Canaries are `
+      + `photographed about every three years (${PNOA_YEARS.join(', ')}), not annually.`;
 }
 
 const base = new TileLayer({source: basemapSource('light')});
