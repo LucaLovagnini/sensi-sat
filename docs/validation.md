@@ -61,6 +61,14 @@ summary: two of the map's four claims are settled and excellent, and two are
 genuinely hard to check from photographs at all — the same two the interpreter most
 often could not call either way.
 
+**A second limit, and it is the bigger one.** We checked whether buildings are
+*there*. We barely checked whether the *dates* are right. Aerial photography of the
+Canaries only exists back to 2005, so 85 % of the map's buildings are dated in a
+period no photograph can check. The one date boundary we could test — 2015 — came
+back a quarter to a third wrong, and there is separate evidence (`data-evaluation.md`
+§10) that the older dates are worse still. §7b has the numbers. **Trust the map on
+where buildings are; treat its years before 2005 as unverified.**
+
 **One limit worth stating twice.** All of this is about **30-metre squares**, not
 individual buildings. We can say the map is right about where buildings are to
 within 30 metres. We cannot say it is right to within 10 metres — §9 explains why
@@ -325,6 +333,57 @@ Worth recording that this went the wrong way with the larger unit: on the rare
 classes the 30 m question is *harder* than the 10 m one (undated 10 % → 25 %),
 because a bigger square contains more debatable things. The overall rate still fell
 from 10.4 % to 8.0 % only because `not_built` dominates the count.
+
+## 7b. Why 2015, and what that leaves unchecked
+
+**Why 2015 was the boundary.** IGN photographs the Canary Islands about every three
+years and nothing else is available: verified 2026-09-20 by querying every layer on
+the historical service, the archipelago has imagery for **2005, 2009, 2012, 2015,
+2018, 2021 and 2024** and no other year. The three pre-PNOA national flights
+(*AMS 1956-1957*, *Interministerial 1973-1986*, *Nacional 1981-1986*) return blank
+frames over Las Palmas, Santa Cruz and Arrecife — they are mainland coverage. So
+2015 is a real flight, it is the project's declared seam year (decision 13), and it
+splits the long history from recent growth.
+
+The seam reason is weaker than it looks **for this layer**. The cadastre has no
+seam: it is one method from 1900 to 2024, which was the whole argument for M1.1. The
+2015 split was inherited from the satellite design rather than chosen for the layer
+actually under test.
+
+**The limitation this creates, which matters more than the choice of year.**
+Presence and date are different claims, and M3 validated them to very different
+depths.
+
+| the layer, by date | km² | share of dated area | can a photograph check the date? |
+|---|---:|---:|---|
+| 1900–2004 | 87.66 | **85.1 %** | **No — no imagery exists over the Canaries** |
+| 2005–2015 | 13.06 | 12.7 % | Yes, and it has not been done |
+| 2016–2024 | 2.23 | 2.2 % | **Yes — this is what M3 tested** |
+
+- **Presence** — *is there a building here?* — is validated across the whole layer.
+  The 98.1 % figure for `built_before_2015` covers all 97.8 % of the layer dated
+  before the boundary.
+- **Date** — *was it built when we say?* — is validated at **one boundary only**,
+  which touches **2.2 %** of the layer. Everything before 2015 was collapsed into a
+  single bucket, so the assessment cannot distinguish a building the map dates 1970
+  from one it dates 1990.
+
+**And the untestable part is the part we already suspect.** `data-evaluation.md` §10
+measured the cadastre's pre-1980 years as heavily bucketed: ten round-year buckets
+hold 33.8 % of all dated buildings, 1900 alone holds 25,971 (1,146× its
+neighbours), and there are no spikes at all after 1980. So the 85 % that aerial
+photography cannot reach is also the 85 % with independent evidence of bad dates.
+The one boundary we could test came back 24–33 % wrong. It would be unjustified to
+extrapolate that rate backwards — and equally unjustified to assume the earlier
+years are better.
+
+**The cheap next test.** A 2005 boundary is drawable with the existing tooling and
+would roughly double the validated share: `new 2005–2015` covers 13.06 km², six
+times the area of the class M3 tested, so 100 points draw easily. About 200 points
+including a control, ~45 minutes. It answers a real question: is the dating error
+specific to recent re-registration, or general to the register? Nothing before 2005
+can be reached at all without a non-IGN source such as GRAFCAN's 1980s orthophotos,
+which are not redistributable.
 
 ## 8. Effort
 
