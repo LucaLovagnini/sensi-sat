@@ -777,6 +777,14 @@ buckets.
 
 ## 11. What the cadastre's construction year actually means (analysis 20)
 
+**Sources** — primary, both from the Dirección General del Catastro:
+[*Metodología — Mapas temáticos*](https://www.catastro.hacienda.gob.es/ayuda/METODOLOGIA_MAPAS%20TEMATICOS_DEF.pdf)
+(§5, "Fecha de construcción o reforma integral") and
+[*Conjunto de datos INSPIRE*](https://www.catastro.hacienda.gob.es/webinspire/documentos/Conjuntos%20de%20datos_en.pdf)
+(English edition, the `dateOfConstruction` structure). Both were fetched and read on
+2026-09-20, not quoted second-hand. Reproduce the measurements with
+`scripts/analysis_20_cadastre_date_validity.py --all`.
+
 Established 2026-09-20, after M3 found that a quarter to a third of the buildings
 our map dates 2016–2024 were already standing in 2015. That looked like a data
 quality problem. It is not. **The field does not mean what this project assumed**,

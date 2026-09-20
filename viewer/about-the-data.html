@@ -223,7 +223,8 @@
   a person looked at aerial photographs of each one — from 2015 and from today — and
   answered one question: <em>is there a building here?</em> They could not see our
   map while doing it. Then we compared. 838 of the spots gave a clear answer; the
-  rest were genuinely too hard to call.</p>
+  rest were genuinely too hard to call. The arithmetic follows standard practice
+  for this kind of assessment.<sup><a href="#n2">2</a></sup></p>
 
   <p>The map makes four different claims, and it is <strong>not equally good at all
   four</strong>:</p>
@@ -255,18 +256,19 @@
 
   <p><strong>Before you use the time slider, read the third row.</strong> Of the
   squares we colour as new construction between 2015 and 2024, a quarter to a third
-  already had a building in 2015. We checked why, and the answer is a definition
-  rather than a fault. The Spanish cadastre states in its own methodology that when
-  a building is <em>comprehensively rebuilt</em>, the rebuild date <strong>becomes
-  its construction date</strong> — the map they publish from this field is called
-  “date of construction <em>or comprehensive renovation</em>”, where a comprehensive
-  renovation means works costing more than 75 % of building anew.</p>
+  already had a building in 2015 — and that is a definition, not a fault. The
+  Spanish cadastre resets a building’s year when it is comprehensively rebuilt:
+  <em lang="es">“en el supuesto de rehabilitación integral de una construcción, la
+  fecha de finalización de dicha rehabilitación tiene la consideración de fecha de
+  construcción”</em>.<sup><a href="#n1">1</a></sup> The map the cadastre itself
+  publishes from this field is titled “Fecha de construcción <em>o reforma
+  integral</em>”.</p>
 
-  <p>So a 1970 house gutted and rebuilt in 2019 is a 2019 building, and the register
-  is right about it. What was wrong was our label. <strong>Read the years on this map
-  as “built or comprehensively rebuilt”</strong>, not “built”. It means the most
-  eye-catching thing here — recent growth — partly shows renovation rather than new
-  ground being taken, which matters if you are counting habitat loss.</p>
+  <p class="takeaway">So <strong>read every year on this map as “built or
+  comprehensively rebuilt”</strong>. A 1970 house gutted in 2019 shows as 2019, and
+  the register is right about it — our label was what was wrong. Recent growth
+  therefore partly shows renovation rather than new ground being taken, which
+  matters if you are counting habitat loss.</p>
 
   <p><strong>The register misses isolated rural buildings.</strong> Of the squares we
   mark as empty, about 2 % hold a building — and because empty land is 95 % of the
@@ -327,6 +329,22 @@
   </table>
   <p>Every figure on this page is reproducible from the analysis scripts in the
   project repository. Nothing here is an estimate unless it says so.</p>
+
+  <ol class="notes">
+    <li id="n1">Dirección General del Catastro, <cite>Metodología — Mapas
+      temáticos, información estadística</cite>, §5 “Fecha de construcción o reforma
+      integral”:
+      <a href="https://www.catastro.hacienda.gob.es/ayuda/METODOLOGIA_MAPAS%20TEMATICOS_DEF.pdf">catastro.hacienda.gob.es</a>.
+      The field’s structure — one date pair per building, spanning its oldest and
+      newest construction units — is defined in
+      <cite>Conjunto de datos INSPIRE de la Dirección General del Catastro</cite>:
+      <a href="https://www.catastro.hacienda.gob.es/webinspire/documentos/Conjuntos%20de%20datos_en.pdf">English edition</a>.
+      SensiSat reads the <em>oldest</em> of the pair, which is the least
+      renovation-affected date the register holds.</li>
+    <li id="n2">Accuracy assessed by the method of Olofsson et&nbsp;al. (2014),
+      <cite>Good practices for estimating area and assessing accuracy of land
+      change</cite>, <a href="https://doi.org/10.1016/j.rse.2014.02.015">doi:10.1016/j.rse.2014.02.015</a>.</li>
+  </ol>
 </section>
 
 <footer>
