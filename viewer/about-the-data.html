@@ -1,0 +1,254 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensiSat — about the data</title>
+<meta name="description" content="What SensiSat's numbers mean, where they come from, and what they cannot be used for.">
+<link rel="stylesheet" href="about.css">
+</head>
+<body>
+<article>
+
+<header>
+  <p class="eyebrow"><a href="index.html">← back to the map</a></p>
+  <h1>About the data</h1>
+  <p class="lede">SensiSat shows how built-up land in the Canary Islands changed
+  between 1900 and 2026. Every number on the map is conditional — on which
+  dataset produced it, on what that dataset means by “built”, and on how it was
+  measured. This page is those conditions. It is worth ten minutes before quoting
+  anything.</p>
+</header>
+
+<section>
+  <h2>1. There is no single number for “how much is built”</h2>
+
+  <p>This is the finding that shapes everything else, and it surprises most people.
+  Six independent, respected products measure built-up land in the Canary Islands.
+  They disagree by a factor of <strong>4.7</strong>:</p>
+
+  <table>
+    <thead><tr><th>source</th><th>what it counts</th><th>km²</th></tr></thead>
+    <tbody>
+      <tr><td>CORINE 2018</td><td>“artificial surfaces” — includes quarries, dumps, sports grounds</td><td>469.5</td></tr>
+      <tr><td>WSF Evolution</td><td>30 m pixels containing <em>any</em> settlement</td><td>376.9</td></tr>
+      <tr><td>Copernicus Imperviousness</td><td>m² sealed by anything — buildings, roads, car parks, paving</td><td>341.5</td></tr>
+      <tr><td>Copernicus Impervious Built-Up</td><td>10 m pixels containing buildings</td><td>259.3</td></tr>
+      <tr><td>GHSL</td><td>m² of built <em>surface</em></td><td>152.9</td></tr>
+      <tr><td>Spanish cadastre</td><td>building footprints only</td><td>100.3</td></tr>
+    </tbody>
+  </table>
+
+  <p><strong>None of them is wrong.</strong> Each is a stricter idea of what counts
+  as built, and they sit in a consistent order. A road is artificial, is sealed,
+  and is not a building. A quarry is artificial and is neither sealed nor built.
+  The 4.7× spread is the definitions, not error.</p>
+
+  <p class="takeaway">So a figure from SensiSat is only meaningful with its layer
+  attached. “100.3 km² of building footprint” and “341.5 km² of sealed surface”
+  are both true of the same islands in the same year.</p>
+
+  <p>A seventh product, Google’s Dynamic World, reported 308 km² for
+  <em>Gran Canaria alone</em> — more than double every artificial thing CORINE can
+  find on that island. It was excluded, along with five other global datasets.</p>
+</section>
+
+<section>
+  <h2>2. Extent and surface are different quantities</h2>
+
+  <p>Two ways to measure the same growth, and they answer different questions:</p>
+
+  <ul>
+    <li><strong>Extent</strong> — how much <em>land</em> has settlement on it. A
+    pixel counts if it contains anything built, so it saturates: once a pixel has
+    one house, another house does not change it.</li>
+    <li><strong>Surface</strong> — how many square metres are actually covered.
+    It keeps rising as blocks fill in.</li>
+  </ul>
+
+  <p>The gap between them is informative, and <strong>it reverses direction</strong>
+  depending on how a place grows. Measured 1990 → 2015:</p>
+
+  <table>
+    <thead><tr><th>island</th><th>extent</th><th>surface</th><th>what it means</th></tr></thead>
+    <tbody>
+      <tr><td>Gran Canaria</td><td>+11 %</td><td>+57 %</td><td>already-built land densifying — <em>infill</em></td></tr>
+      <tr><td>Fuerteventura</td><td>+400 %</td><td>+162 %</td><td>scattered new building over open land — <em>sprawl</em></td></tr>
+    </tbody>
+  </table>
+
+  <p>Each scattered new house on Fuerteventura lights up a whole 30 m pixel while
+  adding little cover; each new block on Gran Canaria adds cover to a pixel already
+  counted. The <em>ratio</em> of the two is a sprawl-versus-infill indicator.</p>
+
+  <p class="takeaway">Never compare an extent figure with a surface figure. They
+  are different units of a different thing.</p>
+</section>
+
+<section>
+  <h2>3. The map changes method in 2016, and says so</h2>
+
+  <p>Before 2016 and after it, the settlement layers come from different
+  instruments at different resolutions with different definitions. Crossing that
+  join, the measured extent <strong>drops by 26–52 %</strong> — and nothing was
+  demolished. The map simply started being made a different way.</p>
+
+  <p>We could have blended the two into one smooth timeline. We deliberately did
+  not: that would bake the artefact into the data, and no reader could then tell it
+  from a real event. The eras are published separately, the viewer announces the
+  transition, and the measured size of the discontinuity is published alongside.</p>
+
+  <p class="warn"><strong>Do not add the two settlement layers together.</strong>
+  They overlap on purpose: the 2016-onward layer’s first frame is not what was
+  built during 2016, it is everything standing by July 2016 — the same ground the
+  earlier layer describes, dated differently. Summed, the baseline is counted twice.</p>
+</section>
+
+<section>
+  <h2>4. “We don’t know” is shown, not guessed</h2>
+
+  <p>Some pixels are built, and no source can say when. In the satellite
+  settlement layer, <strong>43 %</strong> of the footprint that existed in 2016
+  carries no year at all.</p>
+
+  <p>There were three options: guess a year from a neighbouring pixel, assign
+  everything to the earliest frame, or admit it. The first two would have
+  manufactured roughly 115 km² of history that was never observed. So the data has
+  a <strong>third state</strong> — <em>built, year unknown</em> — drawn in its own
+  colour on the map, never switched on by the time slider, and hidden entirely from
+  the change view, because a pixel with no date cannot honestly be placed in a
+  period.</p>
+</section>
+
+<section>
+  <h2>5. Before 1980, building dates are good to about a decade</h2>
+
+  <p>The building layer comes from the Spanish cadastre — the official register,
+  <strong>474,292 buildings</strong> in the Canaries, <strong>98.9 %</strong>
+  carrying a construction year. That is an unusually complete record, and it is why
+  the pre-2016 timeline is built from it rather than from satellites.</p>
+
+  <p>But the register rounds dates it does not know onto round years, and it did so
+  until 1980. Ten “bucket” years — 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970,
+  1975, 1980 — hold <strong>33.8 % of every dated building in the archipelago</strong>.
+  The year 1900 alone holds 25,971 buildings, which is 1,146 times its neighbouring
+  years and the single largest year in the register: it is the catch-all for
+  “old, date unknown”.</p>
+
+  <p>Two things stop this being worse than it sounds:</p>
+  <ul>
+    <li><strong>It stops.</strong> Every bucket is 1980 or earlier. The 46 years
+    from 1981 to 2026 contain not one, and hold 44.8 % of all dated buildings.
+    Modern dates are good to the year.</li>
+    <li><strong>There is real data in between.</strong> 37 % of pre-1981 buildings
+    carry a genuine year — the register did know the exact date for a large
+    minority. The era is a mixture, not a set of decade stamps.</li>
+  </ul>
+
+  <p class="takeaway">Read a pre-1980 frame as “by about then”. The viewer says so
+  when the slider is in that range, and names the year when you land on a bucket.</p>
+
+  <p>Two further limits of any building register: it records <em>what still
+  stands</em>, so buildings demolished before today were never registered and
+  cannot appear; and the date is often the year of the last major reform rather
+  than original construction. The cadastre is therefore <strong>exact for the
+  present and a floor for the past</strong>.</p>
+</section>
+
+<section>
+  <h2>6. Most layers cannot show anything disappear</h2>
+
+  <p>Almost every source here is <em>growth-only by construction</em>: a pixel
+  keeps the year it was first seen built, forever. That is a property of how the
+  products are made, not a choice we made.</p>
+
+  <p>It costs little, because real loss is rare: measured from purpose-built change
+  layers, built-up land disappears at <strong>0.017–0.052 % per year</strong>. Over
+  forty years a growth-only view misplaces roughly 2 % of built pixels.</p>
+
+  <p>One layer is different. The Copernicus change layers can record loss, and they
+  did: when the Tajogaite eruption buried Todoque on La Palma in 2021, built-up land
+  inside the lava flow went from <strong>0.909 km² in 2018 to 0.011 km² in
+  2024</strong>. No other source in this project can show that, and all of them
+  still display the buried village.</p>
+</section>
+
+<section>
+  <h2>7. Greenhouses are counted separately, on purpose</h2>
+
+  <p>Radar sees a plastic greenhouse roof much as it sees a building roof. Of Gran
+  Canaria’s 27.1 km² of greenhouse parcels, the radar-based settlement product
+  flags <strong>72 %</strong> as built-up, while the mainly-optical one flags
+  <strong>9.5 %</strong>. Both are behaving correctly; they are answering different
+  questions about the same plastic.</p>
+
+  <p>Left in, that would put roughly 17 km² of tomatoes into one island’s urban
+  total. Deleted, it would lose real ground cover — under a greenhouse the soil is
+  as covered as under a car park, which matters if your interest is habitat. So
+  covered agriculture is <strong>removed from the urban layers and published as its
+  own layer</strong>. Anyone who disagrees with that call can add it back exactly.</p>
+</section>
+
+<section>
+  <h2>8. Quality varies by island — and that is a finding</h2>
+
+  <p>This is not a disclaimer. The small western islands are measurably weaker in
+  <em>both</em> of our pre-2016 sources at once:</p>
+
+  <table>
+    <thead><tr><th>island</th><th>cadastral dates in a bucket year</th></tr></thead>
+    <tbody>
+      <tr><td>La Gomera</td><td>50.3 %</td></tr>
+      <tr><td>La Palma</td><td>45.5 %</td></tr>
+      <tr><td>El Hierro</td><td>43.2 %</td></tr>
+      <tr><td>Gran Canaria</td><td>35.4 %</td></tr>
+      <tr><td>Tenerife</td><td>34.8 %</td></tr>
+      <tr><td>Lanzarote</td><td>24.9 %</td></tr>
+      <tr><td>Fuerteventura</td><td>19.0 %</td></tr>
+    </tbody>
+  </table>
+
+  <p>And the satellite alternative fails on the same islands: it can date only
+  24.5 % of El Hierro’s settlement footprint, against 66–68 % on Gran Canaria and
+  Fuerteventura. It maps settlement <em>clusters</em>, and the western islands are
+  dispersed hamlets rather than clusters.</p>
+
+  <p class="takeaway">Work on Gran Canaria or Tenerife and both sources are solid.
+  Work on La Gomera before 1980 and you are on the weakest ground in the archive.</p>
+</section>
+
+<section>
+  <h2>9. How accurate is it?</h2>
+  <p class="pending"><strong>Not yet measured.</strong> A formal accuracy
+  assessment — several hundred points sampled at random, interpreted against aerial
+  photography by a human who cannot see the map, producing user’s and producer’s
+  accuracy with 95 % confidence intervals — is planned and not done. Until it
+  exists, this page describes what the data <em>is</em>, not how often it is right.
+  We would rather say so than imply a precision we have not earned.</p>
+</section>
+
+<section>
+  <h2>10. Sources, licences and reuse</h2>
+  <table>
+    <thead><tr><th>source</th><th>producer</th><th>licence</th></tr></thead>
+    <tbody>
+      <tr><td>Cadastre (INSPIRE Buildings)</td><td>Dirección General del Catastro, Spain</td><td>free reuse with attribution</td></tr>
+      <tr><td>World Settlement Footprint</td><td>DLR (German Aerospace Center)</td><td>CC BY 4.0</td></tr>
+      <tr><td>WSF Tracker</td><td>DLR + MindEarth</td><td>CC BY 4.0</td></tr>
+      <tr><td>GHS-BUILT-S</td><td>EU Joint Research Centre</td><td>CC BY 4.0</td></tr>
+      <tr><td>Imperviousness, Impervious Built-Up, CORINE</td><td>Copernicus / EEA</td><td>free reuse with attribution</td></tr>
+      <tr><td>Mapa de Cultivos</td><td>Gobierno de Canarias</td><td>open data</td></tr>
+      <tr><td>Protected areas (ENP)</td><td>Gobierno de Canarias</td><td>open data</td></tr>
+    </tbody>
+  </table>
+  <p>Every figure on this page is reproducible from the analysis scripts in the
+  project repository. Nothing here is an estimate unless it says so.</p>
+</section>
+
+<footer>
+  <p>SensiSat · built from open data · <a href="index.html">back to the map</a></p>
+</footer>
+
+</article>
+</body>
+</html>

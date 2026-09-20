@@ -1,0 +1,64 @@
+/* Styling for the public "about the data" page. Deliberately a reading page, not
+   an app: generous measure, high contrast, no chrome competing with the text. */
+:root {
+  --bg: #12171d;
+  --panel: #1a222b;
+  --line: #2b3643;
+  --text: #e9eff5;
+  --muted: #9aabbc;
+  --accent: #ffb200;
+  --warn: #ff8f6b;
+  --ok: #7fd4a2;
+}
+* { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; background: var(--bg); color: var(--text);
+  font: 16px/1.65 system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+article { max-width: 46rem; margin: 0 auto; padding: 40px 24px 72px; }
+
+.eyebrow { margin: 0 0 20px; font-size: 13px; }
+.eyebrow a, footer a { color: var(--accent); text-decoration: none; }
+.eyebrow a:hover, footer a:hover { text-decoration: underline; }
+
+h1 { font-size: clamp(28px, 5vw, 38px); line-height: 1.15; margin: 0 0 14px; letter-spacing: -.02em; }
+h2 {
+  font-size: clamp(19px, 3vw, 22px); line-height: 1.25; margin: 48px 0 12px;
+  padding-top: 22px; border-top: 1px solid var(--line); letter-spacing: -.01em;
+}
+.lede { font-size: 18px; color: #cfdae6; margin: 0 0 8px; }
+p { margin: 0 0 14px; }
+ul { margin: 0 0 14px; padding-left: 1.2em; }
+li { margin-bottom: 7px; }
+em { color: #cfdae6; }
+strong { color: #fff; }
+
+table {
+  width: 100%; border-collapse: collapse; margin: 6px 0 18px;
+  font-size: 14.5px; background: var(--panel); border-radius: 8px; overflow: hidden;
+}
+th, td { text-align: left; padding: 9px 12px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font-size: 11.5px; text-transform: uppercase; letter-spacing: .6px; color: var(--muted); font-weight: 600; }
+tbody tr:last-child td { border-bottom: none; }
+td:last-child, th:last-child { text-align: right; white-space: nowrap; }
+table:has(th:nth-child(4)) td:last-child,
+table:has(th:nth-child(4)) th:last-child { text-align: left; white-space: normal; }
+
+.takeaway, .warn, .pending {
+  margin: 16px 0; padding: 12px 15px; border-radius: 8px;
+  border-left: 3px solid var(--accent); background: rgba(255, 178, 0, .07); font-size: 15px;
+}
+.warn { border-left-color: var(--warn); background: rgba(255, 143, 107, .09); }
+.pending { border-left-color: var(--muted); background: rgba(154, 171, 188, .09); }
+
+footer {
+  margin-top: 56px; padding-top: 18px; border-top: 1px solid var(--line);
+  color: var(--muted); font-size: 13.5px;
+}
+
+@media (max-width: 640px) {
+  article { padding: 28px 16px 56px; }
+  table { font-size: 13.5px; }
+  th, td { padding: 8px 9px; }
+}
