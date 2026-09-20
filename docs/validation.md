@@ -31,11 +31,15 @@ good at all four.
    in 100. Trust this.
 2. **"There's nothing built here."** Almost always true — 98 times in 100. Trust
    this too.
-3. **"A building appeared here between 2015 and 2024."** True only about 6 times
-   in 10. A third of these places already had a building in 2015. **This is the
-   weakest thing on the map.**
-4. **"There's a building here but we don't know its age."** True about 7 times in
-   10. The other three in ten have nothing on them.
+3. **"A building appeared here between 2015 and 2024."** True only **6 to 7 times
+   in 10**. A quarter to a third of these places already had a building in 2015.
+   **This is the weakest thing on the map.**
+4. **"There's a building here but we don't know its age."** True about **7 times in
+   10**. The rest have nothing on them.
+
+   These last two are given as ranges, not single numbers, because the whole set
+   was judged twice and the two readings differ by about as much as the statistical
+   margin. §7 explains. The first two claims came out identical both times.
 
 **Why claim 3 goes wrong.** Our dates come from the Spanish building register, and
 we assumed the year in it means *the year the building went up*. It doesn't always.
@@ -50,10 +54,12 @@ standing on it, against the **324 km²** our map shows. The missing ones are mos
 isolated buildings in the countryside that the register simply does not hold — we
 checked eleven of them and ten are absent from the register entirely.
 
-**How much to trust all this.** Every number above has a margin of error, given in
-§3. The important one: "6 times in 10" could really be anywhere from 5.4 to 7.4.
-It is definitely the weakest claim on the map, and we cannot pin it more tightly
-than that without more work.
+**How much to trust all this.** Everything was judged twice, months apart in effort
+if not in date, with the second pass blind to the first. The two strong claims came
+out identical. The two weak ones moved, which is why they are ranges. The honest
+summary: two of the map's four claims are settled and excellent, and two are
+genuinely hard to check from photographs at all — the same two the interpreter most
+often could not call either way.
 
 **One limit worth stating twice.** All of this is about **30-metre squares**, not
 individual buildings. We can say the map is right about where buildings are to
@@ -186,7 +192,7 @@ qualitatively.
 
 ---
 
-## 5. Finding: a third of "new construction" was already standing
+## 5. Finding: a quarter to a third of "new construction" was already standing
 
 Of the cells the map calls new building 2015–2024:
 
@@ -245,25 +251,80 @@ class is remains unexplained; it is now at least measured.
 
 ---
 
-## 7. What the classes cost to judge
+## 7. How consistent is the interpreter? A second blind pass
 
-| stratum | unsure rate |
+Every figure above treats the interpretation as truth. It is not truth; it is one
+person reading photographs. So both weak classes were **re-judged from scratch**:
+228 points, shuffled together, unmarked, with the tool's store cleared so no
+previous answer was visible.
+
+**The firm judgements are stable. The instability is at the "unsure" boundary.**
+
+| | count | share |
+|---|---:|---:|
+| same firm answer both times | 152 | 66.7 % |
+| unsure once, decided the other time | 45 | 19.7 % |
+| unsure both times | 21 | 9.2 % |
+| **flat contradiction** (two different firm answers) | **10** | **4.4 %** |
+
+A 4.4 % contradiction rate is good. The headline "24 % changed" is misleading: four
+fifths of the changes are someone declining to commit one time and committing the
+other, which is honest rather than inconsistent.
+
+### But the unsure resolutions were lopsided, and that is my fault
+
+In `new_2015_2024`, 17 points that were unsure the first time got decided the
+second, and **16 of the 17 landed on the map's side**. That is far from the class's
+own base rate, and it moved user's accuracy from 64.1 % to 73.8 % almost on its own.
+
+**The recheck was not blind to the result, because I had already told him it.**
+Before asking for the second pass I had reported that this class was "the weak one",
+right "6 times in 10", with "a third already standing in 2015" — and the request
+itself was framed around finding his own mistakes. The first pass was blind to the
+map *and* to any finding; the second was blind only to the map. That asymmetry is a
+design error, and the order should have been recheck first, result second.
+
+The `undated` class did not tilt the same way: its resolutions split 6/4/3 and
+agreement moved *down*, 71.8 % → 67.1 %. So this is not a uniform eagerness to
+agree; it is specific to the class that had been discussed.
+
+### What to publish, given two passes that disagree
+
+| the map's claim | pass 1 | pass 2 | **published** |
+|---|---:|---:|---|
+| holds a pre-2015 building | 98.1 % | 98.1 % | **98 %** |
+| holds no building | 98.0 % | 98.0 % | **98 %** |
+| holds a 2015–2024 building | 64.1 % | 73.8 % | **64–74 %** |
+| undated, holds a building | 71.8 % | 67.1 % | **67–72 %** |
+
+The two strong claims are identical across passes — they are settled. For the two
+weak ones the **spread between passes is as large as the statistical margin of
+error**, so a single figure with a ± would understate the uncertainty. The honest
+form is the range, and the reason for the range is stated rather than hidden.
+
+The substantive finding survives either pass: **the share of "new construction" that
+was already standing in 2015 is 24 % (pass 2) to 33 % (pass 1)**. Both are large,
+and neither is explicable by anything but wrong dates.
+
+### What it cost to judge each class
+
+| stratum | unsure rate, pass 1 |
 |---|---:|
 | `undated` | 25.4 % |
 | `new_2015_2024` | 19.3 % |
 | `built_before_2015` | 8.8 % |
 | `not_built` | 2.1 % |
 
-Worth recording because it went the wrong way: on the rare classes the 30 m
-question is **harder** to answer than the 10 m one (undated 10 % → 25 %). A larger
-square contains more things, and more of them are debatable — a ruin, a wall, a
-half-demolished shed. The overall rate still fell, from 10.4 % to 8.0 %, only
-because `not_built` now dominates the count.
+The two classes that are hardest to see are the two the map is least reliable
+about, and they are the same two that moved between passes. That is one fact, not
+three: **these classes are genuinely ambiguous on aerial photography**, and no
+amount of extra sampling fixes ambiguity — only a better reference would, such as
+ground survey or a second independent interpreter.
 
-A class the interpreter cannot judge is itself a finding: the two classes that are
-hardest to see are the two the map is least reliable about.
-
----
+Worth recording that this went the wrong way with the larger unit: on the rare
+classes the 30 m question is *harder* than the 10 m one (undated 10 % → 25 %),
+because a bigger square contains more debatable things. The overall rate still fell
+from 10.4 % to 8.0 % only because `not_built` dominates the count.
 
 ## 8. Effort
 
