@@ -219,34 +219,34 @@
 
 <section>
   <h2>9. How accurate is it?</h2>
-  <p><strong>Measured on 20 September 2026</strong>, for the <em>cadastral
-  building layer</em> and for nothing else on this site. 911 places were picked at
-  random — separately within each class, so the rare ones get enough — and judged
-  against IGN PNOA aerial photography at 12–25 cm per pixel, at two dates, by an
-  interpreter who could not see the map. 838 were decidable. The method is
-  Olofsson et al. (2014); the working is in
-  <a href="https://github.com/LucaLovagnini/sensi-sat/blob/main/docs/validation.md">docs/validation.md</a>.</p>
+  <p>Someone checked. A computer picked 911 spots at random across the islands, and
+  a person looked at aerial photographs of each one — from 2015 and from today — and
+  answered one question: <em>is there a building here?</em> They could not see our
+  map while doing it. Then we compared. 838 of the spots gave a clear answer; the
+  rest were genuinely too hard to call.</p>
 
-  <p><strong>The unit is a 30 m square</strong>, and every figure below is about
-  30 m squares. That is not a detail. The median building here is 121 m² against a
-  10 m pixel of 100 m², so at the map's own resolution almost every test point lands
-  on the edge of a roof — and an aerial photograph shows a roof several metres from
-  the footprint beneath it, because orthorectification corrects for terrain and not
-  for building height. So this page can tell you the map is right about where
-  buildings are <em>to within 30 m</em>. It cannot tell you more than that, and a
-  first attempt that claimed to was discarded.</p>
+  <p>The map makes four different claims, and it is <strong>not equally good at all
+  four</strong>:</p>
 
   <table>
-    <thead><tr><th>what the map says about a 30 m square</th><th>how often that is right</th></tr></thead>
+    <thead><tr><th>what the map says about a 30 m square</th><th>how often it is right</th></tr></thead>
     <tbody>
-      <tr><td>it holds a building that stood by 2015</td><td><strong>98.1 % ± 2.7</strong></td></tr>
-      <tr><td>it holds a building that appeared 2015–2024</td><td><strong>64.1 % ± 9.9</strong></td></tr>
-      <tr><td>it holds no building</td><td><strong>98.0 % ± 1.2</strong></td></tr>
-      <tr><td>it holds a building of unknown year</td><td><strong>70.6 % ± 9.7</strong></td></tr>
+      <tr><td>“a building stood here before 2015”</td><td><strong>right 98 times in 100</strong> <span class="pm">± 2.7</span></td></tr>
+      <tr><td>“nothing is built here”</td><td><strong>right 98 times in 100</strong> <span class="pm">± 1.2</span></td></tr>
+      <tr><td>“a building appeared here, 2015–2024”</td><td><strong>right 6 times in 10</strong> <span class="pm">± 9.9</span></td></tr>
+      <tr><td>“a building is here, age unknown”</td><td><strong>right 7 times in 10</strong> <span class="pm">± 9.7</span></td></tr>
     </tbody>
   </table>
 
-  <p><strong>Read the second row before using the time slider.</strong> Of the
+  <p>Each check covers a <strong>30-metre square</strong>, not a single building.
+  So we can tell you the map puts buildings in the right place to within 30 metres.
+  We cannot tell you it is right to within 10. The reason is physical: a typical
+  building here is about 121 m², and an aerial photo shows you a <em>roof</em>,
+  which sits several metres away from the walls beneath it whenever the building is
+  tall. Below 30 metres, the photograph and the map are not describing the same
+  thing. Our first attempt tried anyway and was thrown away.</p>
+
+  <p><strong>Before you use the time slider, read the third row.</strong> Of the
   squares we colour as new construction between 2015 and 2024, about a third already
   had a building in 2015. That is a <em>dating</em> error, not a detection error: the
   cadastre records the year of a <em>declaration</em>, so a renovation, an extension

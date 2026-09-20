@@ -17,6 +17,51 @@ Reproduce: `scripts/m3_sample.py`, `scripts/m3_score.py`, `scripts/m3_diagnose.p
 
 ---
 
+## In plain words, before any numbers
+
+**What we did.** A computer picked 911 spots at random across the Canary Islands.
+For each one, Luca looked at two aerial photographs — one from 2015, one from now —
+and answered a single question: *is there a building here?* He could not see what
+our map said. Afterwards we compared his answers with the map's claims.
+
+**What we learned.** The map makes four different claims, and it is not equally
+good at all four.
+
+1. **"There's a building here, from before 2015."** Almost always true — 98 times
+   in 100. Trust this.
+2. **"There's nothing built here."** Almost always true — 98 times in 100. Trust
+   this too.
+3. **"A building appeared here between 2015 and 2024."** True only about 6 times
+   in 10. A third of these places already had a building in 2015. **This is the
+   weakest thing on the map.**
+4. **"There's a building here but we don't know its age."** True about 7 times in
+   10. The other three in ten have nothing on them.
+
+**Why claim 3 goes wrong.** Our dates come from the Spanish building register, and
+we assumed the year in it means *the year the building went up*. It doesn't always.
+It means *the year someone filed paperwork*. If an owner adds a floor in 2019, or
+finally registers a house that was never on the books, the register says 2019 — but
+the house may be from 1975. So the map shows old buildings as new ones.
+
+**One more thing we found.** Where the map says "nothing here", it is wrong about
+2 % of the time. That sounds tiny, but empty land is 95 % of the archipelago, so it
+adds up. Correcting for it, roughly **463 km²** of the islands has a building
+standing on it, against the **324 km²** our map shows. The missing ones are mostly
+isolated buildings in the countryside that the register simply does not hold — we
+checked eleven of them and ten are absent from the register entirely.
+
+**How much to trust all this.** Every number above has a margin of error, given in
+§3. The important one: "6 times in 10" could really be anywhere from 5.4 to 7.4.
+It is definitely the weakest claim on the map, and we cannot pin it more tightly
+than that without more work.
+
+**One limit worth stating twice.** All of this is about **30-metre squares**, not
+individual buildings. We can say the map is right about where buildings are to
+within 30 metres. We cannot say it is right to within 10 metres — §9 explains why
+nobody could, using aerial photographs.
+
+---
+
 ## 0. What was measured, and what was not
 
 This covers **`buildings-dated`** — the cadastral building layer, the primary
