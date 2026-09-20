@@ -29,6 +29,13 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 # What the pair of photo judgements implies about the ground.
+#
+# "Built" here means A BUILDING — a roofed structure — and deliberately not "any
+# artificial surface". The layer under test is the cadastre, which rasterises
+# `building.gml` and nothing else: it holds no roads, and its open-air structures
+# (87 swimming pools in the one municipality checked) are in a file we do not use.
+# Labelling a road or a paved yard as built would score an omission against a map
+# that never claimed them, measuring the definition rather than the accuracy.
 def reference_class(l2015: str, l2024: str) -> str | None:
     if l2015 == "unsure" or l2024 == "unsure" or not l2015 or not l2024:
         return None                       # excluded, and reported separately
