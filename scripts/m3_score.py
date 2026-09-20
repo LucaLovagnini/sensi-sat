@@ -134,7 +134,7 @@ def main() -> int:
     overall = sum(p[s].get(s, 0.0) for s in strata if s in ref_classes)
     print(f"\nOverall accuracy (area-weighted): {100 * overall:.1f} %")
 
-    print(f"\n{'class':22s} {'users':>8s} {'producers':>10s} "
+    print(f"\n{'class':22s} {'users % 95%CI':>12s} {'prod % 95%CI':>12s} "
           f"{'map km2':>10s} {'adjusted km2':>14s} {'95% CI':>14s}")
     for c in ref_classes:
         p_dot_c = sum(p[s].get(c, 0.0) for s in strata)
@@ -148,8 +148,34 @@ def main() -> int:
             phat = counts[s].get(c, 0) / n[s]
             var += W[s] ** 2 * phat * (1 - phat) / (n[s] - 1)
         se_km2 = total_km2 * math.sqrt(var)
-        fmt = lambda v: f"{100 * v:7.1f} %" if v is not None else "      —"   # noqa: E731
-        print(f"{c:22s} {fmt(users):>8s} {fmt(producers):>10s} "
+
+        # User's accuracy is estimated from ONE stratum's points, so the stratum
+        # weight cancels and it is a plain binomial: UA = n_cc / n_c (Olofsson
+        # eq. 6). This is the well-determined half of the assessment — it does not
+        # depend on the huge "not built" stratum at all.
+        ua_ci = None
+        if users is not None and n.get(c, 0) > 1:
+            ua_ci = 1.96 * math.sqrt(users * (1 - users) / (n[c] - 1))
+
+        # Producer's accuracy mixes every stratum that produced a point of class c,
+        # so its variance carries the big stratum's rare errors at full area weight
+        # (Olofsson eq. 7). This is why PA can be far less certain than UA.
+        pa_ci = None
+        if producers is not None and p_dot_c > 0 and n.get(c, 0) > 1:
+            N_dot_c = total_km2 * p_dot_c
+            term = areas[c] ** 2 * (1 - producers) ** 2 * users * (1 - users) / (n[c] - 1)
+            for st in strata:
+                if st == c or n[st] < 2:
+                    continue
+                phat = counts[st].get(c, 0) / n[st]
+                term += producers ** 2 * areas[st] ** 2 * phat * (1 - phat) / (n[st] - 1)
+            pa_ci = 1.96 * math.sqrt(term) / N_dot_c
+
+        def fmt(v, ci):
+            if v is None:
+                return "          —"
+            return f"{100 * v:5.1f}" + (f" ±{100 * ci:4.1f}" if ci is not None else "      ")
+        print(f"{c:22s} {fmt(users, ua_ci):>12s} {fmt(producers, pa_ci):>12s} "
               f"{areas.get(c, 0):10.2f} {total_km2 * p_dot_c:14.2f} "
               f"{'±' + format(1.96 * se_km2, '.2f'):>14s}")
 
