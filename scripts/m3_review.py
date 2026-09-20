@@ -51,11 +51,10 @@ TEMPLATE = """<!doctype html>
   .cell span.yr { position:absolute; left:8px; top:8px; background:rgba(0,0,0,.65);
                   padding:2px 7px; border-radius:4px; font-size:12px; letter-spacing:.04em; }
   /* the 10 m square, and the centre dot that is what actually gets judged */
-  .cell::after { content:""; position:absolute; left:50%%; top:50%%; width:64px; height:64px;
+  .cell::after { content:""; position:absolute; left:50%%; top:50%%; width:20%%; height:20%%;
                  transform:translate(-50%%,-50%%); border:2px solid #fff;
                  box-shadow:0 0 0 1px rgba(0,0,0,.7); pointer-events:none; }
-  .dot { position:absolute; left:50%%; top:50%%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px;
-         background:#ffd84d; border-radius:50%%; box-shadow:0 0 0 1px rgba(0,0,0,.8); z-index:2; }
+  .dot { display:none; }   /* no centre mark: the question is the whole square */
   .meta { padding:9px 12px; font-size:13px; display:flex; justify-content:space-between; gap:12px; }
   .id { color:var(--dim); font-variant-numeric:tabular-nums; }
   .answer { display:none; }
@@ -67,11 +66,16 @@ TEMPLATE = """<!doctype html>
 <header>
   <h1>M3 review — the “%(stratum)s” stratum, %(n)d points</h1>
   <p>Both dates, same ground, same framing the labelling tool used. The white square
-  is 10 m; the yellow dot is the pixel centre, which is what the map was drawn by
-  and what the judgement is about.</p>
+  is 30 m, and the question it was judged by is whether a building appears anywhere
+  inside it.</p>
   <p><strong>Shown in shuffled order with the answers hidden</strong>, so that a
   second look is not steered by what you or the map said the first time. Reveal only
   after you have formed your own view of a card.</p>
+  <p><strong>This sheet is for looking, not for correcting.</strong> Changing answers
+  on a set that was filtered to disagreements finds mistakes in one direction only —
+  the ones that happen to favour the map — and tilts the reference data rather than
+  cleaning it. To actually revise answers, use the blind recheck
+  (<code>scripts/m3_recheck.py</code>), which contains the whole class.</p>
   <button onclick="document.body.classList.toggle('revealed')">Show / hide the answers</button>
   <button onclick="window.scrollTo(0,0)">Back to top</button>
 </header>
@@ -91,7 +95,8 @@ CARD = """
     </div>
   </div>"""
 
-CHIP_M, CHIP_PX = 100, 640
+CHIP_M, CHIP_PX = 150, 640
+CELL_FRAC = 30 / CHIP_M   # the 30 m square as a share of the chip
 WMS_HISTORIC = "https://www.ign.es/wms/pnoa-historico"
 WMS_CURRENT = "https://www.ign.es/wms-inspire/pnoa-ma"
 
@@ -113,20 +118,37 @@ def chip_url(lon: float, lat: float, recent: bool) -> str:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__)
     ap.add_argument("--labels", required=True, type=Path)
+    ap.add_argument("--sample", default="m3_30m")
     ap.add_argument("--stratum", default="undated")
+    ap.add_argument("--only", choices=["all", "disputed"], default="all",
+                    help="'disputed' shows only the points that disagreed — for "
+                         "LOOKING at, never for correcting (see the header)")
     ap.add_argument("--out", type=Path, default=Path("viewer/m3-review.html"))
     ap.add_argument("--seed", type=int, default=7, help="shuffle seed, so the sheet is reproducible")
     args = ap.parse_args()
 
     rows = {r["id"]: r for r in json.loads(args.labels.read_text())["labels"]}
-    claims = json.loads((PROCESSED / "m3" / "map_claims.json").read_text())["claims"]
+    claims = json.loads((PROCESSED / args.sample / "map_claims.json").read_text())["claims"]
     # map_claims.json deliberately holds no coordinates — it is the answer key, and
     # keeping the two apart is what let the labelling tool stay blind. The points
     # file carries the geometry.
-    coords = {p["id"]: p for p in json.loads((PROCESSED / "m3" / "points.json").read_text())["points"]}
+    coords = {p["id"]: p for p in json.loads((PROCESSED / args.sample / "points.json").read_text())["points"]}
+
+    def disagrees(pid: str, stratum: str) -> bool:
+        r = rows[pid]
+        a, b = r.get("label_2015"), r.get("label_2024")
+        if not a or not b or "unsure" in (a, b):
+            return False
+        seen = "built_before_2015" if a == "built" else (
+            "new_2015_2024" if b == "built" else "not_built")
+        # "undated" can never be returned by a photograph; the map's claim there is
+        # only that SOMETHING is built, so the disagreement is "no building at all".
+        return seen == "not_built" if stratum == "undated" else seen != stratum
 
     pts = [dict(c, **coords[c["id"]]) for c in claims
            if c["stratum"] == args.stratum and c["id"] in rows and c["id"] in coords]
+    if args.only == "disputed":
+        pts = [c for c in pts if disagrees(c["id"], c["stratum"])]
     random.Random(args.seed).shuffle(pts)
 
     cards = []
