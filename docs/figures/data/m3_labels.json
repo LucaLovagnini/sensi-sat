@@ -1,0 +1,4007 @@
+{
+ "island": "Canary Islands",
+ "labelled": "2026-09-20T13:11:35.803Z",
+ "interpreter_saw_the_map": false,
+ "labels": [
+  {
+   "id": "p00267",
+   "lon": -15.4495407,
+   "lat": 28.1299796,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00086",
+   "lon": -16.3145285,
+   "lat": 28.4921803,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00092",
+   "lon": -16.2540718,
+   "lat": 28.4670274,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00204",
+   "lon": -16.5018272,
+   "lat": 28.0794942,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00100",
+   "lon": -16.7377248,
+   "lat": 28.0944063,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00352",
+   "lon": -16.3069826,
+   "lat": 28.4264236,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00051",
+   "lon": -17.9776694,
+   "lat": 28.7667953,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00196",
+   "lon": -13.6259606,
+   "lat": 28.9310073,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00458",
+   "lon": -13.7322313,
+   "lat": 28.9411583,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00021",
+   "lon": -15.4667883,
+   "lat": 28.097191,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00385",
+   "lon": -14.3271856,
+   "lat": 28.1299796,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00411",
+   "lon": -13.8894365,
+   "lat": 28.5978222,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00480",
+   "lon": -16.3006944,
+   "lat": 28.4708902,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00114",
+   "lon": -16.437957,
+   "lat": 28.4790649,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00215",
+   "lon": -16.2898248,
+   "lat": 28.4546307,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00481",
+   "lon": -16.8937621,
+   "lat": 28.342521,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00354",
+   "lon": -16.7145482,
+   "lat": 28.0539821,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00469",
+   "lon": -13.7104921,
+   "lat": 29.0416797,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00079",
+   "lon": -16.4371485,
+   "lat": 28.4706207,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00412",
+   "lon": -13.8570972,
+   "lat": 28.6353717,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00061",
+   "lon": -13.5416088,
+   "lat": 28.9778994,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00006",
+   "lon": -14.0378382,
+   "lat": 28.3209614,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00097",
+   "lon": -16.3686969,
+   "lat": 28.5367367,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00333",
+   "lon": -17.1229224,
+   "lat": 28.1027606,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00441",
+   "lon": -17.8506476,
+   "lat": 28.4797835,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00389",
+   "lon": -14.1363834,
+   "lat": 28.2011261,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00373",
+   "lon": -16.4232246,
+   "lat": 28.1947481,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00291",
+   "lon": -15.4124402,
+   "lat": 28.0237089,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00394",
+   "lon": -14.0990135,
+   "lat": 28.3816875,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00407",
+   "lon": -14.0673928,
+   "lat": 28.4805022,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00253",
+   "lon": -17.9094872,
+   "lat": 27.8222167,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00307",
+   "lon": -15.4875394,
+   "lat": 28.090813,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00463",
+   "lon": -13.7837946,
+   "lat": 28.9011832,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00348",
+   "lon": -16.6395389,
+   "lat": 28.0112223,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00318",
+   "lon": -15.4203454,
+   "lat": 28.072667,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00473",
+   "lon": -13.5893992,
+   "lat": 28.9782587,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00303",
+   "lon": -15.460051,
+   "lat": 28.1139895,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00268",
+   "lon": -15.4176505,
+   "lat": 28.1036589,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00423",
+   "lon": -15.475502,
+   "lat": 27.9539098,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00482",
+   "lon": -16.7695251,
+   "lat": 28.2061567,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00450",
+   "lon": -17.8033064,
+   "lat": 28.5700642,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00003",
+   "lon": -14.0410721,
+   "lat": 28.2530487,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00251",
+   "lon": -17.9465877,
+   "lat": 27.753316,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00310",
+   "lon": -15.4365151,
+   "lat": 28.0594618,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00115",
+   "lon": -16.3651934,
+   "lat": 28.4875989,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00269",
+   "lon": -15.4117216,
+   "lat": 28.0242478,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00271",
+   "lon": -15.6148307,
+   "lat": 27.7895181,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00054",
+   "lon": -17.761894,
+   "lat": 28.6888215,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00239",
+   "lon": -16.6952345,
+   "lat": 28.0234394,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00125",
+   "lon": -16.3161454,
+   "lat": 28.4276812,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00367",
+   "lon": -16.3699545,
+   "lat": 28.5397012,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00160",
+   "lon": -15.4212437,
+   "lat": 27.8816852,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00158",
+   "lon": -15.4766698,
+   "lat": 28.0941368,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00400",
+   "lon": -13.9845681,
+   "lat": 28.3843824,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00460",
+   "lon": -13.8339206,
+   "lat": 28.8937272,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00292",
+   "lon": -15.4076792,
+   "lat": 28.0237987,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00024",
+   "lon": -15.5232025,
+   "lat": 28.1440831,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00104",
+   "lon": -16.3571984,
+   "lat": 28.3992046,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00401",
+   "lon": -13.9851969,
+   "lat": 28.5522776,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00176",
+   "lon": -15.6441158,
+   "lat": 27.7834993,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00337",
+   "lon": -17.8844242,
+   "lat": 28.6421091,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00216",
+   "lon": -16.3744461,
+   "lat": 28.3696501,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00339",
+   "lon": -17.9766812,
+   "lat": 28.7744309,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00350",
+   "lon": -16.463559,
+   "lat": 28.4345983,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00087",
+   "lon": -16.4940118,
+   "lat": 28.4130387,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00382",
+   "lon": -17.9991391,
+   "lat": 27.6500097,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00077",
+   "lon": -16.380914,
+   "lat": 28.496043,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00111",
+   "lon": -16.3080606,
+   "lat": 28.4790649,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00435",
+   "lon": -17.2008063,
+   "lat": 28.0980894,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00221",
+   "lon": -16.304108,
+   "lat": 28.4372034,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00312",
+   "lon": -15.6748381,
+   "lat": 27.8969566,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00078",
+   "lon": -16.253982,
+   "lat": 28.4657698,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00329",
+   "lon": -15.4695731,
+   "lat": 28.0820993,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00037",
+   "lon": -15.4503492,
+   "lat": 27.8329067,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00314",
+   "lon": -15.5167346,
+   "lat": 28.0683551,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00194",
+   "lon": -13.6649475,
+   "lat": 29.1077957,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00107",
+   "lon": -16.2505684,
+   "lat": 28.4708004,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00328",
+   "lon": -15.4143267,
+   "lat": 27.9981967,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00344",
+   "lon": -13.5376562,
+   "lat": 28.9734976,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00076",
+   "lon": -16.7463486,
+   "lat": 28.3630924,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00470",
+   "lon": -13.6118571,
+   "lat": 29.1051906,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00311",
+   "lon": -15.4433423,
+   "lat": 27.9011787,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00422",
+   "lon": -15.7053809,
+   "lat": 27.9274993,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00281",
+   "lon": -15.3953723,
+   "lat": 27.9914593,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00391",
+   "lon": -13.8854839,
+   "lat": 28.4584935,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00142",
+   "lon": -15.3905214,
+   "lat": 27.9622641,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00168",
+   "lon": -15.4249268,
+   "lat": 28.150012,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00420",
+   "lon": -15.7667358,
+   "lat": 27.8275168,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00209",
+   "lon": -16.7735676,
+   "lat": 28.1262965,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00246",
+   "lon": -16.6726868,
+   "lat": 28.0756315,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00135",
+   "lon": -15.4029181,
+   "lat": 27.857251,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00169",
+   "lon": -15.4387609,
+   "lat": 27.859407,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00436",
+   "lon": -17.2838106,
+   "lat": 28.1948379,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00247",
+   "lon": -16.2890163,
+   "lat": 28.4543612,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00208",
+   "lon": -16.6766393,
+   "lat": 28.0144562,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00102",
+   "lon": -16.2206545,
+   "lat": 28.5581166,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00301",
+   "lon": -15.4128894,
+   "lat": 28.0237987,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00452",
+   "lon": -17.8249558,
+   "lat": 28.6039307,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00127",
+   "lon": -13.950522,
+   "lat": 28.5314367,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00305",
+   "lon": -15.5902168,
+   "lat": 27.7695755,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00486",
+   "lon": -16.5922875,
+   "lat": 28.0826383,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": "Greenhouse"
+  },
+  {
+   "id": "p00415",
+   "lon": -13.9402812,
+   "lat": 28.6658246,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00195",
+   "lon": -13.8490123,
+   "lat": 28.8663286,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00237",
+   "lon": -16.7838982,
+   "lat": 28.1335728,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00388",
+   "lon": -14.3991406,
+   "lat": 28.058294,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00381",
+   "lon": -17.9825203,
+   "lat": 27.81512,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00365",
+   "lon": -16.3545933,
+   "lat": 28.4663088,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00379",
+   "lon": -17.9429046,
+   "lat": 27.8312897,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00059",
+   "lon": -13.5692769,
+   "lat": 28.9816723,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00258",
+   "lon": -13.9443236,
+   "lat": 28.3321903,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00057",
+   "lon": -13.5407105,
+   "lat": 28.9726891,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00361",
+   "lon": -16.8196511,
+   "lat": 28.3647992,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00022",
+   "lon": -15.5884202,
+   "lat": 27.7658025,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00123",
+   "lon": -16.2538922,
+   "lat": 28.4669376,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00049",
+   "lon": -17.91335,
+   "lat": 28.6578296,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00089",
+   "lon": -16.6165421,
+   "lat": 28.3860892,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00137",
+   "lon": -15.4741545,
+   "lat": 28.0959334,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00330",
+   "lon": -15.5342518,
+   "lat": 28.0082578,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00035",
+   "lon": -15.4223217,
+   "lat": 28.1118336,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00101",
+   "lon": -16.6610985,
+   "lat": 28.0892859,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00332",
+   "lon": -17.1937995,
+   "lat": 28.1555815,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00143",
+   "lon": -15.4191776,
+   "lat": 28.1109353,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00080",
+   "lon": -16.6593019,
+   "lat": 28.0500295,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00341",
+   "lon": -13.5373868,
+   "lat": 28.9734976,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00117",
+   "lon": -16.8268377,
+   "lat": 28.2025634,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00497",
+   "lon": -16.4684099,
+   "lat": 28.2625709,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00184",
+   "lon": -17.9060736,
+   "lat": 28.6668128,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00443",
+   "lon": -17.7699789,
+   "lat": 28.7137048,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00317",
+   "lon": -15.4180996,
+   "lat": 28.0315242,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00472",
+   "lon": -13.6399744,
+   "lat": 28.9777197,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00091",
+   "lon": -16.2617075,
+   "lat": 28.4567867,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00159",
+   "lon": -15.6416903,
+   "lat": 27.7827807,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00461",
+   "lon": -13.7887354,
+   "lat": 28.8819593,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00147",
+   "lon": -15.4755918,
+   "lat": 28.0941368,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00200",
+   "lon": -13.5051372,
+   "lat": 29.0006267,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00397",
+   "lon": -14.1549785,
+   "lat": 28.4124099,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00119",
+   "lon": -16.2730263,
+   "lat": 28.4521154,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00427",
+   "lon": -15.5297602,
+   "lat": 27.8409017,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00429",
+   "lon": -15.5781794,
+   "lat": 27.898304,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00431",
+   "lon": -15.5402705,
+   "lat": 28.1408492,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00170",
+   "lon": -15.4009418,
+   "lat": 27.8549154,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00027",
+   "lon": -15.4364253,
+   "lat": 28.1381542,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00406",
+   "lon": -14.2840664,
+   "lat": 28.1413882,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00252",
+   "lon": -17.9745253,
+   "lat": 27.8112573,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00316",
+   "lon": -15.4587035,
+   "lat": 27.9848118,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00402",
+   "lon": -14.4044407,
+   "lat": 28.1026708,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00349",
+   "lon": -16.3352795,
+   "lat": 28.4474442,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00366",
+   "lon": -16.5745009,
+   "lat": 28.1208167,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00134",
+   "lon": -15.6239935,
+   "lat": 28.1431848,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00254",
+   "lon": -17.9775795,
+   "lat": 27.744782,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00326",
+   "lon": -15.4085775,
+   "lat": 28.0317937,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00201",
+   "lon": -16.7888389,
+   "lat": 28.1732784,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00228",
+   "lon": -16.8368988,
+   "lat": 28.2360706,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00144",
+   "lon": -15.4254658,
+   "lat": 28.110037,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00324",
+   "lon": -15.581593,
+   "lat": 27.7701145,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00323",
+   "lon": -15.4291489,
+   "lat": 27.9204924,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00217",
+   "lon": -16.7447316,
+   "lat": 28.1209964,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00034",
+   "lon": -15.4037266,
+   "lat": 27.9116889,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00418",
+   "lon": -15.6760958,
+   "lat": 28.025775,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00430",
+   "lon": -15.7607171,
+   "lat": 27.9065685,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00065",
+   "lon": -13.8154153,
+   "lat": 28.8756711,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00023",
+   "lon": -15.4616679,
+   "lat": 27.8106285,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00041",
+   "lon": -15.6085425,
+   "lat": 28.0570364,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00484",
+   "lon": -16.8312394,
+   "lat": 28.2690388,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00464",
+   "lon": -13.5758346,
+   "lat": 29.0984533,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00236",
+   "lon": -16.7102363,
+   "lat": 28.0956639,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00039",
+   "lon": -15.4334608,
+   "lat": 27.9206721,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00040",
+   "lon": -15.4216929,
+   "lat": 28.1510001,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00335",
+   "lon": -17.9088584,
+   "lat": 28.6521702,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00011",
+   "lon": -15.5984813,
+   "lat": 27.7417277,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00088",
+   "lon": -16.3016825,
+   "lat": 28.4525646,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00222",
+   "lon": -16.6733156,
+   "lat": 28.0780569,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00172",
+   "lon": -15.4302269,
+   "lat": 28.1315067,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00320",
+   "lon": -15.4360659,
+   "lat": 28.0594618,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00099",
+   "lon": -16.2964723,
+   "lat": 28.4525646,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00031",
+   "lon": -15.6651363,
+   "lat": 27.7774806,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00148",
+   "lon": -15.6458226,
+   "lat": 27.7867333,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00165",
+   "lon": -15.4742443,
+   "lat": 28.0945859,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00198",
+   "lon": -13.6141029,
+   "lat": 29.0043997,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00478",
+   "lon": -16.6546306,
+   "lat": 28.3735128,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00178",
+   "lon": -15.4794546,
+   "lat": 28.0973707,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00002",
+   "lon": -13.8620379,
+   "lat": 28.4984685,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00185",
+   "lon": -17.913889,
+   "lat": 28.6517211,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00190",
+   "lon": -13.6150012,
+   "lat": 28.9998182,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00105",
+   "lon": -16.5974978,
+   "lat": 28.1077912,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00353",
+   "lon": -16.3852259,
+   "lat": 28.531796,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00290",
+   "lon": -15.4559187,
+   "lat": 28.1112048,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00440",
+   "lon": -17.9665303,
+   "lat": 28.7853006,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00300",
+   "lon": -15.4330117,
+   "lat": 28.0877587,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00096",
+   "lon": -16.7229924,
+   "lat": 28.0910825,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00363",
+   "lon": -16.3983413,
+   "lat": 28.488048,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00068",
+   "lon": -16.3236913,
+   "lat": 28.4830175,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00359",
+   "lon": -16.4145109,
+   "lat": 28.483287,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00083",
+   "lon": -16.5481803,
+   "lat": 28.3818672,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00138",
+   "lon": -15.57252,
+   "lat": 27.7653534,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00211",
+   "lon": -16.7739269,
+   "lat": 28.1198286,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00197",
+   "lon": -13.5462801,
+   "lat": 28.9682874,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00489",
+   "lon": -16.8635788,
+   "lat": 28.2897,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00343",
+   "lon": -13.6700679,
+   "lat": 29.0833616,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00279",
+   "lon": -15.4116318,
+   "lat": 28.0242478,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00491",
+   "lon": -16.8217173,
+   "lat": 28.2794592,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00110",
+   "lon": -16.8396836,
+   "lat": 28.242269,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00447",
+   "lon": -17.8874785,
+   "lat": 28.6761552,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00444",
+   "lon": -17.8858615,
+   "lat": 28.7833243,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00404",
+   "lon": -14.03155,
+   "lat": 28.4528341,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00131",
+   "lon": -13.9906766,
+   "lat": 28.4037861,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00438",
+   "lon": -17.3201924,
+   "lat": 28.0768891,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00264",
+   "lon": -13.8579955,
+   "lat": 28.7286169,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00249",
+   "lon": -16.3726495,
+   "lat": 28.3605771,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00280",
+   "lon": -15.4944564,
+   "lat": 28.1189303,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00106",
+   "lon": -16.7060143,
+   "lat": 28.3786332,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00047",
+   "lon": -17.2272168,
+   "lat": 28.1810937,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00334",
+   "lon": -17.8024081,
+   "lat": 28.8382113,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00445",
+   "lon": -17.8135472,
+   "lat": 28.5292807,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00095",
+   "lon": -16.2596414,
+   "lat": 28.4602003,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00064",
+   "lon": -13.8334715,
+   "lat": 28.8768389,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00203",
+   "lon": -16.4579894,
+   "lat": 28.4319033,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00133",
+   "lon": -15.7590103,
+   "lat": 27.8251812,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00424",
+   "lon": -15.4376829,
+   "lat": 27.9561555,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00245",
+   "lon": -16.5744111,
+   "lat": 28.3962402,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00453",
+   "lon": -17.8394186,
+   "lat": 28.5028702,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00243",
+   "lon": -16.7446418,
+   "lat": 28.1209964,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00369",
+   "lon": -16.7387129,
+   "lat": 28.3664161,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00202",
+   "lon": -16.2780569,
+   "lat": 28.4663088,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00471",
+   "lon": -13.5104373,
+   "lat": 28.9933504,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00364",
+   "lon": -16.4490961,
+   "lat": 28.4536426,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00230",
+   "lon": -16.3900768,
+   "lat": 28.4575951,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00416",
+   "lon": -15.613573,
+   "lat": 27.7624788,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00428",
+   "lon": -15.6841806,
+   "lat": 27.876475,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00055",
+   "lon": -17.7792315,
+   "lat": 28.6616025,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00146",
+   "lon": -15.5702742,
+   "lat": 27.7614906,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00093",
+   "lon": -16.2962927,
+   "lat": 28.424088,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00225",
+   "lon": -16.8359106,
+   "lat": 28.2354418,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00122",
+   "lon": -16.5746806,
+   "lat": 28.4005521,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00413",
+   "lon": -14.0374789,
+   "lat": 28.2968865,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00355",
+   "lon": -16.4633793,
+   "lat": 28.1210862,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00015",
+   "lon": -15.6869654,
+   "lat": 28.1545934,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00273",
+   "lon": -15.488797,
+   "lat": 28.0911723,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00082",
+   "lon": -16.7159856,
+   "lat": 28.050838,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00293",
+   "lon": -15.407769,
+   "lat": 28.0308055,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00152",
+   "lon": -15.608812,
+   "lat": 27.7517888,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00162",
+   "lon": -15.4201658,
+   "lat": 28.1010538,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00255",
+   "lon": -13.8573667,
+   "lat": 28.7278982,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00467",
+   "lon": -13.723877,
+   "lat": 29.0460815,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00275",
+   "lon": -15.6760059,
+   "lat": 27.7609516,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00454",
+   "lon": -17.8201049,
+   "lat": 28.5346706,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00014",
+   "lon": -15.4189979,
+   "lat": 28.1511798,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00500",
+   "lon": -16.7348502,
+   "lat": 28.2428978,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00154",
+   "lon": -15.4030978,
+   "lat": 27.85779,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00387",
+   "lon": -13.889706,
+   "lat": 28.6832519,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00466",
+   "lon": -13.7456162,
+   "lat": 28.9479855,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00294",
+   "lon": -15.549074,
+   "lat": 28.1462391,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00140",
+   "lon": -15.757034,
+   "lat": 27.8265287,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00345",
+   "lon": -13.747323,
+   "lat": 28.9522075,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00331",
+   "lon": -17.3160602,
+   "lat": 28.1122827,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00012",
+   "lon": -15.5607521,
+   "lat": 28.0586533,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00419",
+   "lon": -15.7439186,
+   "lat": 28.0234394,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00426",
+   "lon": -15.6347733,
+   "lat": 28.0801231,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00085",
+   "lon": -16.8161477,
+   "lat": 28.1813632,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00016",
+   "lon": -15.4315744,
+   "lat": 28.1559409,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00302",
+   "lon": -15.488797,
+   "lat": 28.0900045,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00325",
+   "lon": -15.4101945,
+   "lat": 28.0239784,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00362",
+   "lon": -16.5399158,
+   "lat": 28.3833045,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00075",
+   "lon": -16.6807716,
+   "lat": 28.1006046,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00313",
+   "lon": -15.5024514,
+   "lat": 28.1236015,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00223",
+   "lon": -16.7394316,
+   "lat": 28.1161455,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00235",
+   "lon": -16.6721478,
+   "lat": 28.0176003,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00149",
+   "lon": -15.4966124,
+   "lat": 28.0381717,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00304",
+   "lon": -15.6371987,
+   "lat": 27.7813434,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00408",
+   "lon": -14.0040615,
+   "lat": 28.2627506,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00175",
+   "lon": -15.4754121,
+   "lat": 28.0953046,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00028",
+   "lon": -15.5788082,
+   "lat": 27.7560109,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00098",
+   "lon": -16.3739071,
+   "lat": 28.3265309,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00046",
+   "lon": -17.2952192,
+   "lat": 28.1280033,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00187",
+   "lon": -13.7740928,
+   "lat": 28.9169037,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00409",
+   "lon": -14.0014564,
+   "lat": 28.7041827,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00244",
+   "lon": -16.7457198,
+   "lat": 28.1226134,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00234",
+   "lon": -16.3404898,
+   "lat": 28.423549,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00164",
+   "lon": -15.4771189,
+   "lat": 28.0939571,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00288",
+   "lon": -15.4215132,
+   "lat": 28.1531561,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00371",
+   "lon": -16.3789377,
+   "lat": 28.2884424,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00338",
+   "lon": -17.8619664,
+   "lat": 28.6567516,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00167",
+   "lon": -15.6816653,
+   "lat": 27.7582567,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00287",
+   "lon": -15.7241556,
+   "lat": 27.8843802,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00139",
+   "lon": -15.4393897,
+   "lat": 28.0995267,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00392",
+   "lon": -13.896623,
+   "lat": 28.7416424,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00193",
+   "lon": -13.5161865,
+   "lat": 28.9984708,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00180",
+   "lon": -17.1062137,
+   "lat": 28.1064437,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00457",
+   "lon": -13.4659707,
+   "lat": 29.0899193,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00448",
+   "lon": -17.9221535,
+   "lat": 28.6356412,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00483",
+   "lon": -16.4010362,
+   "lat": 28.2674218,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00403",
+   "lon": -13.86626,
+   "lat": 28.4369339,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00072",
+   "lon": -16.6045046,
+   "lat": 28.0305361,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00393",
+   "lon": -13.8791059,
+   "lat": 28.4169015,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00368",
+   "lon": -16.7723998,
+   "lat": 28.1788479,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00248",
+   "lon": -16.8380666,
+   "lat": 28.2436164,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00242",
+   "lon": -16.675741,
+   "lat": 28.0189478,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00459",
+   "lon": -13.6512033,
+   "lat": 28.9478956,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00155",
+   "lon": -15.4052537,
+   "lat": 27.859946,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00372",
+   "lon": -16.5748602,
+   "lat": 28.1215354,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00199",
+   "lon": -13.8178408,
+   "lat": 28.8636336,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00081",
+   "lon": -16.5778247,
+   "lat": 28.1123726,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00285",
+   "lon": -15.4079487,
+   "lat": 28.0239784,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00322",
+   "lon": -15.3820772,
+   "lat": 27.9770863,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00493",
+   "lon": -16.6716986,
+   "lat": 28.1669901,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00240",
+   "lon": -16.744552,
+   "lat": 28.1226134,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00009",
+   "lon": -15.4398389,
+   "lat": 28.0958436,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00479",
+   "lon": -16.5521328,
+   "lat": 28.3072172,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00045",
+   "lon": -17.2644969,
+   "lat": 28.175075,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00094",
+   "lon": -16.4967068,
+   "lat": 28.1690563,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00120",
+   "lon": -16.7294603,
+   "lat": 28.0664687,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00112",
+   "lon": -16.3925921,
+   "lat": 28.5071821,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00238",
+   "lon": -16.7859643,
+   "lat": 28.1713919,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00206",
+   "lon": -16.7107753,
+   "lat": 28.0953944,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00026",
+   "lon": -15.4365151,
+   "lat": 28.1091386,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00220",
+   "lon": -16.744552,
+   "lat": 28.1209964,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00166",
+   "lon": -15.4753223,
+   "lat": 28.0952148,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00048",
+   "lon": -17.7759976,
+   "lat": 28.5716812,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00485",
+   "lon": -16.5957011,
+   "lat": 28.1138997,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00433",
+   "lon": -17.1491532,
+   "lat": 28.0651212,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00336",
+   "lon": -17.9084991,
+   "lat": 28.6364497,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00309",
+   "lon": -15.5829405,
+   "lat": 27.7670602,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00299",
+   "lon": -15.4486424,
+   "lat": 28.0634144,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00056",
+   "lon": -13.6606356,
+   "lat": 28.9257971,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00241",
+   "lon": -16.6537323,
+   "lat": 28.0207444,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00295",
+   "lon": -15.4665188,
+   "lat": 27.8463814,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00495",
+   "lon": -16.7226331,
+   "lat": 28.1845971,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00084",
+   "lon": -16.3598934,
+   "lat": 28.532874,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00417",
+   "lon": -15.7494881,
+   "lat": 27.9224687,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00156",
+   "lon": -15.4150454,
+   "lat": 27.8596765,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00425",
+   "lon": -15.4599611,
+   "lat": 28.0133782,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00224",
+   "lon": -16.4456825,
+   "lat": 28.1438136,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00488",
+   "lon": -16.3013232,
+   "lat": 28.466219,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00207",
+   "lon": -16.3710325,
+   "lat": 28.3347056,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00030",
+   "lon": -15.550152,
+   "lat": 27.769845,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00136",
+   "lon": -15.498948,
+   "lat": 28.1025809,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00360",
+   "lon": -16.576567,
+   "lat": 28.3771061,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00126",
+   "lon": -14.0516723,
+   "lat": 28.3224885,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00157",
+   "lon": -15.418459,
+   "lat": 27.8749478,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00018",
+   "lon": -15.579976,
+   "lat": 27.7570889,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00370",
+   "lon": -16.2729365,
+   "lat": 28.4708902,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00396",
+   "lon": -13.9384845,
+   "lat": 28.3502465,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00340",
+   "lon": -13.5890399,
+   "lat": 28.95625,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00042",
+   "lon": -15.3909705,
+   "lat": 28.0124799,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00071",
+   "lon": -16.3812733,
+   "lat": 28.4863412,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00356",
+   "lon": -16.5755789,
+   "lat": 28.1208167,
+   "label_2015": "built",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00399",
+   "lon": -14.0894015,
+   "lat": 28.3572533,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00434",
+   "lon": -17.165772,
+   "lat": 28.0619771,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00315",
+   "lon": -15.4496305,
+   "lat": 28.1295304,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00272",
+   "lon": -15.4878089,
+   "lat": 28.0910825,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00289",
+   "lon": -15.4125301,
+   "lat": 27.9966696,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00475",
+   "lon": -13.5770025,
+   "lat": 29.0619817,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00347",
+   "lon": -16.2991673,
+   "lat": 28.4426831,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00062",
+   "lon": -13.6722239,
+   "lat": 28.9251682,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00276",
+   "lon": -15.4776579,
+   "lat": 28.0432023,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00067",
+   "lon": -16.3034792,
+   "lat": 28.4633444,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00066",
+   "lon": -13.5719719,
+   "lat": 28.9815824,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00141",
+   "lon": -15.5264365,
+   "lat": 28.1166845,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00108",
+   "lon": -16.7936898,
+   "lat": 28.1669901,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00214",
+   "lon": -16.3757037,
+   "lat": 28.3673145,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00038",
+   "lon": -15.6927146,
+   "lat": 27.7728992,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00376",
+   "lon": -17.9742558,
+   "lat": 27.8020046,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00499",
+   "lon": -16.8180342,
+   "lat": 28.3529414,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00262",
+   "lon": -13.8580853,
+   "lat": 28.728527,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00036",
+   "lon": -15.4930191,
+   "lat": 28.1339321,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00090",
+   "lon": -16.5643499,
+   "lat": 28.0308954,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00007",
+   "lon": -15.4376829,
+   "lat": 28.1319558,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00405",
+   "lon": -13.9201589,
+   "lat": 28.7249338,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00029",
+   "lon": -15.440827,
+   "lat": 28.108959,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00060",
+   "lon": -13.4877099,
+   "lat": 29.0035013,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00474",
+   "lon": -13.739867,
+   "lat": 29.0291932,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00498",
+   "lon": -16.4785608,
+   "lat": 28.147317,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00496",
+   "lon": -16.5022763,
+   "lat": 28.3909401,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00233",
+   "lon": -16.6722376,
+   "lat": 28.0995267,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00043",
+   "lon": -15.4475644,
+   "lat": 27.9203128,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00004",
+   "lon": -13.8684159,
+   "lat": 28.4708902,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00188",
+   "lon": -13.8185594,
+   "lat": 28.862915,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00257",
+   "lon": -13.8576362,
+   "lat": 28.7281677,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00005",
+   "lon": -14.0242736,
+   "lat": 28.2101093,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00058",
+   "lon": -13.6904597,
+   "lat": 29.0430272,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00227",
+   "lon": -16.6536425,
+   "lat": 28.3727942,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00232",
+   "lon": -16.7438333,
+   "lat": 28.1280033,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00278",
+   "lon": -15.674389,
+   "lat": 27.8970464,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00150",
+   "lon": -15.4774783,
+   "lat": 28.0947656,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00477",
+   "lon": -13.7890947,
+   "lat": 28.9960453,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00283",
+   "lon": -15.4630154,
+   "lat": 27.842878,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00449",
+   "lon": -17.9591641,
+   "lat": 28.8110822,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00383",
+   "lon": -17.9807236,
+   "lat": 27.8246422,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00256",
+   "lon": -14.022477,
+   "lat": 28.2114568,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00073",
+   "lon": -16.658134,
+   "lat": 28.0471549,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00374",
+   "lon": -16.7725794,
+   "lat": 28.1810039,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00377",
+   "lon": -17.9612302,
+   "lat": 27.8338948,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00019",
+   "lon": -15.5441333,
+   "lat": 28.0529041,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00121",
+   "lon": -16.4994017,
+   "lat": 28.4080081,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00161",
+   "lon": -15.4533136,
+   "lat": 28.1131811,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00151",
+   "lon": -15.390701,
+   "lat": 27.9610963,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00282",
+   "lon": -15.4213336,
+   "lat": 27.8771936,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00265",
+   "lon": -13.8561988,
+   "lat": 28.7278084,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00053",
+   "lon": -17.7603669,
+   "lat": 28.6897198,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00124",
+   "lon": -16.733323,
+   "lat": 28.1521679,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00130",
+   "lon": -13.9440541,
+   "lat": 28.4923599,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00113",
+   "lon": -16.3100369,
+   "lat": 28.47098,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00231",
+   "lon": -16.6353168,
+   "lat": 28.3605771,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00421",
+   "lon": -15.4771189,
+   "lat": 27.9975679,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00296",
+   "lon": -15.4598713,
+   "lat": 28.1175828,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00297",
+   "lon": -15.4725375,
+   "lat": 28.0883876,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00212",
+   "lon": -16.6534628,
+   "lat": 28.0972809,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00218",
+   "lon": -16.5830349,
+   "lat": 28.3911198,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00020",
+   "lon": -15.4187285,
+   "lat": 28.1066234,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00103",
+   "lon": -16.5059594,
+   "lat": 28.3789027,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00153",
+   "lon": -15.47658,
+   "lat": 28.0953944,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00476",
+   "lon": -13.4453993,
+   "lat": 29.1505555,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00446",
+   "lon": -17.8776869,
+   "lat": 28.7846717,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00386",
+   "lon": -14.0625419,
+   "lat": 28.3916588,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00213",
+   "lon": -16.803751,
+   "lat": 28.3291361,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00261",
+   "lon": -13.8564683,
+   "lat": 28.7267304,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00032",
+   "lon": -15.5491638,
+   "lat": 28.0379921,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00063",
+   "lon": -13.6388964,
+   "lat": 28.9271445,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00284",
+   "lon": -15.5827608,
+   "lat": 27.767689,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00378",
+   "lon": -17.920806,
+   "lat": 27.8161082,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00118",
+   "lon": -16.7631471,
+   "lat": 28.3736027,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00358",
+   "lon": -16.3000656,
+   "lat": 28.4548104,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00008",
+   "lon": -15.4341795,
+   "lat": 28.1342915,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00465",
+   "lon": -13.5928128,
+   "lat": 29.1096822,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00277",
+   "lon": -15.4054334,
+   "lat": 27.9299247,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00490",
+   "lon": -16.7075414,
+   "lat": 28.1383339,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00191",
+   "lon": -13.821434,
+   "lat": 28.8752219,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00375",
+   "lon": -16.4098397,
+   "lat": 28.3391074,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00017",
+   "lon": -15.3978875,
+   "lat": 27.8593172,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00468",
+   "lon": -13.7316923,
+   "lat": 28.9132207,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00129",
+   "lon": -13.8703922,
+   "lat": 28.7323,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00432",
+   "lon": -15.5327247,
+   "lat": 28.0489515,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00145",
+   "lon": -15.4304964,
+   "lat": 28.1364474,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00179",
+   "lon": -15.4191776,
+   "lat": 28.0873994,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00074",
+   "lon": -16.6854428,
+   "lat": 28.3851909,
+   "label_2015": "built",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00492",
+   "lon": -16.6723274,
+   "lat": 28.100964,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00052",
+   "lon": -17.761894,
+   "lat": 28.6871147,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00455",
+   "lon": -17.8269321,
+   "lat": 28.6140817,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00013",
+   "lon": -15.6432174,
+   "lat": 28.1471374,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00109",
+   "lon": -16.5533905,
+   "lat": 28.4125895,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00414",
+   "lon": -14.1580328,
+   "lat": 28.3244648,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00219",
+   "lon": -16.2778772,
+   "lat": 28.4655901,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00298",
+   "lon": -15.547996,
+   "lat": 28.0926096,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00174",
+   "lon": -15.4430728,
+   "lat": 28.0989877,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00462",
+   "lon": -13.8173916,
+   "lat": 28.8609387,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00010",
+   "lon": -15.4221421,
+   "lat": 28.0571262,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00177",
+   "lon": -15.4174708,
+   "lat": 27.866324,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00451",
+   "lon": -17.8847836,
+   "lat": 28.6585483,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00205",
+   "lon": -16.3763325,
+   "lat": 28.3305734,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00186",
+   "lon": -13.5211272,
+   "lat": 28.995686,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00210",
+   "lon": -16.7863236,
+   "lat": 28.1740868,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00308",
+   "lon": -15.4892462,
+   "lat": 28.0905435,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00327",
+   "lon": -15.4605001,
+   "lat": 27.7987707,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00259",
+   "lon": -13.8573667,
+   "lat": 28.7286169,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00395",
+   "lon": -13.9907665,
+   "lat": 28.3315615,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00025",
+   "lon": -15.5205076,
+   "lat": 28.12441,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00456",
+   "lon": -13.4772895,
+   "lat": 29.1377995,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00357",
+   "lon": -16.4817049,
+   "lat": 28.4325321,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00319",
+   "lon": -15.4694833,
+   "lat": 27.8479984,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00442",
+   "lon": -17.7905503,
+   "lat": 28.5439232,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00437",
+   "lon": -17.1331632,
+   "lat": 28.100425,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00410",
+   "lon": -14.3342822,
+   "lat": 28.0559584,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00181",
+   "lon": -17.1054951,
+   "lat": 28.1065335,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00487",
+   "lon": -16.6076487,
+   "lat": 28.1599833,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00069",
+   "lon": -16.786144,
+   "lat": 28.2151398,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00189",
+   "lon": -13.7643012,
+   "lat": 28.9536448,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00274",
+   "lon": -15.5952474,
+   "lat": 27.7673297,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00346",
+   "lon": -13.61563,
+   "lat": 28.9961352,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00116",
+   "lon": -16.3050063,
+   "lat": 28.4160031,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00342",
+   "lon": -13.7993355,
+   "lat": 28.8658794,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00171",
+   "lon": -15.4507983,
+   "lat": 28.1159658,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00380",
+   "lon": -17.9737168,
+   "lat": 27.7667907,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00033",
+   "lon": -15.7007995,
+   "lat": 28.1006046,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00270",
+   "lon": -15.4207047,
+   "lat": 28.0724874,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00306",
+   "lon": -15.4177403,
+   "lat": 28.0317039,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00044",
+   "lon": -17.1941588,
+   "lat": 28.0330513,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00384",
+   "lon": -13.9244708,
+   "lat": 28.573388,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00163",
+   "lon": -15.3876467,
+   "lat": 28.0224512,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00263",
+   "lon": -13.857187,
+   "lat": 28.7278982,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00260",
+   "lon": -13.9021926,
+   "lat": 28.6333954,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00229",
+   "lon": -16.1966695,
+   "lat": 28.4980193,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00250",
+   "lon": -16.3823513,
+   "lat": 28.3300344,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00173",
+   "lon": -15.4790952,
+   "lat": 28.097191,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00226",
+   "lon": -16.421967,
+   "lat": 28.3322802,
+   "label_2015": "not",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00398",
+   "lon": -14.0507739,
+   "lat": 28.207055,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00182",
+   "lon": -17.9153263,
+   "lat": 28.6610636,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00001",
+   "lon": -13.9021926,
+   "lat": 28.5252383,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00390",
+   "lon": -14.0473603,
+   "lat": 28.2250213,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00132",
+   "lon": -13.9418083,
+   "lat": 28.6802875,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00192",
+   "lon": -13.8117322,
+   "lat": 28.8611184,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00286",
+   "lon": -15.4127996,
+   "lat": 28.0017001,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00070",
+   "lon": -16.3584561,
+   "lat": 28.4981092,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00439",
+   "lon": -17.9374248,
+   "lat": 28.7406543,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00050",
+   "lon": -17.7461735,
+   "lat": 28.7437086,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00266",
+   "lon": -13.8945569,
+   "lat": 28.3250936,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00128",
+   "lon": -13.9239318,
+   "lat": 28.6165969,
+   "label_2015": "not",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00494",
+   "lon": -16.4518809,
+   "lat": 28.299312,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00321",
+   "lon": -15.6724127,
+   "lat": 27.7722704,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00351",
+   "lon": -16.7717709,
+   "lat": 28.1752546,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00183",
+   "lon": -17.8826276,
+   "lat": 28.6112071,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  }
+ ]
+}
