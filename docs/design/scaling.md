@@ -143,3 +143,71 @@ same bytes.
 
 The tile server that was parked in decision 4 stays parked. It would add a
 per-request cost exactly where there currently is none.
+
+---
+
+## 6. The intended end state: R2, and no Worker at all
+
+Decided 2026-09-20, **deferred until `sensisat.org` is registered**. Recorded here
+because the current deployment is a workaround, and workarounds that are not
+written down become permanent by accident.
+
+### Why the Worker exists, and why it should not
+
+Cloudflare's Workers Assets platform ignores the `Range` header (§4, G1), so
+`worker/index.js` fetches each raster and slices it by hand. It works, it is
+verified, and it is free at our scale. It is also ~90 lines of our code on the
+critical path of every map tile, pulling a whole object into memory to return a
+few kilobytes of it.
+
+**R2 does this properly at the storage layer.** Range requests are fundamental to
+object storage, so an R2-hosted COG needs no shim at all.
+
+### What it would cost — measured against published limits `[list price 2026-09-20]`
+
+| | R2 free tier | our usage at 10k visitors/month | headroom |
+|---|---|---|---|
+| storage | 10 GB-month | **0.06 GB** (the whole site is 60.6 MiB) | 165× |
+| Class B reads (a GET, including a range request) | 10M/month | ~20,000 | **500×** |
+| Class A writes | 1M/month | ~137 per deploy | irrelevant |
+| egress | — | — | **free, no tier** |
+
+The read allowance runs out at roughly **5 million visits a month**; beyond that
+reads are $0.36/million, so 10M visits would be about **$4**.
+
+That is *more* headroom than the present setup, not less. Workers allows 100,000
+requests/day (~3M/month), so today we are free to ~1.5M visits/month; R2 would be
+free to ~5M.
+
+### The architecture it produces
+
+- `data/` (the COGs, STAC and index) in an R2 bucket on a subdomain — native
+  ranges, free egress, Cloudflare cache in front.
+- the viewer shell (HTML, CSS, the JS bundle) stays on Workers Assets, where
+  *"requests to static assets are free and unlimited"*.
+- **no Worker.** `worker/index.js`, the `run_worker_first` routing and the billing
+  alert that exists only because of them all go away.
+
+### Why it is blocked
+
+R2 has exactly two ways to be public, and only one is usable. Cloudflare's own
+wording on the first: the `r2.dev` subdomain is *"rate-limited and should only be
+used for development purposes"*, *"intended for non-production traffic"*. The
+second — a custom domain — requires the domain to be **a zone in the same
+Cloudflare account**.
+
+So this waits on `sensisat.org` being registered and its DNS moved to Cloudflare.
+
+### The steps, when that happens
+
+1. Register `sensisat.org` (Cloudflare Registrar sells at cost) and add it as a zone.
+2. Enable R2 in the dashboard — a one-time click that also accepts its terms.
+3. `wrangler r2 bucket create sensisat-data`, upload `dist/data/`, attach it to a
+   subdomain such as `data.sensisat.org`, and set a CORS rule allowing the site's
+   origin.
+4. Point `DATA_CANDIDATES` in `viewer/app.js` at that subdomain.
+5. Delete `worker/index.js`, drop `main` and `run_worker_first` from
+   `wrangler.jsonc`, and redeploy.
+6. Re-run the range-request pre-flight against the new origin before trusting it —
+   the whole reason this section exists is that the platform's behaviour was not
+   what its documentation implied.

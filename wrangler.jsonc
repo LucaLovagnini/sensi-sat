@@ -7,10 +7,15 @@
   "assets": {
     "directory": "dist",
     "binding": "ASSETS",
-    // By default a request matching a static asset is served straight from the
-    // asset store and the Worker never runs — which is why the range shim had no
-    // effect until this was set. The Worker must see every request in order to
-    // honour `Range`, which the asset store ignores.
-    "run_worker_first": true
+    // Scoped to the rasters, not `true`.
+    //
+    // The Worker exists only to honour `Range`, which the asset platform ignores,
+    // and only the COGs are ever range-requested. Running it for everything made
+    // every request to the page, the bundle and the stylesheets a Worker
+    // invocation — and Cloudflare bills Worker invocations (100,000/day free)
+    // while "requests to static assets are free and unlimited". Scoping it here
+    // takes the billable path from ~6 requests a visit to ~2, and leaves the shell
+    // on the free path where it belongs.
+    "run_worker_first": ["/data/*.tif", "/data/*/*.tif"]
   }
 }
