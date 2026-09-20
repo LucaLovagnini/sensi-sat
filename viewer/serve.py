@@ -27,6 +27,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 RANGE_RE = re.compile(r"bytes=(\d*)-(\d*)")
 
+# Bytes actually served, so a real session can be measured rather than estimated.
+TALLY: dict = {"bytes": 0, "requests": 0, "by_kind": {}}
+
 
 class RangeHandler(http.server.SimpleHTTPRequestHandler):
     """SimpleHTTPRequestHandler plus single-range support and permissive CORS."""
@@ -90,6 +93,21 @@ class RangeHandler(http.server.SimpleHTTPRequestHandler):
         if "favicon" not in (args[0] if args else ""):
             super().log_message(fmt, *args)
 
+    def send_header(self, keyword, value):
+        # Tally what actually goes over the wire. A COG is read by range request,
+        # so the bytes a visitor costs are nothing like the file's size, and that
+        # difference is the whole cost model for hosting this.
+        if keyword == "Content-Length":
+            TALLY["bytes"] += int(value)
+            TALLY["requests"] += 1
+            path = self.path.split("?")[0]
+            kind = ("cog" if path.endswith(".tif") else
+                    "stac" if path.endswith(".json") else "shell")
+            TALLY["by_kind"][kind] = TALLY["by_kind"].get(kind, [0, 0])
+            TALLY["by_kind"][kind][0] += 1
+            TALLY["by_kind"][kind][1] += int(value)
+        super().send_header(keyword, value)
+
 
 class _Slice:
     """A file-like object exposing only the requested byte range."""
@@ -120,7 +138,20 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--port", type=int, default=8777)
     ap.add_argument("--host", default="127.0.0.1")
+    ap.add_argument("--stats", action="store_true",
+                    help="write bytes-served tallies to /tmp/serve_tally.json each second")
     args = ap.parse_args()
+
+    if args.stats:
+        import json as _json
+        import threading
+
+        def dump():
+            while True:
+                import time as _t
+                _t.sleep(1)
+                Path("/tmp/serve_tally.json").write_text(_json.dumps(TALLY))
+        threading.Thread(target=dump, daemon=True).start()
 
     handler = functools.partial(RangeHandler, directory=str(ROOT))
     with Server((args.host, args.port), handler) as httpd:
