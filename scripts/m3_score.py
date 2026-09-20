@@ -26,7 +26,12 @@ import math
 import sys
 from pathlib import Path
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
+
+from sensisat.config import PROCESSED  # noqa: E402
+
 
 # What the pair of photo judgements implies about the ground.
 #
@@ -61,6 +66,9 @@ def main() -> int:
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--labels", required=True)
     ap.add_argument("--claims", default="data/processed/m3/map_claims.json")
+    ap.add_argument("--tolerance-px", type=int, default=0,
+                    help="count a point as agreeing if the map holds the reference "
+                         "class within this many pixels (0 = strict)")
     args = ap.parse_args()
 
     labels = {r["id"]: r for r in json.loads(Path(args.labels).read_text())["labels"]}
@@ -73,6 +81,53 @@ def main() -> int:
     total_km2 = sum(areas.values())
 
     # counts[map class][reference class]
+    # --- optional 1-pixel tolerance ------------------------------------------
+    # The median Canary building is 121 m2 against a 100 m2 pixel, so 78-87 % of
+    # sampled built points sit directly against a class boundary: the layer has
+    # almost no interior to sample. The photograph shows a ROOF and the map encodes
+    # a GROUND footprint, and orthorectification corrects terrain, not buildings, so
+    # a tall roof is displaced several metres. Judging which side of a 10 m line the
+    # truth falls on is beyond both sources.
+    #
+    # With a tolerance, a point counts as agreeing when the map holds the reference
+    # class anywhere within N pixels — the map has the right thing, misplaced. This
+    # gives MORE chances to agree for every point, so it is an upper bound, and the
+    # strict run is the lower bound. The honest statement is the pair.
+    nearby: dict[str, set[str]] = {}
+    if args.tolerance_px:
+        import rasterio
+        from rasterio.windows import Window
+
+        from sensisat import encoding as enc2
+        pts_f = Path(args.claims).parent / "points.json"
+        coords = {p["id"]: p for p in json.loads(pts_f.read_text())["points"]}
+        opened: dict[str, object] = {}
+        k = args.tolerance_px
+        for c in claims.values():
+            p = coords.get(c["id"])
+            if not p:
+                continue
+            slug = c["island"].lower().replace(" ", "-")
+            if slug not in opened:
+                opened[slug] = rasterio.open(PROCESSED / "buildings-dated" / f"{slug}.tif")
+            src = opened[slug]
+            r, col = src.index(p["lon"], p["lat"])
+            a = src.read(1, window=Window(col - k, r - k, 2 * k + 1, 2 * k + 1),
+                         boundless=True, fill_value=0)
+            found = set()
+            for v in np.unique(a):
+                if v == 0:
+                    found.add("not_built")
+                elif v == enc2.UNDATED:
+                    found.add("undated")
+                else:
+                    found.add("built_before_2015" if int(v) + 1899 <= 2015 else "new_2015_2024")
+            nearby[c["id"]] = found
+
+    # The three classes a photograph can actually return. "undated" is not one:
+    # it is a statement about our knowledge, not about the ground.
+    OBSERVABLE = ("built_before_2015", "new_2015_2024", "not_built")
+
     counts: dict[str, dict[str, int]] = {s: {} for s in strata}
     n: dict[str, int] = {s: 0 for s in strata}
     excluded = []          # judged, but the photographs could not settle it
@@ -86,6 +141,12 @@ def main() -> int:
         if ref is None:
             excluded.append((pid, claim["stratum"], lab.get("label_2015"), lab.get("label_2024")))
             continue
+        # Tolerance applies only where the stratum is a class the photographs can
+        # actually return. "undated" is a statement about OUR knowledge, never an
+        # observation, so reassigning to it would manufacture agreement from nothing.
+        if (args.tolerance_px and claim["stratum"] in OBSERVABLE
+                and ref != claim["stratum"] and ref in nearby.get(pid, ())):
+            ref = claim["stratum"]          # right class, misplaced by a pixel
         s = claim["stratum"]
         counts[s][ref] = counts[s].get(ref, 0) + 1
         n[s] += 1
