@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensiSat — urban expansion in the Canary Islands</title>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.2.1/ol.css">
+<link rel="stylesheet" href="style.css">
+<script type="importmap">
+{ "imports": {
+    "ol": "https://esm.sh/ol@10.2.1",
+    "ol/": "https://esm.sh/ol@10.2.1/"
+} }
+</script>
+</head>
+<body>
+<div id="map"></div>
+
+<aside id="panel">
+  <header>
+    <h1>SensiSat</h1>
+    <p class="sub">Built-up land in the Canary Islands, 1900&ndash;2026</p>
+  </header>
+
+  <label class="field">
+    <span>Island</span>
+    <select id="island"></select>
+  </label>
+
+  <div class="field">
+    <span>Basemap</span>
+    <div class="modes" id="basemaps"></div>
+  </div>
+
+  <label class="field">
+    <span>Layer</span>
+    <select id="layer"></select>
+  </label>
+  <p id="layer-note" class="note"></p>
+
+  <div id="time-controls">
+    <div class="field">
+      <span>View</span>
+      <div class="modes">
+        <button data-mode="state" class="on">State at year</button>
+        <button data-mode="since">Added since</button>
+      </div>
+    </div>
+    <p id="mode-note" class="note"></p>
+
+    <div class="year-row">
+      <output id="year-out">2020</output>
+      <button id="play" title="Play through the years">&#9658;</button>
+    </div>
+    <input type="range" id="year" min="1900" max="2020" value="2020" step="1">
+    <div class="ticks"><span id="tick-min"></span><span id="tick-max"></span></div>
+    <p id="seam-note" class="seam"></p>
+  </div>
+
+  <div id="legend"></div>
+  <div id="readout"></div>
+
+  <footer>
+    <p id="status">Loading…</p>
+    <p class="attrib">Basemap tiles &copy; Esri. Data: Spanish Catastro, DLR (WSF),
+      EU JRC (GHSL), Copernicus/EEA, Gobierno de Canarias.</p>
+  </footer>
+</aside>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

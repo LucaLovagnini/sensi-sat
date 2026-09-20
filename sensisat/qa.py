@@ -288,6 +288,37 @@ def stac_valid(catalog_path: Path) -> Gate:
                 "every object valid", detail)
 
 
+def assets_resolve(catalog_path: Path) -> Gate:
+    """Does every asset href in the catalogue point at a file that exists?
+
+    Separate from `stac_valid` because the two check different things and only one
+    of them was failing. STAC schemas validate the SHAPE of a document; they do not
+    fetch an href to see whether anything is there. A catalogue can therefore be
+    perfectly valid and completely useless — which is what happened here: every
+    asset href was written relative to the catalogue root rather than to the item
+    that carries it, so each one resolved into a directory that does not exist, and
+    validation passed all 64 objects.
+    """
+    import pystac
+
+    try:
+        catalog = pystac.Catalog.from_file(str(catalog_path))
+        missing, total = [], 0
+        for collection in catalog.get_children():
+            for item in collection.get_items():
+                base = Path(item.get_self_href()).parent
+                for key, asset in item.assets.items():
+                    total += 1
+                    if not (base / asset.href).resolve().exists():
+                        missing.append(f"{item.id}:{key}")
+    except Exception as exc:
+        return Gate("assets-resolve", "catalog", "-", False, None, "catalogue readable",
+                    f"{type(exc).__name__}: {exc}")
+    return Gate("assets-resolve", "catalog", "-", not missing, total,
+                "every asset href resolves to a file",
+                "" if not missing else f"{len(missing)} missing, e.g. {missing[0]}")
+
+
 def summarise(gates: list[Gate]) -> tuple[int, int, int]:
     """(measured_and_passed, measured, skipped), printing each gate with its number.
 

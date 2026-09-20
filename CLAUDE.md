@@ -53,8 +53,9 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `scripts/analysis_01..18` | the M0 evidence; every number in the docs is reproducible from these |
 | `scripts/build.py` | M2: produce, check and catalogue the seven layers |
 | `scripts/verify_m2.py` | M2's acceptance criteria as an executable check |
-| `tests/` | 48 pytest tests over small fixture rasters |
-| `docs/` | `concepts.md`, `data-evaluation.md`, `design/seam-harmonization.md`, `pipeline.md` |
+| `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/` |
+| `tests/` | 56 pytest tests over small fixture rasters |
+| `docs/` | `concepts.md`, `data-evaluation.md`, `design/seam-harmonization.md`, `pipeline.md`, `viewer.md` |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
 
 ```bash
@@ -105,6 +106,15 @@ These each cost real time to find. Read before touching the data code.
 11. **A skipped check is not a passed check.** `qa.summarise()` reports measured,
     skipped and failed separately, because a build once claimed "217/217 passed"
     when 49 of those had never run.
+12. **Do not write sparse COGs.** `SPARSE_OK` saves ~5 % (DEFLATE already squashes
+    ocean) and makes the file unreadable by geotiff.js, so no browser can open it.
+13. **Overviews use `mode`, not `nearest`.** Nearest makes sparse buildings vanish
+    when zoomed out; mode keeps them and never invents a value. `average` would
+    also keep them but would invent years, so it is only for the continuous layers.
+14. **A valid STAC catalogue is not a usable one.** Schemas never check that an
+    href resolves. The `assets-resolve` gate does.
+15. **A partial build must not erase the rest of the catalogue.** It is assembled
+    from what is on disk, not from one run's records.
 
 ## Git
 

@@ -153,9 +153,17 @@ def per_zone(spec, island, built) -> pd.DataFrame | None:
                  kind=kind, scale=scale, label=spec.name.replace("-", "_"))
 
 
-def write_statistics(records: list[dict]) -> None:
+def write_statistics(records: list[dict]) -> dict:
+    """Merge this run's statistics into what is already published.
+
+    Merge, not replace. A partial build (`--layer X`) knows nothing about the other
+    six layers, and overwriting the file with only its own records would delete
+    them — which is exactly what happened to the STAC catalogue before this was
+    fixed, silently leaving a catalogue advertising one layer out of seven.
+    """
     STATS_DIR.mkdir(parents=True, exist_ok=True)
-    payload: dict[str, dict] = {}
+    path = STATS_DIR / "layers.json"
+    payload: dict[str, dict] = json.loads(path.read_text()) if path.exists() else {}
     for r in records:
         entry = payload.setdefault(r["layer"], {})
         entry[r["island"]] = {
@@ -164,8 +172,9 @@ def write_statistics(records: list[dict]) -> None:
             "properties": catalog._jsonable(r["built"].properties),
             "zones": json.loads(r["statistics"].to_json(orient="records")) if r["statistics"] is not None else None,
         }
-    (STATS_DIR / "layers.json").write_text(json.dumps(payload, indent=2, sort_keys=True))
-    print(f"\nwrote {STATS_DIR / 'layers.json'}")
+    path.write_text(json.dumps(payload, indent=2, sort_keys=True))
+    print(f"\nwrote {path}")
+    return payload
 
 
 def write_seam(islands: list[str]) -> None:
@@ -184,12 +193,27 @@ def write_seam(islands: list[str]) -> None:
     print(f"wrote {SEAM_PATH}")
 
 
-def write_catalog(records: list[dict]) -> None:
+def write_catalog(stats: dict) -> Path:
+    """Rebuild the catalogue from everything on disk, not just this run's records.
+
+    The catalogue describes the published folder, so it is assembled from the files
+    that are actually there. Building it from one run's records instead means a
+    partial build publishes a catalogue that denies the existence of every layer it
+    did not touch.
+    """
     by_layer: dict[str, list] = {}
-    for r in records:
-        spec = layers.LAYERS[r["layer"]]
-        item = catalog.item_for(spec, r["island"], r["built"], r["path"], base_dir=PROCESSED)
-        by_layer.setdefault(r["layer"], []).append(item)
+    for name, spec in layers.LAYERS.items():
+        for island in sorted(ISLAND_BBOX):
+            path = PROCESSED / name / f"{catalog._slug(island)}.tif"
+            if not path.exists():
+                continue
+            entry = stats.get(name, {}).get(island, {})
+            companions = {p.name.split(".")[-2]: p
+                          for p in path.parent.glob(f"{path.stem}.*.tif")}
+            by_layer.setdefault(name, []).append(
+                catalog.item_for(spec, island, entry.get("properties", {}), path,
+                                 base_dir=PROCESSED, companions=companions))
+
     collections = [catalog.collection_for(layers.LAYERS[name], items)
                    for name, items in by_layer.items()]
     path = catalog.save(catalog.build_catalog(collections), PROCESSED)
@@ -238,8 +262,8 @@ def main() -> int:
     # Outputs first, then the gates — two of them (the COG check aside) can only be
     # run against what was actually written, and a gate that runs before the file
     # exists is a gate that never fails.
-    write_statistics(records)
-    catalog_path = write_catalog(records)
+    stats = write_statistics(records)
+    catalog_path = write_catalog(stats)
 
     grids: dict[str, dict] = {}
     for r in records:
@@ -248,6 +272,7 @@ def main() -> int:
     for island, g in grids.items():
         all_gates.extend(qa.grid_alignment(island, g))
     all_gates.append(qa.stac_valid(catalog_path))
+    all_gates.append(qa.assets_resolve(catalog_path))
 
     print("\nQA gates (plan section 7, level 1):")
     passed, measured, skipped = qa.summarise(all_gates)

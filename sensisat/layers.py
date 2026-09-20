@@ -72,7 +72,26 @@ class Companion:
 
 @dataclass(frozen=True)
 class Built:
-    """One finished layer for one island, ready to be written and catalogued."""
+    """One finished layer for one island, ready to be written and catalogued.
+
+    `resampling` is how the COG's overviews are built, and it is a display decision
+    with a correctness constraint. Nearest-neighbour — the obvious choice for
+    categorical data — picks one child pixel arbitrarily, so scattered 10 m
+    buildings simply disappear as you zoom out and an island reads as empty until
+    you are almost on top of it. Measured on a synthetic island at 0.5 % built:
+    nearest keeps 0.47 % of pixels at 4x zoom-out, MODE keeps 7.67 %.
+
+    So the categorical layers use MODE. Two properties make it the right choice
+    rather than merely the visible one: nodata is 0 and GDAL excludes nodata from
+    the aggregation, so "not built" cannot outvote a real value and sparse features
+    survive; and mode always returns a value that was actually observed in the
+    children, so unlike AVERAGE — which scores identically on visibility — it can
+    never invent a year nothing was built in. At zoomed-out levels a pixel
+    therefore shows a representative year for that cell, never a computed one.
+
+    The percentage and surface layers use AVERAGE, because averaging a quantity is
+    what averaging a quantity means.
+    """
 
     data: np.ndarray                 # (height, width) or (bands, height, width)
     transform: Affine
@@ -80,7 +99,7 @@ class Built:
     band_descriptions: list[str]
     properties: dict = field(default_factory=dict)
     nodata: float = 0
-    resampling: Resampling = Resampling.nearest
+    resampling: Resampling = Resampling.mode
     companions: list[Companion] = field(default_factory=list)
 
 

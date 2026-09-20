@@ -40,7 +40,6 @@ from pystac.extensions.raster import DataType, RasterBand, RasterExtension
 from shapely.geometry import box, mapping
 
 from . import encoding as enc
-from .grid import bounds_of
 
 PROCESSING_EXT = "https://stac-extensions.github.io/processing/v1.1.0/schema.json"
 
@@ -101,8 +100,22 @@ def _slug(island: str) -> str:
     return island.lower().replace(" ", "-")
 
 
-def item_for(spec, island: str, built, path: Path, *, base_dir: Path) -> pystac.Item:
-    """One STAC item: a single layer for a single island, plus everything about it."""
+def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
+             companions: dict[str, Path] | None = None) -> pystac.Item:
+    """One STAC item: a single layer for a single island, plus everything about it.
+
+    Asset hrefs are set ABSOLUTE here and made relative by `save()` once every item
+    knows its final location. Writing them relative to the catalogue root instead
+    looks right and validates clean, but resolves to nothing: an item that lands in
+    `buildings-dated/buildings-dated-tenerife/` and carries the href
+    `buildings-dated/tenerife.tif` points at
+    `buildings-dated/buildings-dated-tenerife/buildings-dated/tenerife.tif`. STAC
+    schemas do not check that an href resolves, so validation passed for it.
+    """
+    # Everything geometric is read from the written file rather than from the
+    # in-memory arrays, so an item can be rebuilt from disk alone. That is what
+    # lets a partial build re-catalogue the layers it did NOT rebuild instead of
+    # dropping them from the catalogue entirely.
     with rasterio.open(path) as src:
         shape = [src.height, src.width]
         transform = list(src.transform)[:6]
@@ -110,8 +123,7 @@ def item_for(spec, island: str, built, path: Path, *, base_dir: Path) -> pystac.
         dtypes = src.dtypes
         nodata = src.nodata
         descriptions = src.descriptions
-
-    bounds = bounds_of(built.transform, built.data.shape[-2:])
+        bounds = tuple(src.bounds)
     item = pystac.Item(
         id=f"{spec.name}-{_slug(island)}",
         geometry=mapping(box(*bounds)),
@@ -128,10 +140,10 @@ def item_for(spec, island: str, built, path: Path, *, base_dir: Path) -> pystac.
             "sensisat:measure": spec.measure,
             "sensisat:encoding": spec.encoding,
             "sensisat:sources": spec.sources,
-            "sensisat:statistics": _jsonable(built.properties),
+            "sensisat:statistics": _jsonable(properties),
             # processing extension (community): how this file came to exist.
             "processing:level": "L4",
-            "processing:lineage": _lineage(spec, built),
+            "processing:lineage": _lineage(spec, properties),
             "processing:software": {"sensisat": _version()},
         },
     )
@@ -144,12 +156,22 @@ def item_for(spec, island: str, built, path: Path, *, base_dir: Path) -> pystac.
     proj.bbox = list(bounds)
 
     asset = pystac.Asset(
-        href=str(Path(path).relative_to(base_dir)).replace("\\", "/"),
+        href=str(Path(path).resolve()),
         media_type=pystac.MediaType.COG,
         roles=["data"],
         title=spec.title,
     )
     item.add_asset("data", asset)
+
+    # Companions are published beside the layer and belong in the same item, so a
+    # reader can find them without knowing our file-naming convention.
+    for key, companion_path in (companions or {}).items():
+        item.add_asset(key, pystac.Asset(
+            href=str(Path(companion_path).resolve()),
+            media_type=pystac.MediaType.COG,
+            roles=["metadata"],
+            title=f"{spec.title} — {key}",
+        ))
 
     unit = UNITS.get(spec.encoding, "")
     bands = []
@@ -168,34 +190,34 @@ def item_for(spec, island: str, built, path: Path, *, base_dir: Path) -> pystac.
         bands.append(band)
     RasterExtension.ext(asset, add_if_missing=True).bands = bands
 
-    classes = _classes_for(spec, built)
+    classes = _classes_for(spec, properties)
     if classes:
         ClassificationExtension.ext(asset, add_if_missing=True).classes = classes
     return item
 
 
-def _classes_for(spec, built) -> list[Classification] | None:
+def _classes_for(spec, properties: dict) -> list[Classification] | None:
     """Class tables for the layers whose values are codes rather than quantities."""
     if spec.encoding == "year first built":
         return PROVENANCE_CLASSES
     if spec.encoding == "classes":
-        table = built.properties.get("classes", {})
+        table = properties.get("classes", {})
         return [Classification.create(value=int(v), description=str(d), name=_class_name(str(d)))
                 for v, d in table.items()]
     return None
 
 
-def _lineage(spec, built) -> str:
+def _lineage(spec, properties: dict) -> str:
     """A sentence a human can read saying how the file was made, with its caveats."""
     parts = [f"Built from {', '.join(spec.sources)} on SensiSat's shared "
              f"{spec.resolution_m} m grid, clipped to the island boundary."]
     for key in ("caveat", "note", "why_native", "never_do", "why_this_layer_exists"):
-        if key in built.properties:
-            parts.append(str(built.properties[key]))
-    if built.properties.get("greenhouse_masked"):
+        if key in properties:
+            parts.append(str(properties[key]))
+    if properties.get("greenhouse_masked"):
         parts.append(
             f"Covered agriculture removed (crop survey "
-            f"{built.properties.get('greenhouse_survey_year', 'n/a')}); it is published "
+            f"{properties.get('greenhouse_survey_year', 'n/a')}); it is published "
             f"separately as covered-agriculture, so the removal is reversible."
         )
     return " ".join(parts)

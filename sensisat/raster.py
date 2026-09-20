@@ -160,11 +160,20 @@ def write_cog(path: Path, arr: np.ndarray, transform: Affine, crs, *,
     offset of the first block of the main resolution image should be after the one
     of the overview of index 4" - which is precisely the failure this replaced.
 
-    SPARSE_OK means all-nodata blocks (i.e. ocean) cost no bytes; without it the
-    ocean around an island dominates the file. Overviews default to nearest
-    resampling because most of our values are categorical - a year, an epoch, a
-    class code - and averaging them would invent values nothing measured. Pass
-    `resampling=Resampling.average` for the genuinely continuous layers.
+    **SPARSE_OK is deliberately NOT used**, although it looks like exactly the right
+    option for islands surrounded by ocean. It writes zero-length entries in the
+    tile offset table for all-nodata blocks, and geotiff.js - the library every
+    browser-side COG reader is built on - cannot read those: it fails with
+    "Cannot read properties of undefined (reading 'offset')" and the layer never
+    renders. Measured, it was not buying much anyway: Gran Canaria's building layer
+    is 1.435 MiB sparse and 1.513 MiB dense, a 5 % difference, because DEFLATE
+    already compresses a 256x256 block of ocean to a few dozen bytes. Five percent
+    is not worth a file the intended client cannot open.
+
+    Overviews default to nearest resampling; callers pass `Resampling.mode` for
+    categorical layers (so sparse features survive zooming out without inventing
+    values) and `Resampling.average` for the continuous ones. See
+    `sensisat.layers.Built`.
     """
     from rasterio.io import MemoryFile
     from rio_cogeo.cogeo import cog_translate
@@ -180,7 +189,7 @@ def write_cog(path: Path, arr: np.ndarray, transform: Affine, crs, *,
     }
     dst_profile = {
         "driver": "GTiff", "tiled": True, "blockxsize": 256, "blockysize": 256,
-        "compress": compress, "predictor": predictor, "SPARSE_OK": True,
+        "compress": compress, "predictor": predictor,
     }
     with MemoryFile() as memfile:
         with memfile.open(**src_profile) as tmp:
