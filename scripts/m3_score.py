@@ -90,8 +90,27 @@ def main() -> int:
 
     ref_classes = sorted({r for row in counts.values() for r in row})
 
+    design = claims_doc.get("design", {})
+    planned = design.get("usable", {})
+    total_planned = sum(planned.values()) if planned else 0
+
     print(f"Reference: {len(labels)} points labelled, {sum(n.values())} usable, "
-          f"{len(excluded)} excluded as unsure or incomplete\n")
+          f"{len(excluded)} excluded as unsure or incomplete")
+    if total_planned:
+        pct = 100 * sum(n.values()) / total_planned
+        print(f"Progress against the design: {sum(n.values())}/{total_planned} usable "
+              f"({pct:.0f} %)\n")
+        print(f"{'stratum':22s} {'usable':>7s} {'planned':>8s}  status")
+        for st in strata:
+            want = planned.get(st, 0)
+            enough = n[st] >= 30
+            note = ("fine" if n[st] >= want else
+                    "usable, interval still wide" if enough else
+                    "TOO FEW to say anything")
+            print(f"{st:22s} {n[st]:7d} {want:8d}  {note}")
+        print()
+    else:
+        print()
 
     print("Confusion matrix — rows are what the MAP says, columns what the PHOTOS show")
     head = f"{'map class':22s} {'n':>3s} " + " ".join(f"{c[:14]:>15s}" for c in ref_classes)
@@ -133,9 +152,20 @@ def main() -> int:
         for pid, s, a, b in excluded:
             print(f"  {pid}  map said {s:22s} labels {a}/{b}")
 
-    print("\nNote on the intervals: with a handful of points per class they are wide "
-          "enough to be useless, which is exactly what they should be. Narrowing them "
-          "to the plan's ±2 % is what the full ~650-point sample buys.")
+    # How much narrower the interval gets if the sample is finished. The standard
+    # error falls as 1/sqrt(n), so this is the honest projection rather than a promise.
+    if total_planned and sum(n.values()) < total_planned:
+        ratio = math.sqrt(sum(n.values()) / total_planned)
+        print(f"\nFinishing the sample would narrow these intervals by roughly "
+              f"{1 / ratio:.1f}x — the standard error falls as 1/sqrt(n), so the "
+              f"remaining {total_planned - sum(n.values())} usable points are worth "
+              f"about that much.")
+
+    print("\nA caution about scoring part-way. Checking progress is sound: every "
+          "stratum's labelled points are still a random subset of that stratum, so "
+          "the estimator is valid at any n. What is NOT sound is deciding to stop "
+          "because the number currently looks good — that turns an honest estimate "
+          "into a chosen one. Look in order to catch problems, not to pick a moment.")
     return 0
 
 
