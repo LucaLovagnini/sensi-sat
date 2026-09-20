@@ -222,6 +222,19 @@ function variables() {
  * Esri's global mosaic stays as the fallback that works outside Spain, which
  * matters the day this is pointed at anywhere else.
  */
+/**
+ * The cadastre bucketed unknown construction dates onto round years until 1980.
+ * Measured (analysis 19): 15 spike years between 1900 and 1980 hold 34.8 % of every
+ * dated building in the archipelago — 1900 alone holds 25,971, which is 1,146x its
+ * neighbouring years and the largest single year in the register. After 1980 there
+ * is not one spike in 46 years. So a date before 1980 is reliable to about a
+ * decade, not to a year, and the viewer says so rather than implying precision the
+ * register never had.
+ */
+const CADASTRE_BUCKETED_UNTIL = 1980;
+const CADASTRE_SPIKE_YEARS = new Set([1900, 1905, 1910, 1915, 1920, 1925, 1930, 1935,
+  1940, 1945, 1950, 1960, 1970, 1975, 1980]);
+
 const PNOA_FIRST_YEAR = 2004;
 const PNOA_LAST_YEAR = 2024;
 
@@ -368,6 +381,20 @@ function sliderYear() {
   return state.mode === 'since' && def.kind !== 'trend' ? state.sinceYear : state.year;
 }
 
+/** Warn when the slider sits in the part of the cadastre that was bucketed. */
+function precisionNote() {
+  if (state.layer !== 'buildings-dated') return '';
+  const y = Math.round(sliderYear());
+  if (y > CADASTRE_BUCKETED_UNTIL) return '';
+  if (CADASTRE_SPIKE_YEARS.has(y)) {
+    return `⚠ ${y} is one of the years the cadastre used for "old, date unknown". `
+         + `It holds far more buildings than the years either side, so treat this frame `
+         + `as "by about ${y}", not as ${y} exactly.`;
+  }
+  return `⚠ Before ${CADASTRE_BUCKETED_UNTIL} the cadastre rounded unknown dates onto `
+       + `whole decades, so this frame is reliable to roughly a decade rather than a year.`;
+}
+
 function modeNote() {
   if (state.mode !== 'since') return '';
   return `Showing only what appeared after ${state.sinceYear}. Two states side by side hide `
@@ -458,6 +485,7 @@ function syncTimeControls() {
   }
   el('year-out').textContent = sliderYear();
   el('mode-note').textContent = modeNote();
+  el('precision-note').textContent = precisionNote();
 }
 
 /* ------------------------------------------------------------------- wiring */
@@ -527,6 +555,7 @@ function init(catalog, stats) {
     else state.year = value;
     el('year-out').textContent = value;
     el('mode-note').textContent = modeNote();
+    el('precision-note').textContent = precisionNote();
     syncBasemapYear();
     restyle(); renderLegend();
   };

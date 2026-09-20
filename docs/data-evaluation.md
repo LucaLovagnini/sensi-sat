@@ -668,3 +668,67 @@ via jeodpp.jrc.ec.europa.eu · WSF Tracker © DLR / MindEarth / ESA GDA (CC BY 4
 via source.coop/mindearth/wsf · island and control boundaries © OpenStreetMap
 contributors (ODbL) via Nominatim and Overpass · Dynamic World figures from the
 project's own earlier notebook.
+
+## 10. The cadastre's construction years are bucketed before 1980 (analysis 19)
+
+Found from the viewer, on 2026-09-20: Caleta de Famara (Lanzarote) showed **two**
+buildings standing by 1949, in a village the historical record dates to the late
+1700s, permanently settled from 1888, and credited with *"tres edificios,
+veinticuatro almacenes y veinticinco habitantes"* by 1909.
+
+The raw feed explains it. Those two buildings are dated `1900-01-01`; the next
+block in Famara is dated exactly `1950-01-01`. Round dates are what a register
+writes when it does not know, and the Catastro did it systematically.
+
+**15 spike years hold 34.8 % of every dated building in the archipelago**
+(163,129 of 469,189):
+
+| year | buildings | × its neighbours |
+|---|---|---|
+| **1900** | **25,971** | **1,146×** |
+| 1960 | 25,143 | 10.4× |
+| 1970 | 25,051 | 6.4× |
+| 1980 | 24,907 | 5.0× |
+| 1950 | 16,745 | 22.6× |
+| 1975 | 14,798 | 3.4× |
+| 1940 | 9,058 | 24.2× |
+| 1920 | 8,354 | 78.4× |
+| 1930 | 6,529 | 24.5× |
+| 1910 | 2,102 | 30.5× |
+
+1900 alone is the largest single year in the register — the catch-all for "old,
+date unknown". The rest fall on every fifth year to 1950, then 1960/1970/1975/1980.
+
+**The decisive finding is where it stops.** Every one of the 15 spike years is
+1980 or earlier. The 46 years from 1981 to 2026 contain **not one spike**, and hold
+44.8 % of all dated buildings. So this is a bounded, historical artefact of how old
+records were entered, not a property of the dataset as a whole.
+
+| island | dated buildings | in a spike year |
+|---|---|---|
+| La Gomera | 12,112 | **50.3 %** |
+| La Palma | 34,876 | 45.5 % |
+| El Hierro | 7,014 | 43.2 % |
+| Gran Canaria | 162,108 | 35.4 % |
+| Tenerife | 193,321 | 34.8 % |
+| Lanzarote | 36,026 | 24.9 % |
+| Fuerteventura | 23,732 | 19.0 % |
+
+The small western islands are worst — the same three islands where WSF Evolution
+also performs worst (El Hierro dates only 24.5 % of its footprint). Before 1980 on
+La Gomera, half the building dates are bucketed **and** the satellite alternative
+barely works. That is the weakest corner of the whole archive, and it should be
+treated as such.
+
+**A cross-check against WSF Evolution was attempted and could not run**, which is
+itself informative: WSF Evolution covers 1985–2015, and no spike year falls inside
+it. The bucketing ended before the independent source began, so the two cannot be
+compared — and equally, nothing in the satellite-covered era is affected.
+
+**What follows from this.** A cadastral date before 1980 is good to about a decade,
+not to a year; after 1980 it is good to the year. The published data is unchanged —
+these are the register's own values and replacing them would be inventing
+different ones — but the viewer now warns when the slider sits below 1980, and
+names the specific year when it sits on one of the 15 buckets. Whether to go
+further (for instance, snapping the pre-1980 slider to five-year steps, which is
+the real resolution of the data) is a display decision still open.
