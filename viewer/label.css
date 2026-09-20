@@ -20,18 +20,14 @@ figcaption { font-size:13px; font-weight:600; margin-bottom:7px; }
 .chip { position:relative; aspect-ratio:1; background:#0d1218; border:1px solid var(--line);
         border-radius:9px; overflow:hidden; }
 .chip img { width:100%; height:100%; object-fit:cover; display:block; }
-/* The 10 m cell under judgement: 10 m of a 100 m chip = 10 % of its width. */
-.cell { position:absolute; left:45%; top:45%; width:10%; height:10%;
+/* The 30 m cell under judgement: 30 m of a 150 m chip = 20 % of its width.
+   No centre mark any more — the question is whether a roof appears ANYWHERE in the
+   square, so drawing a crosshair would invite the boundary call we removed. */
+.cell { position:absolute; left:40%; top:40%; width:20%; height:20%;
         border:2px solid #fff; box-shadow:0 0 0 1px rgba(0,0,0,.7), 0 0 14px rgba(0,0,0,.5);
         pointer-events:none; }
-/* The exact centre. Our rasteriser marks a pixel built when a footprint covers its
-   centre point, so that point — not the area of the square — is what gets judged. */
-.cell i { position:absolute; left:50%; top:50%; width:11px; height:11px;
-          transform:translate(-50%,-50%); }
-.cell i::before, .cell i::after { content:""; position:absolute; background:#fff;
-          box-shadow:0 0 0 1px rgba(0,0,0,.8); }
-.cell i::before { left:50%; top:0; width:1px; height:100%; transform:translateX(-50%); }
-.cell i::after { top:50%; left:0; height:1px; width:100%; transform:translateY(-50%); }
+.cell i { display:none; }
+.guide.small { font-size:12.5px; opacity:.75; }
 
 .answer { display:flex; gap:7px; margin-top:9px; }
 .answer button { flex:1; background:#0e141a; color:var(--text); border:1px solid var(--line);

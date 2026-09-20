@@ -14,7 +14,7 @@
 
 const WMS_HISTORIC = 'https://www.ign.es/wms/pnoa-historico';
 const WMS_CURRENT = 'https://www.ign.es/wms-inspire/pnoa-ma';
-const CHIP_M = 100;          // metres across the chip
+const CHIP_M = 150;          // metres across the chip (30 m cell = 20 % of it)
 const CHIP_PX = 640;
 
 /**
@@ -137,6 +137,10 @@ function flagFor(label) {
 function setAnswer(year, value) {
   const p = state.points[state.i];
   const label = state.labels[p.id] || (state.labels[p.id] = {});
+  // Whether this point was already finished BEFORE this click. Correcting a past
+  // answer must not move the page: going back to fix two dates on one point, only
+  // to be thrown forward after the first click, loses the second correction.
+  const wasComplete = Boolean(label['2015'] && label['2024']);
   label[year] = value;
   label.note = el('note').value || undefined;
   // When this point was first judged. Recorded so the published effort figure is a
@@ -147,17 +151,21 @@ function setAnswer(year, value) {
   // Advance only when both dates are answered, so an accidental click does not
   // skip past a point that is still half judged — and never advance automatically
   // out of a flagged pair, so its banner is actually read.
-  if (label['2015'] && label['2024'] && !flagFor(label)) setTimeout(next, 180);
+  if (!wasComplete && label['2015'] && label['2024'] && !flagFor(label)) setTimeout(next, 180);
 }
 
-/** Skip forward over anything already judged, so revisiting never means redoing. */
-const next = () => {
-  for (let k = state.i + 1; k < state.points.length; k++) {
-    if (!isDone(state.points[k].id)) { state.i = k; render(); return; }
-  }
-  if (state.i < state.points.length - 1) { state.i = state.points.length - 1; render(); }
-};
+/**
+ * Next moves by exactly one, in both directions, always.
+ *
+ * It used to skip forward over anything already judged, which is right while
+ * labelling and wrong while reviewing: stepping back three points to fix them meant
+ * the first correction catapulted you to the far end of the sample. Resuming a
+ * sitting is a different intention from stepping, so it gets its own control —
+ * `resume`, which is also what the tool does on load.
+ */
+const next = () => { if (state.i < state.points.length - 1) { state.i++; render(); } };
 const back = () => { if (state.i > 0) { state.i--; render(); } };
+const resume = () => { state.i = firstUnanswered(); render(); };
 
 const KEY = {'1': ['2015','built'], '2': ['2015','not'], '3': ['2015','unsure'],
              'q': ['2024','built'], 'w': ['2024','not'], 'e': ['2024','unsure']};
@@ -199,6 +207,7 @@ function download() {
   el('back').onclick = back;
   el('skip').onclick = next;
   el('next').onclick = next;
+  el('resume').onclick = resume;
   el('save').onclick = download;
   el('note').onchange = () => { const p = state.points[state.i];
     (state.labels[p.id] || (state.labels[p.id] = {})).note = el('note').value || undefined; save(); };
@@ -209,6 +218,7 @@ function download() {
     if (k) { e.preventDefault(); setAnswer(k[0], k[1]); }
     else if (e.key === 'ArrowRight') next();
     else if (e.key === 'ArrowLeft') back();
+    else if (e.key === 'r' || e.key === 'R') resume();
   });
 
   render();

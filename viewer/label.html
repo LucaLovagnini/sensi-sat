@@ -40,12 +40,16 @@
     </figure>
   </section>
 
-  <p class="guide"><strong>Is there a BUILDING at the centre of the square?</strong>
+  <p class="guide"><strong>Is there a BUILDING anywhere inside the square?</strong>
     A building means a roofed structure — house, block, shed, warehouse, garage,
-    hotel. <strong>If the square is only partly covered, judge the crosshair at its
-    centre</strong>, not how much of the square is filled: half a roof with the
-    centre on bare ground is <em>not built</em>, and half a roof with the centre on
-    the roof <em>is</em>.</p>
+    hotel. <strong>Any part of any roof inside the square counts</strong>, however
+    small a corner. You are not being asked where its edge falls.</p>
+  <p class="guide small">The square is 30 m across. It used to be 10 m, judged at
+    its exact centre — but the median building here is 121 m² against a 100 m²
+    pixel, so almost every point landed on the edge of a roof, and an aerial photo
+    shows a roof several metres from the footprint beneath it. No one can read that
+    reliably. A 30 m square is larger than the disagreement, so the question has an
+    answer.</p>
   <table class="counts">
     <tr><th>counts as built</th><th>does NOT count</th></tr>
     <tr>
@@ -91,6 +95,7 @@
       <button id="back">← Back</button>
       <button id="skip">Skip</button>
       <button id="next">Next →</button>
+      <button id="resume" title="Jump to the first point not yet judged (R)">Resume ⇥</button>
       <button id="save" class="primary">Download labels</button>
     </div>
   </footer>

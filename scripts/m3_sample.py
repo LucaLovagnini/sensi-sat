@@ -44,6 +44,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 import numpy as np  # noqa: E402
 import rasterio  # noqa: E402
+from affine import Affine  # noqa: E402
 
 from sensisat import encoding as enc  # noqa: E402
 from sensisat.config import ISLAND_BBOX, PROCESSED  # noqa: E402
@@ -98,7 +99,44 @@ def strata_masks(year: np.ndarray, land: np.ndarray) -> dict[str, np.ndarray]:
     }
 
 
-def survey(islands: list[str]) -> tuple[dict[str, float], dict[str, list]]:
+def coarsen(year: np.ndarray, land: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
+    """Reduce the 10 m year grid to k x k cells, keeping the OLDEST claim in each.
+
+    Why a coarser unit at all. The median Canary cadastral building is 121 m2
+    against a 100 m2 pixel, and 81 % are two pixels or smaller, so a built pixel has
+    no interior — 78-87 % of points drawn on the 10 m grid sat directly on a class
+    boundary. The photograph shows a ROOF and the map stores a GROUND footprint, and
+    orthorectification corrects terrain rather than building height, so the two
+    disagree by metres at that scale no matter who is reading. An assessment unit
+    has to be larger than the geolocation error it is measuring across; at k=3 a 5 m
+    roof lean cannot move a building out of a 30 m square.
+
+    Oldest-wins mirrors the paint order the layer itself was built with, and it
+    makes each class a question a photograph can answer without ambiguity. In
+    particular a `new_2015_2024` cell now means nothing at all stood within 30 m
+    before 2015 — which removes the infill confound that made every indirect check
+    of the dating finding unreadable.
+    """
+    h, w = year.shape
+    ph, pw = (-h) % k, (-w) % k
+    if ph or pw:
+        year = np.pad(year, ((0, ph), (0, pw)), constant_values=0)
+        land = np.pad(land, ((0, ph), (0, pw)), constant_values=False)
+    H, W = year.shape[0] // k, year.shape[1] // k
+    blocks = year.reshape(H, k, W, k).swapaxes(1, 2).reshape(H, W, k * k)
+    lblocks = land.reshape(H, k, W, k).swapaxes(1, 2).reshape(H, W, k * k)
+
+    dated = (blocks > 0) & (blocks != enc.UNDATED)
+    oldest = np.where(dated, blocks, 255).min(axis=2)          # 255 where none dated
+    out = np.zeros((H, W), dtype="uint8")
+    has_dated = dated.any(axis=2)
+    out[has_dated] = oldest[has_dated]
+    out[~has_dated & (blocks == enc.UNDATED).any(axis=2)] = enc.UNDATED
+    # A cell is land if most of it is, so coastal slivers do not enter the sample.
+    return out, lblocks.mean(axis=2) > 0.5
+
+
+def survey(islands: list[str], unit_px: int = 1) -> tuple[dict[str, float], dict[str, list]]:
     """Area per stratum, and the pixels available to sample, across every island."""
     from sensisat.derive import island_mask
 
@@ -110,6 +148,9 @@ def survey(islands: list[str]) -> tuple[dict[str, float], dict[str, list]]:
         with rasterio.open(path) as src:
             year, transform, crs = src.read(1), src.transform, src.crs
             land = island_mask(island, transform, year.shape, crs)
+        if unit_px > 1:
+            year, land = coarsen(year, land, unit_px)
+            transform = transform * Affine.scale(unit_px, unit_px)
         cell = row_areas_m2(year.shape, transform)
         for name, mask in strata_masks(year, land).items():
             areas[name] += float((mask * cell).sum() / 1e6)
@@ -119,7 +160,8 @@ def survey(islands: list[str]) -> tuple[dict[str, float], dict[str, list]]:
     return areas, pools
 
 
-def design(areas: dict[str, float], target_pct: float) -> dict[str, int]:
+def design(areas: dict[str, float], target_pct: float, not_built_usable: int = 0,
+           unsure_allowance: float = UNSURE_ALLOWANCE) -> dict[str, int]:
     """Points per stratum for a target +/- on overall accuracy, with rare-class floors."""
     total = sum(areas.values())
     W = {s: areas[s] / total for s in areas}
@@ -136,7 +178,13 @@ def design(areas: dict[str, float], target_pct: float) -> dict[str, int]:
     # And "not built" needs enough to bound omission over 98 % of the land.
     alloc["not_built"] = max(alloc["not_built"], MIN_PER_RARE_STRATUM)
 
-    inflated = {s: int(np.ceil(n / (1 - UNSURE_ALLOWANCE))) for s, n in alloc.items()}
+    # The rare classes are bounded by their own point count and never need more than
+    # ~100. The AREA estimate is decided entirely by `not_built`, which is 95 % of
+    # the land, so raising only that one is what buys a publishable corrected area.
+    if not_built_usable:
+        alloc["not_built"] = max(alloc["not_built"], not_built_usable)
+
+    inflated = {s: int(np.ceil(n / (1 - unsure_allowance))) for s, n in alloc.items()}
     return {"n_formula": n_total, "usable": alloc, "draw": inflated,
             "W": W, "sigma": float(sigma)}
 
@@ -149,12 +197,18 @@ def main() -> int:
                     help="target +/- on overall accuracy at 95 %% confidence")
     ap.add_argument("--plan", action="store_true", help="show the design and stop")
     ap.add_argument("--seed", type=int, default=20260920)
+    ap.add_argument("--not-built-usable", type=int, default=0,
+                    help="force this many usable points in the not-built stratum")
+    ap.add_argument("--unsure-allowance", type=float, default=UNSURE_ALLOWANCE,
+                    help="share of drawn points expected to be undecidable")
+    ap.add_argument("--unit-px", type=int, default=1,
+                    help="assessment unit in 10 m pixels; 3 = a 30 m square")
     ap.add_argument("--out", default="data/processed/m3")
     args = ap.parse_args()
 
     print(f"Surveying {len(args.islands)} islands…")
-    areas, pools = survey(args.islands)
-    d = design(areas, args.target_pct)
+    areas, pools = survey(args.islands, args.unit_px)
+    d = design(areas, args.target_pct, args.not_built_usable, args.unsure_allowance)
     total_area = sum(areas.values())
 
     print(f"\n{'stratum':22s} {'km2':>10s} {'share':>8s} {'pixels':>12s} "
@@ -173,10 +227,10 @@ def main() -> int:
           f"interesting number here.")
     print(f"Floors of {MIN_PER_RARE_STRATUM} per class raise it to "
           f"{sum(d['usable'].values())}, so each class gets its own usable interval; "
-          f"a {100 * UNSURE_ALLOWANCE:.0f} % allowance for 'unsure' makes it "
+          f"a {100 * args.unsure_allowance:.0f} % allowance for 'unsure' makes it "
           f"{sum(d['draw'].values())} to draw.")
-    print(f"At 1-2 minutes a point that is roughly "
-          f"{sum(d['draw'].values()) * 1.5 / 60:.1f} hours of interpretation.")
+    print(f"At the measured 14.4 s a point that is roughly "
+          f"{sum(d['draw'].values()) * 14.4 / 3600:.1f} hours of interpretation.")
 
     if args.plan:
         return 0
