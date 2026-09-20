@@ -45,7 +45,7 @@ from . import derive
 from . import encoding as enc
 from .config import ISLAND_BBOX
 from .grid import PIXEL_DEG, for_island, snap
-from .raster import area_km2, weighted_km2
+from .raster import area_km2, row_areas_m2, weighted_km2
 
 
 @dataclass(frozen=True)
@@ -150,10 +150,52 @@ def _buildings_dated(island: str) -> Built:
             "municipalities": len(codes),
             "footprint_km2": round(area_km2(years > 0, transform), 3),
             "undated_km2": round(area_km2(years == enc.UNDATED, transform), 4),
+            "extent_by_year": extent_by_year(years, transform),
             **derive.provenance_summary(provenance, transform),
         },
     )
 
+
+
+def extent_by_year(years: np.ndarray, transform) -> dict[int, float]:
+    """Cumulative built extent at each year the layer can express, in km2.
+
+    The viewer's slider is a GPU threshold over a year-first-built raster, so the
+    MAP already answers "what was built by year Y". The readout did not: it showed
+    the layer's whole-island total whatever the slider said, which reads as a bug
+    next to a map that visibly changes. This is the number the readout needs.
+
+    Undated pixels are excluded. They are built, but no year can place them, and
+    folding them into every year would overstate the early ones. The undated area
+    is reported separately, and the viewer already hides that class in the change
+    view for the same reason.
+    """
+    dated = (years > 0) & (years != enc.UNDATED)
+    if not dated.any():
+        return {}
+    cell = row_areas_m2(years.shape, transform)
+    yr = years.astype(np.int32) + enc.YEAR_OFFSET
+    lo, hi = int(yr[dated].min()), int(yr[dated].max())
+    # area added in each year, then a running sum — one pass, not one per year
+    added = {y: float(((dated & (yr == y)) * cell).sum() / 1e6) for y in range(lo, hi + 1)}
+    out, total = {}, 0.0
+    for y in range(lo, hi + 1):
+        total += added[y]
+        out[y] = round(total, 3)
+    return out
+
+
+def extent_by_epoch(epochs: np.ndarray, transform, n: int) -> dict[int, float]:
+    """The same thing for the epoch-coded era-b layer."""
+    built = epochs > 0
+    if not built.any():
+        return {}
+    cell = row_areas_m2(epochs.shape, transform)
+    out, total = {}, 0.0
+    for e in range(1, n + 1):
+        total += float(((epochs == e) * cell).sum() / 1e6)
+        out[e] = round(total, 3)
+    return out
 
 # ---------------------------------------------------------------------------
 # 2. settlement-era-a — the global fallback timeline, draped to 10 m
@@ -183,6 +225,7 @@ def _settlement_era_a(island: str) -> Built:
             "date_source": "WSF Evolution 1985-2015 (30 m)",
             "greenhouse_survey_year": crops.survey_year(island),
             "footprint_km2": round(area_km2(years > 0, transform), 3),
+            "extent_by_year": extent_by_year(years, transform),
             **derive.provenance_summary(provenance, transform),
         },
     )
@@ -218,6 +261,7 @@ def _settlement_era_b(island: str) -> Built:
                 area_km2((trk > 0) & gh.astype(bool) & land, transform), 3),
             "footprint_km2": round(area_km2(epochs > 0, transform), 3),
             "baseline_km2": round(area_km2(epochs == 1, transform), 3),
+            "extent_by_epoch": extent_by_epoch(epochs, transform, wt.N_EPOCHS),
         },
     )
 

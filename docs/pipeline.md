@@ -306,16 +306,25 @@ those stay in the undated class rather than being resolved by guesswork.
 ### Size — the one criterion not met as written
 
 M2's plan asked for the published output to stay in **single-digit MiB**. It is
-**54.1 MiB**. That target was set before the sealing layer had been measured, and
-it is worth being precise about where the bytes went rather than quietly widening
-the goal:
+**60.2 MiB** (re-measured 2026-09-21). That target was set before the sealing layer
+had been measured, and it is worth being precise about where the bytes went rather
+than quietly widening the goal:
 
 | | MiB |
 |---|---|
-| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **17.1** |
-| `density-current` — the sealing map itself | 11.5 |
-| `density-current` — the per-pixel confidence companion | 25.2 |
-| **total** | **54.1** |
+| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **22.1** |
+| `density-current` — the sealing map itself | 11.8 |
+| `density-current` — the per-pixel confidence companion | 25.5 |
+| STAC, statistics and the M3 sample files | 0.8 |
+| **total** | **60.2** |
+
+**It was 54.1 MiB when M2 closed, and the six layers account for the +5.0.** M4
+changed two things in how COGs are written, and both cost bytes on purpose:
+overviews moved from `nearest` to `mode`, because nearest made scattered 10 m
+buildings vanish when zoomed out, and `SPARSE_OK` was removed, because geotiff.js
+cannot read zero-length tile offsets so no browser could open the files at all.
+Correctness bought with bytes, in a project whose per-visitor download is what
+actually matters — and that is unchanged, because a COG is read by range request.
 
 The confidence grid is the single largest object in the project, larger than every
 map layer combined. It is 52 distinct values scattered across tens of millions of

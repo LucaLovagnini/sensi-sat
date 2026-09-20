@@ -235,6 +235,9 @@ function colourFor(name) {
   return ['case', ['>', band, 0], C.built, NONE];
 }
 
+/** Slider year -> WSF Tracker epoch. One rule, used by the shader and the readout. */
+const toEpoch = (y) => Math.max(1, Math.min(20, Math.round((y - 2016) / 0.5)));
+
 /** Numeric style variables. Changing these re-renders on the GPU and fetches nothing. */
 function variables() {
   const def = LAYERS[state.layer];
@@ -247,7 +250,6 @@ function variables() {
       : {lo: 1, hi: enc(state.year), since};
   }
   if (def.kind === 'epoch') {
-    const toEpoch = (y) => Math.max(1, Math.min(20, Math.round((y - 2016) / 0.5)));
     return since
       ? {lo: toEpoch(state.sinceYear) + 1, hi: 20, since}
       : {lo: 1, hi: toEpoch(state.year), since};
@@ -537,6 +539,31 @@ function renderReadout(entry) {
     const rows = Object.entries(s.change_km2).map(([period, v]) =>
       `<div class="cap">${period}: <b>+${v.new_cover_km2}</b> km² new, <b>−${v.loss_of_cover_km2}</b> km² lost</div>`).join('');
     el('readout').innerHTML = `<div class="cap">Built-up change, whole island</div>${rows}`;
+    return;
+  }
+
+  // A number that does not move while the map visibly does reads as a bug, so the
+  // time-varying layers report the extent at the year on the slider, not their
+  // whole-island total. Undated pixels are not in these series — they are built but
+  // cannot be placed in a year — so the caption says so rather than quietly
+  // dropping them.
+  if (def.kind === 'year' && s.extent_by_year) {
+    const yrs = Object.keys(s.extent_by_year).map(Number);
+    const y = Math.min(Math.max(state.year, Math.min(...yrs)), Math.max(...yrs));
+    const now = s.extent_by_year[y];
+    const undated = s.undated_km2 ?? s['pre-2016, undated'];
+    el('readout').innerHTML = `<div class="big">${now} km²</div>`
+      + `<div class="cap">${def.title.toLowerCase()} by ${state.year}, whole island`
+      + (undated ? ` · plus ${undated} km² built but undated` : '') + '</div>';
+    return;
+  }
+  if (def.kind === 'epoch' && s.extent_by_epoch) {
+    const e = toEpoch(state.year);
+    const label = s.epoch_labels?.[e] ?? state.year;
+    el('readout').innerHTML = `<div class="big">${s.extent_by_epoch[e]} km²</div>`
+      + `<div class="cap">${def.title.toLowerCase()} by ${label}, whole island`
+      + (s.greenhouse_removed_km2 ? ` · ${s.greenhouse_removed_km2} km² of greenhouses removed` : '')
+      + '</div>';
     return;
   }
 
