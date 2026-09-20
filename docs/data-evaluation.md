@@ -671,7 +671,7 @@ project's own earlier notebook.
 
 ## 10. The cadastre's construction years are bucketed before 1980 (analysis 19)
 
-Found from the viewer, on 2026-09-20: Caleta de Famara (Lanzarote) showed **two**
+Found from the viewer on 2026-09-20: Caleta de Famara (Lanzarote) showed **two**
 buildings standing by 1949, in a village the historical record dates to the late
 1700s, permanently settled from 1888, and credited with *"tres edificios,
 veinticuatro almacenes y veinticinco habitantes"* by 1909.
@@ -680,31 +680,72 @@ The raw feed explains it. Those two buildings are dated `1900-01-01`; the next
 block in Famara is dated exactly `1950-01-01`. Round dates are what a register
 writes when it does not know, and the Catastro did it systematically.
 
-**15 spike years hold 34.8 % of every dated building in the archipelago**
-(163,129 of 469,189):
+### The buckets are not all alike
 
-| year | buildings | × its neighbours |
-|---|---|---|
-| **1900** | **25,971** | **1,146×** |
-| 1960 | 25,143 | 10.4× |
-| 1970 | 25,051 | 6.4× |
-| 1980 | 24,907 | 5.0× |
-| 1950 | 16,745 | 22.6× |
-| 1975 | 14,798 | 3.4× |
-| 1940 | 9,058 | 24.2× |
-| 1920 | 8,354 | 78.4× |
-| 1930 | 6,529 | 24.5× |
-| 1910 | 2,102 | 30.5× |
+This distinction matters more than the raw count of "15 spike years", and was
+missed on the first pass. Separating them by size:
+
+| | years | buildings | share of all dated |
+|---|---|---|---|
+| **major buckets** | 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1975, 1980 | **158,658** | **33.8 %** |
+| minor buckets | 1905, 1915, 1925, 1935, 1945 | 4,471 | 0.95 % |
+
+The ten major buckets:
+
+| year | buildings | × its neighbours | share |
+|---|---|---|---|
+| **1900** | **25,971** | **1,146×** | 5.54 % |
+| 1960 | 25,143 | 10.4× | 5.36 % |
+| 1970 | 25,051 | 6.4× | 5.34 % |
+| 1980 | 24,907 | 5.0× | 5.31 % |
+| 1950 | 16,745 | 22.6× | 3.57 % |
+| 1975 | 14,798 | 3.4× | 3.15 % |
+| 1940 | 9,058 | 24.2× | 1.93 % |
+| 1920 | 8,354 | 78.4× | 1.78 % |
+| 1930 | 6,529 | 24.5× | 1.39 % |
+| 1910 | 2,102 | 30.5× | 0.45 % |
 
 1900 alone is the largest single year in the register — the catch-all for "old,
-date unknown". The rest fall on every fifth year to 1950, then 1960/1970/1975/1980.
+date unknown".
 
-**The decisive finding is where it stops.** Every one of the 15 spike years is
-1980 or earlier. The 46 years from 1981 to 2026 contain **not one spike**, and hold
-44.8 % of all dated buildings. So this is a bounded, historical artefact of how old
-records were entered, not a property of the dataset as a whole.
+**The five minor buckets are statistically real and practically invisible.** They
+sit 3–5× above their neighbours, but their neighbours are tiny, so the absolute
+numbers are negligible. 1915 adds **338 buildings archipelago-wide**; in Santa
+Cruz de Tenerife it is **38 buildings in a city of 23,881**, which is why looking
+for it on the map finds nothing. Anyone hunting for these on screen is wasting
+their time, and the viewer does not flag them — warning about a year that moves
+0.07 % of the data would only teach the reader to ignore the warnings that matter.
 
-| island | dated buildings | in a spike year |
+### Where it stops
+
+Every bucket is 1980 or earlier. The 46 years from **1981 to 2026 contain not one
+spike**, and hold 44.8 % of all dated buildings. This is a bounded artefact of how
+old records were entered, not a property of the dataset.
+
+### There is real data between the buckets
+
+Also easy to get wrong, and worth stating: the pre-1980 era is a *mixture*, not a
+set of decade stamps.
+
+| 1900–1980 | buildings |
+|---|---|
+| in the 15 bucket years | 163,129 (63 %) |
+| **in ordinary years** | **95,752 (37 %)** |
+
+In 1920–1950 alone, 8,420 buildings sit in the 24 ordinary years — a median of
+~300 a year. The register clearly did know the exact year for a substantial
+minority of old buildings and bucketed the rest.
+
+**This is why the viewer's slider still moves a year at a time below 1980.**
+Snapping it to five-year steps was considered and rejected: it would discard
+95,752 genuine year-level records to disguise an artefact affecting the other
+163,129. Destroying real information to hide a caveat is the wrong trade, and the
+same one the project already refused when it declined to invent a year for the
+undated class and declined to blend across the 2015/2016 seam.
+
+### Per island
+
+| island | dated buildings | in a bucket year |
 |---|---|---|
 | La Gomera | 12,112 | **50.3 %** |
 | La Palma | 34,876 | 45.5 % |
@@ -714,21 +755,22 @@ records were entered, not a property of the dataset as a whole.
 | Lanzarote | 36,026 | 24.9 % |
 | Fuerteventura | 23,732 | 19.0 % |
 
-The small western islands are worst — the same three islands where WSF Evolution
-also performs worst (El Hierro dates only 24.5 % of its footprint). Before 1980 on
-La Gomera, half the building dates are bucketed **and** the satellite alternative
-barely works. That is the weakest corner of the whole archive, and it should be
-treated as such.
+The small western islands are worst — the same three where WSF Evolution also
+performs worst (El Hierro dates only 24.5 % of its footprint). Before 1980 on La
+Gomera, half the building dates are bucketed **and** the satellite alternative
+barely works. That is the weakest corner of the whole archive. The ratio is
+therefore a usable per-island quality measure, not just a caveat.
 
-**A cross-check against WSF Evolution was attempted and could not run**, which is
-itself informative: WSF Evolution covers 1985–2015, and no spike year falls inside
-it. The bucketing ended before the independent source began, so the two cannot be
+### A cross-check that could not run, and what that tells us
+
+An attempt to test the bucket years against WSF Evolution failed for a structural
+reason: WSF Evolution covers 1985–2015 and **no bucket year falls inside it**. The
+bucketing ended before the independent source began, so the two cannot be
 compared — and equally, nothing in the satellite-covered era is affected.
 
-**What follows from this.** A cadastral date before 1980 is good to about a decade,
-not to a year; after 1980 it is good to the year. The published data is unchanged —
-these are the register's own values and replacing them would be inventing
-different ones — but the viewer now warns when the slider sits below 1980, and
-names the specific year when it sits on one of the 15 buckets. Whether to go
-further (for instance, snapping the pre-1980 slider to five-year steps, which is
-the real resolution of the data) is a display decision still open.
+### What was changed
+
+Nothing in the published data. These are the register's own values, and
+substituting different ones would be inventing them. The viewer warns when the
+slider sits below 1980, and names the year when it sits on one of the ten major
+buckets.

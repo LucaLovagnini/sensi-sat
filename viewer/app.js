@@ -224,16 +224,26 @@ function variables() {
  */
 /**
  * The cadastre bucketed unknown construction dates onto round years until 1980.
- * Measured (analysis 19): 15 spike years between 1900 and 1980 hold 34.8 % of every
- * dated building in the archipelago — 1900 alone holds 25,971, which is 1,146x its
- * neighbouring years and the largest single year in the register. After 1980 there
- * is not one spike in 46 years. So a date before 1980 is reliable to about a
- * decade, not to a year, and the viewer says so rather than implying precision the
- * register never had.
+ * Measured (analysis 19), and the buckets are NOT all alike:
+ *
+ *   10 major buckets  1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1975, 1980
+ *                     158,658 buildings — 33.8 % of every dated building. 1900
+ *                     alone holds 25,971, the largest single year in the register.
+ *    5 minor buckets  1905, 1915, 1925, 1935, 1945
+ *                     4,471 buildings between them — 0.95 %. Statistically visible
+ *                     (3–5x their neighbours) but practically invisible: 1915 adds
+ *                     38 buildings to Santa Cruz de Tenerife, a city of 23,881.
+ *
+ * Only the major ones are called out. Warning about a year that moves 0.07 % of the
+ * data would train the reader to ignore the warning that matters.
+ *
+ * After 1980 there is not one spike in 46 years, so dates from 1981 on are good to
+ * the year. Before it they are good to about a decade — but 37 % of pre-1981
+ * buildings do carry a genuine year, which is why the slider still moves a year at
+ * a time rather than snapping to five.
  */
 const CADASTRE_BUCKETED_UNTIL = 1980;
-const CADASTRE_SPIKE_YEARS = new Set([1900, 1905, 1910, 1915, 1920, 1925, 1930, 1935,
-  1940, 1945, 1950, 1960, 1970, 1975, 1980]);
+const CADASTRE_MAJOR_BUCKETS = new Set([1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1975, 1980]);
 
 const PNOA_FIRST_YEAR = 2004;
 const PNOA_LAST_YEAR = 2024;
@@ -386,13 +396,14 @@ function precisionNote() {
   if (state.layer !== 'buildings-dated') return '';
   const y = Math.round(sliderYear());
   if (y > CADASTRE_BUCKETED_UNTIL) return '';
-  if (CADASTRE_SPIKE_YEARS.has(y)) {
-    return `⚠ ${y} is one of the years the cadastre used for "old, date unknown". `
-         + `It holds far more buildings than the years either side, so treat this frame `
-         + `as "by about ${y}", not as ${y} exactly.`;
+  if (CADASTRE_MAJOR_BUCKETS.has(y)) {
+    return `⚠ ${y} is one of the ten years the cadastre used for "old, date unknown". `
+         + `Together they hold a third of all dated buildings, so read this frame as `
+         + `"by about ${y}" rather than as ${y} exactly.`;
   }
-  return `⚠ Before ${CADASTRE_BUCKETED_UNTIL} the cadastre rounded unknown dates onto `
-       + `whole decades, so this frame is reliable to roughly a decade rather than a year.`;
+  return `Before ${CADASTRE_BUCKETED_UNTIL} the cadastre rounded many unknown dates onto `
+       + `whole decades, so this frame is reliable to roughly a decade. Years that are `
+       + `not round are genuine.`;
 }
 
 function modeNote() {
