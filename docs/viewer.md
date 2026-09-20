@@ -114,3 +114,57 @@ not been taken.
 
 Also absent: a per-zone statistics panel beyond the island total (M5), and any
 deep-linking of state into the URL.
+
+---
+
+## 6. Deployment
+
+Live, unannounced, at **`https://sensisat.ensi-at.workers.dev`** (2026-09-20).
+
+```bash
+python scripts/build.py --all     # produce the layers
+python scripts/publish.py         # bundle the JS, assemble dist/, check the size budget
+npx wrangler deploy               # deploy (needs `wrangler login` once)
+```
+
+`dist/` holds the viewer at its root and the published layers under `data/` — 137
+files, 60.6 MiB. The repository is not the website: scripts, docs, raw downloads
+and notebooks never reach the public host.
+
+### The thing that nearly stopped this working
+
+**Cloudflare's Workers Assets platform ignores the `Range` header.** Measured on
+the live site: five consecutive requests for the first kilobyte of a 1.5 MB COG
+all came back `200` with the whole file. Since a Cloud-Optimized GeoTIFF is
+*defined* by being read in slices, and geotiff.js fails outright rather than
+degrading, every data layer silently failed to render while the page itself looked
+fine.
+
+Neither obvious escape worked: classic Pages, which supported ranges, can no
+longer be created for a new project, and R2 has to be enabled in the dashboard
+first.
+
+The fix is `worker/index.js` — a Worker in front of the asset store that does the
+slicing the platform does not, and sets the immutable cache headers on rasters
+while it is there (guardrail G4). It only works with:
+
+```jsonc
+"assets": { "directory": "dist", "binding": "ASSETS", "run_worker_first": true }
+```
+
+Without `run_worker_first`, a request matching a static asset is served straight
+from the asset store and the Worker never runs — which is why the first deployment
+of it changed nothing at all.
+
+Verified on the live site for normal, suffix and mid-file ranges.
+
+### What a visit actually costs, measured in production
+
+| | |
+|---|---|
+| requests to origin | **6** (was ~70 before the runtime index) |
+| COG bytes read for Gran Canaria's buildings | **64.3 KiB** of a 1.5 MB file |
+| JS bundle | 850 KB, 292 KB gzipped, cached forever after first visit |
+
+That is the architecture working as designed: the file is big, the read is small,
+and moving the time slider fetches nothing at all.

@@ -21,7 +21,15 @@ import TileWMS from 'ol/source/TileWMS.js';
 import GeoTIFF from 'ol/source/GeoTIFF.js';
 
 
-const DATA = '../data/processed';
+/**
+ * Where the published data sits, relative to this page. Two layouts are valid and
+ * both must work without a build-time rewrite: in the repository the viewer lives
+ * in viewer/ and the data in data/processed/; in the deployed site the page is at
+ * the root and the data directly beneath it. The first candidate that answers is
+ * used, so the same file serves local development and production.
+ */
+const DATA_CANDIDATES = ['data', '../data/processed'];
+let DATA = DATA_CANDIDATES[0];
 const YEAR_OFFSET = 1899;      // stored value = year - 1899 (see sensisat/encoding.py)
 const UNDATED = 255;
 
@@ -91,10 +99,58 @@ async function json(url) {
 }
 const resolve = (base, href) => new URL(href, base).href;
 
-/** Read the STAC catalogue: which layers exist, for which islands, and where. */
+/**
+ * Learn what has been published.
+ *
+ * One request, not sixty-five. Walking the STAC catalogue means fetching the
+ * catalogue, then 7 collections, then 56 items — 64 round trips before the first
+ * pixel can be drawn. STAC's nested form is right for a catalogue somebody
+ * browses with their own tools, and it is still published for exactly that; it is
+ * the wrong shape for a page load, so the build also emits a flat index.
+ *
+ * The STAC walk stays as a fallback, so the viewer still works against a
+ * `data/processed/` that predates the index.
+ */
 async function loadCatalog() {
-  const rootUrl = new URL(`${DATA}/catalog.json`, location.href).href;
-  const root = await json(rootUrl);
+  let index = null, indexUrl = null;
+  for (const candidate of DATA_CANDIDATES) {
+    try {
+      indexUrl = new URL(`${candidate}/index.json`, location.href).href;
+      index = await json(indexUrl);
+      DATA = candidate;
+      break;
+    } catch { /* try the next layout */ }
+  }
+  if (index) {
+    const out = {};
+    for (const [id, layer] of Object.entries(index.layers)) {
+      const islands = {};
+      for (const [island, entry] of Object.entries(layer.islands)) {
+        islands[island] = {
+          asset: resolve(indexUrl, entry.asset),
+          stats: entry.stats || {},
+          bbox: null,
+        };
+      }
+      out[id] = {title: layer.title, islands};
+    }
+    return out;
+  }
+  return loadCatalogFromStac();
+}
+
+/** The original 64-request walk, kept as a fallback. */
+async function loadCatalogFromStac() {
+  let rootUrl = null, root = null;
+  for (const candidate of DATA_CANDIDATES) {
+    try {
+      rootUrl = new URL(`${candidate}/catalog.json`, location.href).href;
+      root = await json(rootUrl);
+      DATA = candidate;
+      break;
+    } catch { /* try the next layout */ }
+  }
+  if (!root) throw new Error('no catalogue found in ' + DATA_CANDIDATES.join(' or '));
   const out = {};
   for (const link of root.links.filter((l) => l.rel === 'child')) {
     const colUrl = resolve(rootUrl, link.href);
@@ -365,8 +421,8 @@ async function showLayer() {
 
   source.on('error', (e) => status(`raster error: ${e.error?.message || e.message}`, true));
   try {
-    await source.getView();
-    map.getView().fit(entry.bbox, {padding: [30, 30, 30, 30], duration: 350});
+    const view = await source.getView();
+    map.getView().fit(entry.bbox ?? view.extent, {padding: [30, 30, 30, 30], duration: 350});
     status(`${def.title} — ${state.island}`);
   } catch (err) {
     console.error(err);

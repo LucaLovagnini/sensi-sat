@@ -1,0 +1,17 @@
+{
+  "name": "sensisat-viewer",
+  "private": true,
+  "version": "0.1.0",
+  "description": "SensiSat map viewer — bundled so a cold load does not depend on a third-party CDN",
+  "type": "module",
+  "scripts": {
+    "build": "esbuild app.js --bundle --minify --format=esm --target=es2022 --outfile=app.bundle.js --legal-comments=none",
+    "watch": "esbuild app.js --bundle --format=esm --target=es2022 --outfile=app.bundle.js --sourcemap --watch"
+  },
+  "dependencies": {
+    "ol": "^10.2.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.24.0"
+  }
+}

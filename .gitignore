@@ -30,3 +30,17 @@ service-account*.json
 *.egg-info/
 build/
 dist/
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
+
+# Viewer build artefacts and deploy output
+viewer/node_modules/
+viewer/app.bundle.js
+viewer/ol.css
+/dist/
+.wrangler/

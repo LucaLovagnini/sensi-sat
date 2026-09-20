@@ -81,19 +81,39 @@ None of these bill us. All of them can take the site down.
 
 Ordered by how much they protect, not by effort.
 
-**G1 — Host where egress is free.** Cloudflare Pages (or R2 behind the CDN). This
-is the only guardrail that removes the failure mode instead of bounding it: there
-is no bandwidth meter to run away. **Status: decision pending, blocks M4
-publishing.**
+**G1 — Host where egress is free.** Cloudflare. This is the only guardrail that
+removes the failure mode instead of bounding it: there is no bandwidth meter to run
+away. **Status: DONE — deployed 2026-09-20 to `sensisat.ensi-at.workers.dev`.**
 
-**G2 — Collapse the STAC walk to one request.** The viewer currently fetches 64
+> **A platform limitation worth knowing before anyone repeats this.** Cloudflare's
+> Workers Assets platform **ignores the `Range` header**: measured on the live
+> site, five consecutive requests for the first kilobyte of a 1.5 MB COG all
+> returned `200` with the entire file. That breaks the premise the project is built
+> on, and geotiff.js fails outright rather than degrading, so no data layer
+> rendered at all.
+>
+> Classic Pages, which did support ranges, can no longer be created — `wrangler
+> pages project create` always targets the new platform, and `pages deploy --force`
+> needs a project that already exists there. R2 supports ranges but must be enabled
+> in the dashboard first.
+>
+> The fix is `worker/index.js`: a Worker in front of the asset store that does the
+> slicing the platform does not. It needs **`run_worker_first: true`** in
+> `wrangler.jsonc` — without it a request matching a static asset is served
+> directly and the Worker never runs, which is why the first attempt changed
+> nothing. Verified working for normal (`bytes=0-1023`), suffix (`bytes=-500`) and
+> mid-file ranges.
+
+**G2 — Collapse the STAC walk to one request. Status: DONE.** A cold load went
+from ~70 requests to **6**, measured on the live site. The viewer currently fetches 64
 JSON files to learn what exists — a catalogue, 7 collections and 56 items. STAC's
 nested form is right for a *catalogue*; it is wrong for a *page load*. Publish one
 combined index alongside it and the cold load drops from ~70 requests to ~7.
-Biggest single win, for both cost and speed. **Status: not done.**
+Biggest single win, for both cost and speed.
 
-**G3 — Bundle the JavaScript.** One file instead of 248 module requests, and no
-runtime dependency on esm.sh being up. **Status: not done.**
+**G3 — Bundle the JavaScript. Status: DONE.** One file (850 KB, **292 KB
+gzipped**) instead of 248 module requests, and no runtime dependency on esm.sh
+being up. Built with esbuild via `npm run build` in `viewer/`.
 
 **G4 — Immutable caching.** Serve the published layers with
 `Cache-Control: public, max-age=31536000, immutable` on versioned paths, so the
@@ -105,10 +125,9 @@ stays the light map; PNOA and Esri are opt-in per session, which is already how 
 viewer behaves. If traffic ever justifies it, cache tiles at our own edge rather
 than proxying more load onto IGN. **Status: done.**
 
-**G6 — A published-size budget in CI.** The build already measures total published
-bytes; make it fail above a threshold (say 100 MiB) so a future layer cannot
-quietly multiply what every visitor pays for. The sealing layer is already 37 MiB
-of the 60 MiB total — this is not hypothetical. **Status: not done.**
+**G6 — A published-size budget. Status: DONE.** `scripts/publish.py` fails above
+100 MiB. Currently 60.6 MiB, of which the sealing layer and its confidence
+companion are more than half — this was never hypothetical.
 
 **G7 — Billing alerts, not just free tiers.** Whatever the host, set an alert at a
 figure that would be surprising (say $5). Free tiers end; alerts notice.

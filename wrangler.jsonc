@@ -1,0 +1,16 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sensisat",
+  "main": "worker/index.js",
+  "compatibility_date": "2026-09-18",
+  "observability": { "enabled": true },
+  "assets": {
+    "directory": "dist",
+    "binding": "ASSETS",
+    // By default a request matching a static asset is served straight from the
+    // asset store and the Worker never runs — which is why the range shim had no
+    // effect until this was set. The Worker must see every request in order to
+    // honour `Range`, which the asset store ignores.
+    "run_worker_first": true
+  }
+}

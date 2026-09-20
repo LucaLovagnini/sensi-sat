@@ -4,14 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>SensiSat — urban expansion in the Canary Islands</title>
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/ol@10.2.1/ol.css">
+<link rel="stylesheet" href="ol.css">
 <link rel="stylesheet" href="style.css">
-<script type="importmap">
-{ "imports": {
-    "ol": "https://esm.sh/ol@10.2.1",
-    "ol/": "https://esm.sh/ol@10.2.1/"
-} }
-</script>
 </head>
 <body>
 <div id="map"></div>
@@ -71,6 +65,8 @@
   </footer>
 </aside>
 
-<script type="module" src="app.js"></script>
+<!-- Bundled (npm run build). One request instead of 248 to a third-party
+     CDN, and no runtime dependency on that CDN being up. -->
+<script type="module" src="app.bundle.js"></script>
 </body>
 </html>
