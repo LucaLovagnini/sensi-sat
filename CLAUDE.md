@@ -30,9 +30,16 @@ about working here:
 
 ## Current state (2026-09-20)
 
-M0 (data evaluation), M1 (source decisions) and M2 (processing pipeline) are
-complete. **M3** — a manual accuracy assessment against aerial photography — is
-next, and its first need is PNOA orthophotos, not yet fetched.
+M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
+(accuracy assessment), M4 (viewer) and M4b (the public "about the data" page) are
+complete. The site is live but **unannounced** at
+`https://sensisat.ensi-at.workers.dev`. **M5** — the per-zone statistics panel,
+attribution and releases — is next.
+
+M3's result, in `docs/validation.md`: the cadastral building layer's user's
+accuracy is 94.7 % ± 4.2 for "built before 2015", **58.5 % ± 9.4 for "new
+2015–2024"** and 97.6 % ± 2.7 for "not built". Error-adjusted areas were measured
+and deliberately not published — see point 16 below.
 
 The plan lives at `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`; §9b is the
 state snapshot to read first, §4 holds all 19 decisions.
@@ -115,6 +122,25 @@ These each cost real time to find. Read before touching the data code.
     href resolves. The `assets-resolve` gate does.
 15. **A partial build must not erase the rest of the catalogue.** It is assembled
     from what is on disk, not from one run's records.
+16. **User's accuracy is solid; error-adjusted area is not.** They come from the
+    same 448 points but not from the same arithmetic. User's accuracy for a class
+    uses only that class's ~110 points, so the stratum weight cancels and it is a
+    plain binomial. Error-adjusted area re-weights every stratum by its true area,
+    so each of the 123 points in the 7,345 km² `not_built` stratum carries
+    **59.7 km²** — and the whole area estimate turned on three of them, giving an
+    interval of 75–477 km². Publish the first, not the second (`docs/validation.md`
+    §3).
+17. **A mis-dated building is invisible to every automated gate.** They all compare
+    our totals against other products' totals, where a building given the wrong
+    year is still a building. M3 found 29 % of the `new 2015–2024` class was
+    already standing in 2015 — the Catastro records the year of a *declaration*, so
+    a renovation or a regularisation resets it. Only human interpretation finds
+    this class of error.
+18. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+    is offset from the array `read()` actually returns. Distances computed that way
+    carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
+    matter. Take the window in integer pixels around `src.index(lon, lat)`; a point
+    on a built pixel must then measure 0.0 m from one.
 
 ## Before the site goes public
 
