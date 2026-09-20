@@ -36,11 +36,18 @@ complete. The site is live but **unannounced** at
 `https://sensisat.ensi-at.workers.dev`. **M5** — the per-zone statistics panel,
 attribution and releases — is next.
 
-M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16):
-user's accuracy 98.1 % ± 2.7 for "holds a building from before 2015", **64.1 % ± 9.9
-for "holds a building that appeared 2015–2024"**, 98.0 % ± 1.2 for "holds no
-building", 70.6 % ± 9.7 for the undated class. Error-adjusted area **462.65 ± 82.74
-km²** of cells holding a building, against 324.41 km² mapped.
+M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16).
+User's accuracy: **98 %** for "holds a pre-2015 building", **98 %** for "holds no
+building", **64–74 %** for "holds a building that appeared 2015–2024", **67–72 %**
+for the undated class. The last two are *ranges* because the sample was judged
+twice and the between-pass spread matched the statistical margin (§7). Error-adjusted
+area **462.65 ± 82.74 km²** of cells holding a building against 324.41 km² mapped —
+an extent measure, never to be set against the 100 km² of footprint.
+
+**The layer's years mean "built OR comprehensively rebuilt"**, by the Catastro's own
+definition — a *reforma integral* resets the year. This is the measured cause of the
+24–33 % of "new construction" that was already standing in 2015, and it is a
+definition we misread, not a data fault (`data-evaluation.md` §11).
 
 The plan lives at `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`; §9b is the
 state snapshot to read first, §4 holds all 19 decisions.
@@ -58,13 +65,37 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | | |
 |---|---|
 | `sensisat/` | the package — adapters, grid, encoding, derivation, QA, catalogue |
-| `scripts/analysis_01..18` | the M0 evidence; every number in the docs is reproducible from these |
+| `scripts/analysis_01..20` | the evidence; every number in the docs is reproducible from these |
 | `scripts/build.py` | M2: produce, check and catalogue the seven layers |
 | `scripts/verify_m2.py` | M2's acceptance criteria as an executable check |
+| `scripts/m3_*.py` | M3: `sample` (draw), `label` via viewer, `score` (Olofsson), `diagnose`, `recheck`, `review` |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/` |
 | `tests/` | 56 pytest tests over small fixture rasters |
-| `docs/` | `concepts.md`, `data-evaluation.md`, `design/seam-harmonization.md`, `pipeline.md`, `viewer.md` |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
+
+### The documentation, and which question each file answers
+
+Nothing under `docs/` is loaded automatically — **this file is the only router**, so
+a question not indexed here is a question a fresh session will not know to look up.
+
+| file | answers | published? |
+|---|---|---|
+| `docs/concepts.md` | what a raster, projection, COG, extent-vs-surface *is* | internal |
+| `docs/data-evaluation.md` | M0: which datasets to trust and why; §10 the bucketed pre-1980 years; **§11 what the cadastre's year actually means** | internal |
+| `docs/design/seam-harmonization.md` | why 2015/2016 is declared and never blended | internal |
+| `docs/pipeline.md` | M2: the seven layers, the grid, the QA gates, the results | internal |
+| `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
+| `docs/viewer.md` | M4: how the map works, why OpenLayers, the WebGL constraints | internal |
+| `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration still pending | internal |
+| `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
+
+**The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404), so `docs/`
+is internal and the HTML page is the only thing readers see. Never link from the
+public page into the repo.
+
+**Keeping this honest.** When something load-bearing is learned, the one-line
+version belongs here and the working detail belongs in `docs/`. A fact that exists
+only in `docs/` will be missed; a fact that exists only here loses its evidence.
 
 ```bash
 pip install -e ".[zarr,dev]"
