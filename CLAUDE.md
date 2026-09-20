@@ -116,6 +116,15 @@ These each cost real time to find. Read before touching the data code.
 15. **A partial build must not erase the rest of the catalogue.** It is assembled
     from what is on disk, not from one run's records.
 
+## Before the site goes public
+
+It must carry an **"about the data" page** (plan M4b) explaining every number's
+conditions for a reader who is not us — the ladder of definitions, extent vs
+surface, the 2015/2016 seam, the undated class, the cadastre's pre-1980 buckets,
+growth-only encoding, greenhouses, and per-island quality. The audience quotes
+these figures; publishing them without their conditions is the failure M0 spent
+three findings learning to avoid.
+
 ## Git
 
 The remote is **Luca's personal GitHub**, and work credentials must never be used:
