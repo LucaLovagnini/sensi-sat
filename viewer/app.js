@@ -347,12 +347,20 @@ function basemapSource(key) {
   if (b.kind === 'xyz') {
     return new XYZ({url: b.url, attributions: b.attributions, maxZoom: 19, crossOrigin: 'anonymous'});
   }
-  const layers = b.kind === 'wms-year' ? `PNOA${pnoaYearFor(activeYear())}` : b.layers;
+  // The most recent slot uses the CURRENT mosaic, not the historical PNOA2024
+  // layer: measured, that layer sits 20 m east and 10 m north of every other year,
+  // which would silently show different ground than the slider claims.
+  const wantYear = pnoaYearFor(activeYear());
+  const useCurrent = b.kind === 'wms-year' && wantYear >= PNOA_LAST_YEAR;
+  const url = useCurrent ? 'https://www.ign.es/wms-inspire/pnoa-ma' : b.url;
+  const layers = !b.kind.startsWith('wms-year') ? b.layers
+    : useCurrent ? 'OI.OrthoimageCoverage' : `PNOA${wantYear}`;
   // No `serverType`. It makes OpenLayers send GeoServer vendor parameters and ask
   // for hi-dpi tiles, and IGN does not run GeoServer — every tile request then
   // fails, with nothing in the console to say so.
   const source = new TileWMS({
-    url: b.url, attributions: b.attributions, crossOrigin: 'anonymous',
+    url: b.kind === 'wms-year' ? url : b.url,
+    attributions: b.attributions, crossOrigin: 'anonymous',
     params: {LAYERS: layers, FORMAT: 'image/jpeg'},
     transition: 250, ratio: 1,
   });

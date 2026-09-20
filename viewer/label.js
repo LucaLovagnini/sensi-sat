@@ -12,15 +12,61 @@
  * big enough to read, small enough to keep its surroundings in view.
  */
 
-const WMS = 'https://www.ign.es/wms/pnoa-historico';
+const WMS_HISTORIC = 'https://www.ign.es/wms/pnoa-historico';
+const WMS_CURRENT = 'https://www.ign.es/wms-inspire/pnoa-ma';
 const CHIP_M = 100;          // metres across the chip
 const CHIP_PX = 640;
-// PNOA flies the Canaries about every three years: 2005, 2009, 2012, 2015, 2018,
-// 2021, 2024. Any other year returns a blank white frame, so the pair judged here
-// must be chosen from flights that exist.
-const YEARS = [2015, 2024];
 
-const state = { points: [], i: 0, labels: {}, island: '' };
+/**
+ * The two dates judged, and where each one's imagery comes from.
+ *
+ * PNOA flies the Canaries about every three years — 2005, 2009, 2012, 2015, 2018,
+ * 2021, 2024 — and any other year returns a blank white frame.
+ *
+ * The recent date deliberately does NOT use the historical service's `PNOA2024`
+ * layer. Measured against the current national mosaic, every historical year lines
+ * up to within a metre except that one, which sits **20 m east and 10 m north**,
+ * detected at thirteen times the confidence of any other comparison. A systematic
+ * shift of two whole cells would mean judging different ground in each image, so
+ * the recent date is taken from the current mosaic, which agrees with all the
+ * historical years.
+ */
+const DATES = [
+  {label: '2015', url: WMS_HISTORIC, layer: 'PNOA2015'},
+  {label: '2024', url: WMS_CURRENT, layer: 'OI.OrthoimageCoverage'},
+];
+const YEARS = DATES.map((d) => d.label);
+
+const state = { points: [], i: 0, labels: {}, island: '', sampleId: '' };
+
+/**
+ * Labels are stored per sample, not globally.
+ *
+ * 650 points is several sittings, so the work has to survive closing the tab — but
+ * it must not survive the SAMPLE changing. Keying the store by a fingerprint of the
+ * point ids means a redrawn sample starts clean instead of silently counting
+ * answers that belong to points which no longer exist, which is exactly what
+ * happened when the sampler was fixed mid-session: the progress bar read 5/12
+ * while every point on screen was unanswered.
+ */
+function sampleFingerprint(points) {
+  const joined = points.map((p) => p.id).join(',');
+  let h = 0;
+  for (let i = 0; i < joined.length; i++) h = (Math.imul(31, h) + joined.charCodeAt(i)) | 0;
+  return `sensisat-m3-${points.length}-${(h >>> 0).toString(36)}`;
+}
+
+/** Has this point been judged on both dates? */
+const isDone = (id) => {
+  const l = state.labels[id];
+  return Boolean(l && l['2015'] && l['2024']);
+};
+
+/** The first point still needing an answer — where a returning interpreter belongs. */
+function firstUnanswered() {
+  const i = state.points.findIndex((p) => !isDone(p.id));
+  return i === -1 ? state.points.length - 1 : i;
+}
 
 const el = (id) => document.getElementById(id);
 const metresToDegrees = (m, lat) => ({
@@ -28,12 +74,12 @@ const metresToDegrees = (m, lat) => ({
   lon: m / (111_320 * Math.cos(lat * Math.PI / 180)),
 });
 
-function chipUrl(lon, lat, year) {
+function chipUrl(lon, lat, date) {
   const d = metresToDegrees(CHIP_M / 2, lat);
   // WMS 1.3.0 with EPSG:4326 takes the bbox as lat,lon — getting this the usual
   // way round silently returns imagery of somewhere else entirely.
   const bbox = [lat - d.lat, lon - d.lon, lat + d.lat, lon + d.lon].join(',');
-  return `${WMS}?service=WMS&version=1.3.0&request=GetMap&layers=PNOA${year}`
+  return `${date.url}?service=WMS&version=1.3.0&request=GetMap&layers=${date.layer}`
        + `&styles=&crs=EPSG:4326&bbox=${bbox}&width=${CHIP_PX}&height=${CHIP_PX}`
        + `&format=image/jpeg`;
 }
@@ -41,8 +87,8 @@ function chipUrl(lon, lat, year) {
 function render() {
   const p = state.points[state.i];
   if (!p) return;
-  el('img2015').src = chipUrl(p.lon, p.lat, YEARS[0]);
-  el('img2024').src = chipUrl(p.lon, p.lat, YEARS[1]);
+  el('img2015').src = chipUrl(p.lon, p.lat, DATES[0]);
+  el('img2024').src = chipUrl(p.lon, p.lat, DATES[1]);
 
   const label = state.labels[p.id] || {};
   document.querySelectorAll('.answer').forEach((row) => {
@@ -53,8 +99,9 @@ function render() {
   });
   el('note').value = label.note || '';
 
-  const done = Object.values(state.labels).filter((l) => l['2015'] && l['2024']).length;
-  el('count').textContent = `${done} / ${state.points.length} complete · point ${state.i + 1}`;
+  const done = state.points.filter((q) => isDone(q.id)).length;
+  const already = isDone(p.id) ? ' · already answered' : '';
+  el('count').textContent = `${done} / ${state.points.length} complete · point ${state.i + 1}${already}`;
   el('fill').style.width = `${100 * done / state.points.length}%`;
   el('sub').textContent = `${state.island} · ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
 }
@@ -71,14 +118,20 @@ function setAnswer(year, value) {
   if (label['2015'] && label['2024']) setTimeout(next, 180);
 }
 
-const next = () => { if (state.i < state.points.length - 1) { state.i++; render(); } };
+/** Skip forward over anything already judged, so revisiting never means redoing. */
+const next = () => {
+  for (let k = state.i + 1; k < state.points.length; k++) {
+    if (!isDone(state.points[k].id)) { state.i = k; render(); return; }
+  }
+  if (state.i < state.points.length - 1) { state.i = state.points.length - 1; render(); }
+};
 const back = () => { if (state.i > 0) { state.i--; render(); } };
 
 const KEY = {'1': ['2015','built'], '2': ['2015','not'], '3': ['2015','unsure'],
              'q': ['2024','built'], 'w': ['2024','not'], 'e': ['2024','unsure']};
 
 function save() {
-  try { localStorage.setItem('sensisat-m3-labels', JSON.stringify(state.labels)); } catch {}
+  try { localStorage.setItem(state.sampleId, JSON.stringify(state.labels)); } catch {}
 }
 
 function download() {
@@ -101,7 +154,9 @@ function download() {
   const sample = await (await fetch('../data/processed/m3_demo/points.json')).json();
   state.points = sample.points;
   state.island = sample.island;
-  try { state.labels = JSON.parse(localStorage.getItem('sensisat-m3-labels') || '{}'); } catch {}
+  state.sampleId = sampleFingerprint(sample.points);
+  try { state.labels = JSON.parse(localStorage.getItem(state.sampleId) || '{}'); } catch {}
+  state.i = firstUnanswered();   // resume where the last sitting stopped
 
   document.querySelectorAll('.answer button').forEach((b) => {
     b.onclick = () => setAnswer(b.closest('.answer').dataset.year, b.dataset.v);
