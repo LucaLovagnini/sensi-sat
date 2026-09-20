@@ -220,52 +220,68 @@
 <section>
   <h2>9. How accurate is it?</h2>
   <p><strong>Measured on 20 September 2026</strong>, for the <em>cadastral
-  building layer</em> and for nothing else on this site. 500 points were drawn at
-  random — separately within each class, so the rare ones get enough points — and
-  judged against IGN PNOA aerial photography at 12–25 cm per pixel, at two dates,
-  by an interpreter who could not see the map. 448 were decidable. The method is
+  building layer</em> and for nothing else on this site. 911 places were picked at
+  random — separately within each class, so the rare ones get enough — and judged
+  against IGN PNOA aerial photography at 12–25 cm per pixel, at two dates, by an
+  interpreter who could not see the map. 838 were decidable. The method is
   Olofsson et al. (2014); the working is in
   <a href="https://github.com/LucaLovagnini/sensi-sat/blob/main/docs/validation.md">docs/validation.md</a>.</p>
 
-  <p>The number worth quoting is <strong>user’s accuracy</strong>: of the area we
-  mark as X, how much truly is X — the question a reader of the map is actually
-  asking.</p>
+  <p><strong>The unit is a 30 m square</strong>, and every figure below is about
+  30 m squares. That is not a detail. The median building here is 121 m² against a
+  10 m pixel of 100 m², so at the map's own resolution almost every test point lands
+  on the edge of a roof — and an aerial photograph shows a roof several metres from
+  the footprint beneath it, because orthorectification corrects for terrain and not
+  for building height. So this page can tell you the map is right about where
+  buildings are <em>to within 30 m</em>. It cannot tell you more than that, and a
+  first attempt that claimed to was discarded.</p>
 
   <table>
-    <thead><tr><th>what the map says</th><th>how often that is right</th></tr></thead>
+    <thead><tr><th>what the map says about a 30 m square</th><th>how often that is right</th></tr></thead>
     <tbody>
-      <tr><td>a building stood here by 2015</td><td><strong>94.7 % ± 4.2</strong></td></tr>
-      <tr><td>a building appeared 2015–2024</td><td><strong>58.5 % ± 9.4</strong></td></tr>
-      <tr><td>nothing is built here</td><td><strong>97.6 % ± 2.7</strong></td></tr>
-      <tr><td>built, year unknown (the undated class)</td><td><strong>57.5 % ± 9.4</strong></td></tr>
+      <tr><td>it holds a building that stood by 2015</td><td><strong>98.1 % ± 2.7</strong></td></tr>
+      <tr><td>it holds a building that appeared 2015–2024</td><td><strong>64.1 % ± 9.9</strong></td></tr>
+      <tr><td>it holds no building</td><td><strong>98.0 % ± 1.2</strong></td></tr>
+      <tr><td>it holds a building of unknown year</td><td><strong>70.6 % ± 9.7</strong></td></tr>
     </tbody>
   </table>
 
   <p><strong>Read the second row before using the time slider.</strong> Of the
-  pixels we colour as new construction between 2015 and 2024, about 29 % already
-  had a building in 2015 and about 12 % have none at either date. The first group
-  is the important one: it is a <em>dating</em> error, not a detection error. The
-  cadastre records the year of a <em>declaration</em>, and a renovation, an
-  extension or the regularisation of a previously unregistered building creates or
-  resets that year. So the most eye-catching thing on this map — recent growth — is
-  also its least reliable layer.</p>
+  squares we colour as new construction between 2015 and 2024, about a third already
+  had a building in 2015. That is a <em>dating</em> error, not a detection error: the
+  cadastre records the year of a <em>declaration</em>, so a renovation, an extension
+  or the regularisation of a previously unregistered building creates or resets that
+  year. The most eye-catching thing on this map — recent growth — is its least
+  reliable layer. The finding was tested twice, on two independently drawn samples
+  with different assessment units, and got larger the second time, not smaller.</p>
 
-  <p><strong>And the undated class is about two-fifths empty.</strong> Of points
-  where we say “built, year unknown”, 42.5 % ± 9.4 showed no building at all in the
-  photographs. Copernicus Imperviousness, an independent product the interpreter
-  never saw, agrees on both sides of that split: a median of 91 % sealed ground
-  where the photographs showed a building, and 3 % where they showed nothing.</p>
+  <p><strong>The register misses isolated rural buildings.</strong> Of the squares we
+  mark as empty, about 2 % hold a building — and because empty land is 95 % of the
+  archipelago, that small percentage is the largest correction on this page. Ten of
+  the eleven cases found have no building in the Catastro within 60 m, and seven are
+  more than 200 m from anything mapped: they are structures in open country that the
+  register does not hold. Some will be sheds, pens or ruins that a tax register
+  reasonably ignores. Treat the building layer as a <em>floor</em> in the countryside,
+  and as reliable in towns.</p>
 
-  <p class="takeaway">One number we deliberately do <em>not</em> publish: a
-  corrected total for how much built-up land the Canary Islands contain. The
-  sample can support per-class accuracy but not that figure — its 95 % interval
-  runs from 75 to 477 km², because the estimate hinges on three points in a stratum
-  covering 7,345 km². Quoting the midpoint and dropping the interval would be the
-  exact failure this page exists to prevent.</p>
+  <p><strong>The undated class is about a quarter empty.</strong> Where we say
+  “holds a building, year unknown”, 28 % showed no building at all. Copernicus
+  Imperviousness, an independent product the interpreter never saw, agrees on both
+  sides of that split: a median of 91 % sealed ground where the photographs found a
+  building, and 3 % where they did not. The leading explanation — that these are
+  greenhouses, which radar reads as structures — was tested and is wrong: none of
+  107 checked points fell inside a mapped greenhouse parcel.</p>
 
-  <p>The assessment covers the cadastral building layer, archipelago-wide. It does
-  not cover the satellite settlement layers, the density layers or the loss layer,
-  and no single island has enough points for a number of its own.</p>
+  <p class="takeaway">Corrected for both kinds of error, about <strong>463 ± 83 km²</strong>
+  of the archipelago sits in a 30 m square holding a building, against the 324 km²
+  the map marks. That is an <em>extent</em> figure and it saturates — it is not square
+  metres of roof, and it must not be compared with the 100 km² of building footprint
+  quoted elsewhere on this page. It sits where it should between the settlement
+  extent of satellite products (377 km²) and CORINE's artificial surface (470 km²).</p>
+
+  <p>The assessment covers the cadastral building layer, archipelago-wide, at 30 m.
+  It does not cover the satellite settlement layers, the density layers or the loss
+  layer, and no single island has enough points for a number of its own.</p>
 </section>
 
 <section>
