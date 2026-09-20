@@ -175,9 +175,35 @@ uses them.
 
 ## 7. What M2 actually produced
 
-Built 2026-09-19 with `python scripts/build.py --all`: **56 files, seven layers
-across eight islands, 217/217 QA gates passing**, every COG passing
-`rio cogeo validate --strict` and every catalogue object passing STAC validation.
+Built with `python scripts/build.py --all`: **56 files, seven layers across eight
+islands, 168/168 measured QA gates passing** (49 further checks did not apply),
+every COG passing `rio cogeo validate --strict` and every catalogue object passing
+STAC validation.
+
+The gates break down like this, and the skips are worth reading rather than
+glossing — a check that did not run is not a check that passed:
+
+| gate | measured | did not apply | catches |
+|---|---|---|---|
+| `totals` | 35 | 21 | a layer whose size has moved by a factor |
+| `cog-valid` | 56 | — | a file a browser cannot read by byte-range |
+| `grid-alignment` | 32 | — | two layers of one island half a pixel apart |
+| `loss-rate` | 16 | — | a method change disguised as demolition |
+| `growth-only` | 16 | — | a year encoding broken by a bad merge |
+| `agreement` | 8 | — | disagreeing with an unrelated producer |
+| `negative-control` | 4 | 28 | settlement hallucinated onto bare lava |
+| `stac-valid` | 1 | — | a catalogue other tools cannot read |
+
+Almost all the skips are the lava control: Timanfaya is on Lanzarote, so 28 of its
+32 instances can say nothing about the other seven islands. The other 21 are
+`totals` on layers with no meaningful CORINE band — greenhouses are not
+"artificial surfaces" and a change layer is not a stock of anything — plus La
+Graciosa, whose CORINE total of 0.27 km² is too small to police.
+
+Measured values, not just verdicts: Timanfaya **0.047 %** of a 50.8 km² control
+against a 0.1 % limit; loss **0.002–0.083 %/yr** outside the whitelisted Tajogaite
+polygon against a 0.2 % limit; agreement with Copernicus **IoU 0.34–0.53** against
+a 0.30 floor.
 
 ### Totals, and how they check out against M0
 

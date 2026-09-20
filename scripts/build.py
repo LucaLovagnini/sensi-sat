@@ -250,19 +250,27 @@ def main() -> int:
     all_gates.append(qa.stac_valid(catalog_path))
 
     print("\nQA gates (plan section 7, level 1):")
-    passed, total = qa.summarise(all_gates)
-    print(f"\n  {passed}/{total} gates passed")
-    if passed < total:
+    passed, measured, skipped = qa.summarise(all_gates)
+    print(f"\n  {passed}/{measured} gates passed; {skipped} did not apply "
+          f"({len(all_gates)} checks attempted)")
+    if passed < measured:
         print("  failures:")
         for g in all_gates:
-            if not g.passed:
+            if not g.passed and not g.skipped:
                 print(f"   {g}")
 
     if not args.no_seam:
         write_seam([i for i in chosen_islands if i in ISLAND_BBOX])
 
+    by_gate: dict[str, list[int]] = {}
+    for g in all_gates:
+        row = by_gate.setdefault(g.gate, [0, 0])
+        row[1 if g.skipped else 0] += 1
+    print("\n  by gate:  " + " | ".join(
+        f"{name} {m}" + (f" (+{s} n/a)" if s else "") for name, (m, s) in sorted(by_gate.items())))
+
     print(f"\nPublished {published_mib(records):.1f} MiB to {PROCESSED}")
-    return 0 if passed == total else 2
+    return 0 if passed == measured else 2
 
 if __name__ == "__main__":
     raise SystemExit(main())

@@ -73,9 +73,14 @@ class Gate:
     value: float | None
     expected: str
     detail: str = ""
+    # A gate that did not apply is NOT a gate that passed. Timanfaya is on
+    # Lanzarote, so the lava control cannot say anything about Tenerife; counting
+    # that as a pass inflates the score with checks that never ran. Skips are
+    # tracked separately and reported separately.
+    skipped: bool = False
 
     def __str__(self) -> str:
-        mark = "PASS" if self.passed else "FAIL"
+        mark = "SKIP" if self.skipped else ("PASS" if self.passed else "FAIL")
         shown = "n/a" if self.value is None else f"{self.value:.4g}"
         return f"  [{mark}] {self.gate:18s} {self.layer:20s} {self.island:14s} {shown:>10s}  ({self.expected}){self.detail and '  ' + self.detail}"
 
@@ -100,10 +105,10 @@ def totals_in_band(layer: str, island: str, value_km2: float) -> Gate:
     reference = _corine(island)
     band = CORINE_BAND.get(layer)
     if reference is None or band is None:
-        return Gate("totals", layer, island, True, value_km2, "no band for this layer", "skipped")
+        return Gate("totals", layer, island, True, value_km2, "no band for this layer", skipped=True)
     if reference < MIN_CORINE_KM2:
         return Gate("totals", layer, island, True, value_km2,
-                    f"CORINE {reference} km2 too small to police", "skipped")
+                    f"CORINE {reference} km2 too small to police", skipped=True)
     ratio = value_km2 / reference
     lo, hi = band
     return Gate("totals", layer, island, lo <= ratio <= hi, ratio,
@@ -119,7 +124,7 @@ def negative_control(layer: str, island: str, built: np.ndarray, transform: Affi
     nothing", not "nothing". Every product tested in M0 came in at or below 0.08 %.
     """
     if island != "Lanzarote":
-        return Gate("negative-control", layer, island, True, None, "Timanfaya is on Lanzarote", "skipped")
+        return Gate("negative-control", layer, island, True, None, "Timanfaya is on Lanzarote", skipped=True)
     from . import zones
 
     try:
@@ -156,7 +161,7 @@ def growth_only(layer: str, island: str, years: np.ndarray) -> Gate:
 
     dated = years[(years > 0) & (years != enc.UNDATED)]
     if dated.size == 0:
-        return Gate("growth-only", layer, island, True, 0, "no dated pixels", "skipped")
+        return Gate("growth-only", layer, island, True, 0, "no dated pixels", skipped=True)
     lo, hi = int(dated.min()) + enc.YEAR_OFFSET, int(dated.max()) + enc.YEAR_OFFSET
     sane = enc.YEAR_MIN <= lo and hi <= enc.YEAR_MAX
     return Gate("growth-only", layer, island, sane, hi,
@@ -172,7 +177,7 @@ def loss_rate(layer: str, island: str, loss_km2: float, built_km2: float, years:
     Todoque and is whitelisted because it is the event the loss layer exists to show.
     """
     if not built_km2 or not years:
-        return Gate("loss-rate", layer, island, True, None, "nothing built", "skipped")
+        return Gate("loss-rate", layer, island, True, None, "nothing built", skipped=True)
     rate = 100 * loss_km2 / built_km2 / years
     whitelisted = island == "La Palma"
     passed = rate <= LOSS_MAX_PCT_PER_YEAR or whitelisted
@@ -191,7 +196,7 @@ def agreement(layer: str, island: str, ours: np.ndarray, theirs: np.ndarray) -> 
     """
     score = iou(ours, theirs)
     if not np.isfinite(score):
-        return Gate("agreement", layer, island, True, None, "nothing built in either", "skipped")
+        return Gate("agreement", layer, island, True, None, "nothing built in either", skipped=True)
     return Gate("agreement", layer, island, score >= MIN_IOU_VS_INDEPENDENT, score,
                 f">= {MIN_IOU_VS_INDEPENDENT} IoU", "vs Copernicus Impervious Built-Up 2021")
 
@@ -244,7 +249,7 @@ def cog_valid(path: Path, layer: str = "", island: str = "-") -> Gate:
                               capture_output=True, text=True, timeout=300)
     except (FileNotFoundError, subprocess.TimeoutExpired) as exc:
         return Gate("cog-valid", layer, island, True, None, "rio-cogeo not installed",
-                    f"skipped ({type(exc).__name__})")
+                    f"({type(exc).__name__})", skipped=True)
     ok = proc.returncode == 0 and "is a valid cloud optimized GeoTIFF" in proc.stdout
     lines = (proc.stdout + proc.stderr).strip().splitlines()
     return Gate("cog-valid", layer, island, ok, None, "valid COG",
@@ -263,7 +268,7 @@ def stac_valid(catalog_path: Path) -> Gate:
         from stac_validator import stac_validator
     except ImportError:
         return Gate("stac-valid", "catalog", "-", True, None, "stac-validator not installed",
-                    "skipped")
+                    skipped=True)
     validator = stac_validator.StacValidate(str(catalog_path), recursive=True)
     validator.run()
     results = validator.message
@@ -273,9 +278,15 @@ def stac_valid(catalog_path: Path) -> Gate:
                 "every object valid", detail)
 
 
-def summarise(gates: list[Gate]) -> tuple[int, int]:
-    """(passed, total), and print each gate with its number."""
+def summarise(gates: list[Gate]) -> tuple[int, int, int]:
+    """(measured_and_passed, measured, skipped), printing each gate with its number.
+
+    Three outcomes, not two. A build that reports "217/217 passed" when 49 of those
+    never ran is claiming more assurance than it has, so the skips are counted and
+    named rather than folded into the score.
+    """
     for g in gates:
         print(g)
-    passed = sum(1 for g in gates if g.passed)
-    return passed, len(gates)
+    measured = [g for g in gates if not g.skipped]
+    passed = sum(1 for g in measured if g.passed)
+    return passed, len(measured), len(gates) - len(measured)

@@ -79,3 +79,42 @@ def test_grid_alignment_gate_catches_a_slip():
     slipped = transform * Affine.translation(0.5, 0)
     bad = qa.grid_alignment("La Gomera", {"a": (transform, shape), "b": (slipped, shape)})
     assert not any(g.passed for g in bad)
+
+
+def test_a_skipped_gate_is_not_counted_as_a_pass():
+    """A check that did not run must not inflate the score.
+
+    The build once reported "217/217 gates passed" when 49 of those had never run —
+    28 of them the lava control, which is on Lanzarote and can say nothing about
+    the other seven islands. That claims more assurance than the build has.
+    """
+    ran = qa.totals_in_band("buildings-dated", "Gran Canaria", 34.1)
+    did_not = qa.negative_control("x", "Tenerife", np.zeros((4, 4), bool), None)
+
+    assert not ran.skipped
+    assert did_not.skipped and did_not.passed      # passed, but only vacuously
+
+    passed, measured, skipped = qa.summarise([ran, did_not])
+    assert (passed, measured, skipped) == (1, 1, 1)
+    assert "SKIP" in str(did_not)
+
+
+def test_an_unavailable_negative_control_fails_rather_than_skipping():
+    """The distinction that matters: 'does not apply' vs 'could not be checked'.
+
+    Timanfaya is genuinely irrelevant to Tenerife — that is a skip. But a control
+    that should apply and cannot be loaded is a failure, because this is the only
+    gate that catches settlement hallucinated onto bare lava, and it once skipped
+    silently on the one island it applies to.
+    """
+    import sensisat.zones as zones
+
+    original = zones.timanfaya
+    try:
+        zones.timanfaya = lambda: (_ for _ in ()).throw(LookupError("nominatim returned nothing"))
+        gate = qa.negative_control("x", "Lanzarote", np.zeros((4, 4), bool), None)
+    finally:
+        zones.timanfaya = original
+
+    assert not gate.passed
+    assert not gate.skipped
