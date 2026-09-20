@@ -36,6 +36,12 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 # (87 swimming pools in the one municipality checked) are in a file we do not use.
 # Labelling a road or a paved yard as built would score an omission against a map
 # that never claimed them, measuring the definition rather than the accuracy.
+#
+# Partial cover is judged at the CENTRE, because that is the rule the map itself
+# was drawn by: `rasterize(..., all_touched=False)` marks a pixel built when a
+# footprint covers its centre point, not when it merely overlaps the pixel. Scoring
+# by how much of the square is filled would compare against a quantity the map
+# never claimed.
 def reference_class(l2015: str, l2024: str) -> str | None:
     if l2015 == "unsure" or l2024 == "unsure" or not l2015 or not l2024:
         return None                       # excluded, and reported separately

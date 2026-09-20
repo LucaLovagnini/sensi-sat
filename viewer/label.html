@@ -22,7 +22,7 @@
   <section id="chips">
     <figure>
       <figcaption>2015 <span class="hint">PNOA orthophoto</span></figcaption>
-      <div class="chip"><img id="img2015" alt="aerial photograph, 2015"><div class="cell"></div></div>
+      <div class="chip"><img id="img2015" alt="aerial photograph, 2015"><div class="cell"><i></i></div></div>
       <div class="answer" data-year="2015">
         <button data-v="built">Built <kbd>1</kbd></button>
         <button data-v="not">Not built <kbd>2</kbd></button>
@@ -31,7 +31,7 @@
     </figure>
     <figure>
       <figcaption>2024 <span class="hint">PNOA orthophoto</span></figcaption>
-      <div class="chip"><img id="img2024" alt="aerial photograph, 2024"><div class="cell"></div></div>
+      <div class="chip"><img id="img2024" alt="aerial photograph, 2024"><div class="cell"><i></i></div></div>
       <div class="answer" data-year="2024">
         <button data-v="built">Built <kbd>Q</kbd></button>
         <button data-v="not">Not built <kbd>W</kbd></button>
@@ -40,9 +40,12 @@
     </figure>
   </section>
 
-  <p class="guide"><strong>The question is: is there a BUILDING on the white
-    square?</strong> A building means a roofed structure — house, block, shed,
-    warehouse, garage, hotel. Judge <em>that square only</em>, not the surroundings.</p>
+  <p class="guide"><strong>Is there a BUILDING at the centre of the square?</strong>
+    A building means a roofed structure — house, block, shed, warehouse, garage,
+    hotel. <strong>If the square is only partly covered, judge the crosshair at its
+    centre</strong>, not how much of the square is filled: half a roof with the
+    centre on bare ground is <em>not built</em>, and half a roof with the centre on
+    the roof <em>is</em>.</p>
   <table class="counts">
     <tr><th>counts as built</th><th>does NOT count</th></tr>
     <tr>
@@ -51,6 +54,11 @@
           swimming pools · walls and fences · bare ground, crops, scrub, rock, sand</td>
     </tr>
   </table>
+  <p class="guide alt2">Why the centre and not the majority: the map was drawn by
+    the same rule. A pixel is marked built when a building footprint covers its
+    centre point, so judging the centre compares like with like. Scoring by how
+    much of the square is filled would measure a different quantity than the map
+    ever claimed.</p>
   <p class="guide alt2">Why roads do not count: this is measuring the <em>cadastre</em>,
     the building register, and it contains buildings and nothing else — its
     "other constructions" file for one municipality is 87 features, every one an
