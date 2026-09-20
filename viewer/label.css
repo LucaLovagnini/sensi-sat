@@ -66,3 +66,11 @@ footer { display:flex; gap:10px; margin-top:18px; align-items:center; }
 .counts td { padding:9px 12px; vertical-align:top; width:50%; line-height:1.5; }
 .counts td:first-child { border-right:1px solid var(--line); }
 .guide.alt2 { border-left-color:#9aabbc; background:#161d25; color:#aebcca; font-size:13px; }
+
+/* Shown when a pair of answers means something rare enough to be worth a second
+   look. Deliberately a banner and not a modal: a confirmation dialog on one answer
+   makes that answer harder to give, which would bias the interpreter away from
+   recording real demolitions. */
+.flag { margin:14px 0 0; padding:12px 15px; border-radius:8px; font-size:13.5px;
+        border-left:3px solid var(--no); background:rgba(255,143,107,.11); color:#ffd8cb; }
+.flag:empty { display:none; }

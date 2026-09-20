@@ -98,12 +98,40 @@ function render() {
     });
   });
   el('note').value = label.note || '';
+  el('flag').innerHTML = flagFor(label);
 
   const done = state.points.filter((q) => isDone(q.id)).length;
   const already = isDone(p.id) ? ' · already answered' : '';
   el('count').textContent = `${done} / ${state.points.length} complete · point ${state.i + 1}${already}`;
   el('fill').style.width = `${100 * done / state.points.length}%`;
   el('sub').textContent = `${state.island} · ${p.lat.toFixed(5)}, ${p.lon.toFixed(5)}`;
+}
+
+/**
+ * Some answers deserve a second look before moving on.
+ *
+ * "Built in 2015, not built in 2024" means a demolition, and that is rare: real
+ * loss runs at 0.017-0.052 % a year, and the cadastre this is measuring is
+ * growth-only by construction, so it can never report one. A genuine demolition is
+ * therefore a real finding; an accidental one is a keystroke away, since `1` and
+ * `W` sit next to each other.
+ *
+ * This shows a banner rather than a confirmation dialog, and the difference
+ * matters. A dialog on one specific answer makes that answer more costly to give,
+ * which would quietly push an interpreter away from recording demolitions — the
+ * exact events we most want to hear about. The banner informs without charging a
+ * price. Auto-advance is suspended for this pair alone, so the note is seen rather
+ * than flashing past.
+ */
+function flagFor(label) {
+  if (label['2015'] === 'built' && label['2024'] === 'not') {
+    return 'You have marked this as <strong>demolished between 2015 and 2024</strong>. '
+         + 'That is rare — real loss runs at about 0.02–0.05 % a year — and the map '
+         + 'being checked cannot report it at all, so a genuine one is a real finding. '
+         + 'If that is what you see, add a note and press Next. If it was a slip, just '
+         + 'answer again.';
+  }
+  return '';
 }
 
 function setAnswer(year, value) {
@@ -114,8 +142,9 @@ function setAnswer(year, value) {
   save();
   render();
   // Advance only when both dates are answered, so an accidental click does not
-  // skip past a point that is still half judged.
-  if (label['2015'] && label['2024']) setTimeout(next, 180);
+  // skip past a point that is still half judged — and never advance automatically
+  // out of a flagged pair, so its banner is actually read.
+  if (label['2015'] && label['2024'] && !flagFor(label)) setTimeout(next, 180);
 }
 
 /** Skip forward over anything already judged, so revisiting never means redoing. */
@@ -165,6 +194,7 @@ function download() {
   });
   el('back').onclick = back;
   el('skip').onclick = next;
+  el('next').onclick = next;
   el('save').onclick = download;
   el('note').onchange = () => { const p = state.points[state.i];
     (state.labels[p.id] || (state.labels[p.id] = {})).note = el('note').value || undefined; save(); };
