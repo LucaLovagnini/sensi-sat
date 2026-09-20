@@ -75,10 +75,12 @@ def main() -> int:
     # counts[map class][reference class]
     counts: dict[str, dict[str, int]] = {s: {} for s in strata}
     n: dict[str, int] = {s: 0 for s in strata}
-    excluded = []
+    excluded = []          # judged, but the photographs could not settle it
+    unlabelled = 0         # simply not reached yet — not an exclusion
     for pid, claim in claims.items():
         lab = labels.get(pid)
-        if not lab:
+        if not lab or not (lab.get("label_2015") or lab.get("label_2024")):
+            unlabelled += 1
             continue
         ref = reference_class(lab.get("label_2015"), lab.get("label_2024"))
         if ref is None:
@@ -94,8 +96,12 @@ def main() -> int:
     planned = design.get("usable", {})
     total_planned = sum(planned.values()) if planned else 0
 
-    print(f"Reference: {len(labels)} points labelled, {sum(n.values())} usable, "
-          f"{len(excluded)} excluded as unsure or incomplete")
+    judged = sum(n.values()) + len(excluded)
+    print(f"Reference: {judged} points judged, {sum(n.values())} usable, "
+          f"{len(excluded)} unsure; {unlabelled} not reached yet")
+    if judged:
+        print(f"Unsure rate among judged points: {100 * len(excluded) / judged:.1f} % "
+              f"(the sample was drawn assuming 20 %)")
     if total_planned:
         pct = 100 * sum(n.values()) / total_planned
         print(f"Progress against the design: {sum(n.values())}/{total_planned} usable "
@@ -148,9 +154,13 @@ def main() -> int:
               f"{'±' + format(1.96 * se_km2, '.2f'):>14s}")
 
     if excluded:
-        print("\nExcluded:")
-        for pid, s, a, b in excluded:
-            print(f"  {pid}  map said {s:22s} labels {a}/{b}")
+        import collections
+        by_stratum = collections.Counter(st for _, st, _, _ in excluded)
+        print("\nUnsure, by what the map claimed — a class that is hard to judge is "
+              "itself a finding:")
+        for st, k in by_stratum.most_common():
+            base = k + n[st]
+            print(f"  {st:22s} {k:3d} of {base:3d} judged ({100 * k / base:4.1f} %)")
 
     # How much narrower the interval gets if the sample is finished. The standard
     # error falls as 1/sqrt(n), so this is the honest projection rather than a promise.

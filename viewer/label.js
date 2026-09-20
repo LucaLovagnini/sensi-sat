@@ -139,6 +139,9 @@ function setAnswer(year, value) {
   const label = state.labels[p.id] || (state.labels[p.id] = {});
   label[year] = value;
   label.note = el('note').value || undefined;
+  // When this point was first judged. Recorded so the published effort figure is a
+  // measurement rather than the plan's estimate; the scorer ignores it entirely.
+  label.t = label.t || Date.now();
   save();
   render();
   // Advance only when both dates are answered, so an accidental click does not
@@ -169,6 +172,7 @@ function download() {
     label_2015: state.labels[p.id]?.['2015'] ?? null,
     label_2024: state.labels[p.id]?.['2024'] ?? null,
     note: state.labels[p.id]?.note ?? null,
+    t: state.labels[p.id]?.t ?? null,
   }));
   const blob = new Blob([JSON.stringify({island: state.island, labelled: new Date().toISOString(),
                                          interpreter_saw_the_map: false, labels: rows}, null, 1)],
