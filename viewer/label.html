@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensiSat — accuracy assessment</title>
+<link rel="stylesheet" href="label.css">
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Accuracy assessment</h1>
+      <p id="sub">loading sample…</p>
+    </div>
+    <div class="progress">
+      <div id="count">0 / 0</div>
+      <div class="bar"><span id="fill"></span></div>
+    </div>
+  </header>
+
+  <section id="chips">
+    <figure>
+      <figcaption>2015 <span class="hint">PNOA orthophoto</span></figcaption>
+      <div class="chip"><img id="img2015" alt="aerial photograph, 2015"><div class="cell"></div></div>
+      <div class="answer" data-year="2015">
+        <button data-v="built">Built <kbd>1</kbd></button>
+        <button data-v="not">Not built <kbd>2</kbd></button>
+        <button data-v="unsure">Unsure <kbd>3</kbd></button>
+      </div>
+    </figure>
+    <figure>
+      <figcaption>2024 <span class="hint">PNOA orthophoto</span></figcaption>
+      <div class="chip"><img id="img2024" alt="aerial photograph, 2024"><div class="cell"></div></div>
+      <div class="answer" data-year="2024">
+        <button data-v="built">Built <kbd>Q</kbd></button>
+        <button data-v="not">Not built <kbd>W</kbd></button>
+        <button data-v="unsure">Unsure <kbd>E</kbd></button>
+      </div>
+    </figure>
+  </section>
+
+  <p class="guide">The white square is the 10 m pixel being judged — decide on
+    <em>that square only</em>, not the surroundings. A roof, a wall, a paved yard or
+    a pool counts as built; bare ground, crops, scrub and rock do not. If a
+    greenhouse fills the square, mark <strong>unsure</strong> and note it.</p>
+
+  <footer>
+    <input id="note" placeholder="Optional note (greenhouse, cloud, shadow, can't tell…)">
+    <div class="acts">
+      <button id="back">← Back</button>
+      <button id="skip">Skip</button>
+      <button id="save" class="primary">Download labels</button>
+    </div>
+  </footer>
+</main>
+<script src="label.js"></script>
+</body>
+</html>
