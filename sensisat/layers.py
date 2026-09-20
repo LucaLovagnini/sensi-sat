@@ -408,7 +408,12 @@ LAYERS: dict[str, LayerSpec] = {
         "density-trend", "Built surface trend, 1975-2020", "surface", "amount", 92,
         ["GHS-BUILT-S R2023A"], _density_trend,
         "Square metres of built surface per cell at ten five-yearly epochs — the only "
-        "source that measures density consistently across the 2015/2016 seam.",
+        "source that measures density consistently across the 2015/2016 seam. "
+        "Observed epochs are 1975, 1990 and 2000 (Landsat); the rest are interpolated, "
+        "and that interpolation smooths real events away: GHSL puts its LARGEST "
+        "increment in 2015-2020, when the cadastre records construction at 11 % of "
+        "its pre-2008 rate. Sound for the long trend and for density; never use it to "
+        "date recent growth (data-evaluation.md §12).",
         start="1975-01-01", end="2020-12-31",
     ),
     "loss-events": LayerSpec(

@@ -912,3 +912,74 @@ choice, and a ruin is one candidate explanation for the buildings M3 found in
 4. **A possible future layer.** `end` gives, for 21 % of buildings, the date of the
    most recent construction unit. A "buildings with recorded works since year X"
    layer is derivable from data already downloaded. Not built; recorded here.
+
+## 12. GHSL and the cadastre agree before 2010 and diverge after (analysis 21)
+
+M3 left a gap it could not close: aerial photography of the Canaries begins in
+2005, so **85 % of the building layer carries a date no photograph can check**
+(`validation.md` §7b). GHSL is the only independent source reaching further back —
+its **1975, 1990 and 2000 epochs are observed Landsat**, not interpolation.
+
+The two measure different quantities (GHSL = built *surface* m² per ~93 m cell;
+cadastre = building *footprint* area), so levels are not comparable. Shapes are.
+
+| epoch | GHSL km² | index | cadastre km² | index | increment ratio |
+|---|---:|---:|---:|---:|---:|
+| 1975 | 76.1 | 100 | 34.27 | 100 | |
+| 1980 | 83.8 | 110 | 43.13 | 126 | 0.86 |
+| 1985 | 91.8 | 121 | 49.52 | 145 | 1.26 |
+| 1990 | 100.2 | 132 | 58.91 | 172 | 0.90 |
+| 1995 | 108.7 | 143 | 65.77 | 192 | 1.23 |
+| 2000 | 118.0 | 155 | 77.62 | 227 | 0.79 |
+| 2005 | 125.5 | 165 | 90.64 | 265 | 0.58 |
+| 2010 | 133.6 | 176 | 98.96 | 289 | 0.97 |
+| 2015 | 142.3 | 187 | 100.72 | 294 | **4.95** |
+| 2020 | 152.9 | 201 | 101.98 | 298 | **8.35** |
+
+**Before 2010 the increment ratio stays within 0.58–1.26.** Two independent
+sources, built by unrelated methods, agreeing on *when* growth happened across the
+decades no photograph can reach. This is the only corroboration the pre-2005 dates
+have, and it is better than nothing by a wide margin: had the bucketed pre-1980
+years (§10) been badly distorting the timeline, this is where it would show.
+
+It does **not** validate individual building dates. A building dated 1970 that was
+really built in 1965 is invisible here. What it establishes is that the *aggregate
+trajectory* is not fabricated.
+
+### After 2010 they disagree by a factor of five, then eight
+
+One of them is wrong about the last decade, and the cadastre's own annual series
+says which. Footprint added per year, archipelago-wide, in hectares:
+
+| | |
+|---|---|
+| 2000–2007 mean | **266.5 ha/yr** |
+| 2008 | 203.0 |
+| 2009 | 113.4 |
+| 2010 | 76.5 |
+| 2011 | 51.9 |
+| 2012 | 43.5 |
+| 2013 onward | flat, 18–29 |
+| 2012–2019 mean | **28.1 ha/yr — 11 % of the pre-crash rate** |
+
+That is Spain's construction collapse, recorded year by year with the right shape
+and the right date: a monotonic fall from 2008 to 2013, then flat. **It is not
+registration lag** — 2012 has had fourteen years to register and sits at the same
+level as 2023.
+
+GHSL's **largest increment in the entire series is 10.5 km², in 2015–2020** — the
+exact window the cadastre says construction had all but stopped. GHSL interpolates
+between sparse observations, and a real, abrupt, extensively documented economic
+event is smoothed out of existence.
+
+### Two consequences
+
+1. **GHSL must not be used to date recent growth.** It remains sound for the long
+   trend and for density (decision M1.3 stands), but its timing after ~2005 is an
+   artefact of interpolation. `density-trend`'s band descriptions already mark
+   which epochs are observed; this adds *why that matters*.
+2. **The cadastre's recent years are independently corroborated.** M3 could test
+   only one date boundary; the crash signature is a second, entirely different kind
+   of evidence, and it is hard to produce by accident — a register with fabricated
+   or lagging recent dates would not reproduce the timing of a documented national
+   recession.

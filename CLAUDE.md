@@ -81,7 +81,7 @@ a question not indexed here is a question a fresh session will not know to look 
 | file | answers | published? |
 |---|---|---|
 | `docs/concepts.md` | what a raster, projection, COG, extent-vs-surface *is* | internal |
-| `docs/data-evaluation.md` | M0: which datasets to trust and why; §10 the bucketed pre-1980 years; **§11 what the cadastre's year actually means** | internal |
+| `docs/data-evaluation.md` | M0: which datasets to trust and why; §10 the bucketed pre-1980 years; **§11 what the cadastre's year actually means**; §12 GHSL vs the cadastre on timing | internal |
 | `docs/design/seam-harmonization.md` | why 2015/2016 is declared and never blended | internal |
 | `docs/pipeline.md` | M2: the seven layers, the grid, the QA gates, the results | internal |
 | `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
@@ -177,7 +177,15 @@ These each cost real time to find. Read before touching the data code.
     already standing in 2015, and the 30 m redraw raised it to 33 % — the Catastro
     records the year of a *declaration*, so a renovation or a regularisation resets
     it. Only human interpretation finds this class of error.
-19. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+19. **GHSL cannot date recent growth.** Its 1975, 1990 and 2000 epochs are
+    observed Landsat and agree with the cadastre to within a 0.58–1.26 increment
+    ratio — the only corroboration the unphotographed pre-2005 decades have. But
+    after 2010 the two diverge 5× then 8×, because GHSL interpolates between sparse
+    observations and smooths Spain's 2008 construction crash out of existence: it
+    puts its **largest increment of the whole series in 2015–2020**, when the
+    cadastre records 11 % of the pre-crash rate. Use it for the long trend and for
+    density, never for timing after ~2005 (`data-evaluation.md` §12).
+20. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point
