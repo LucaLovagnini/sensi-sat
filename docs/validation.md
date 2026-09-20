@@ -162,6 +162,51 @@ regularisation of a previously unregistered building creates or resets that year
 This was already listed as a caveat in the dataset roster ("renovation can reset
 the date"); M3 puts a number on it.
 
+### Two independent confirmations, neither of which uses the labels
+
+The 58.5 % is computed *from* the interpretation, so on its own it cannot rule out
+the interpreter simply being wrong. Two checks were run that do not depend on it.
+
+**1. The cadastre corroborates the disputed calls, 84 % against 34 %.** A building
+covers many 10 m pixels. If only part of it were re-declared in 2019, the
+neighbouring pixels should still carry their original older year.
+
+| | n | has a pre-2015 building within 30 m |
+|---|---:|---:|
+| points called "already built in 2015" (map said new) | 31 | **84 %** |
+| points where interpreter and map agreed it was new | 62 | **34 %** |
+
+Where the interpreter said a building already stood in 2015, the cadastre's own
+neighbouring pixels usually say so too. This also rules out **anchoring** — the
+known photo-interpretation bias where seeing a building in the later image makes
+the reader "see" it in the earlier one — because anchoring would produce disputed
+calls indistinguishable from the control group, not a 50-point gap.
+
+**2. An independent satellite product sees the same thing, archipelago-wide.** WSF
+Evolution is made by DLR from Landsat imagery, ends in 2015, and knows nothing
+about the cadastre. Measured over **every** pixel in the layer, not the sample:
+
+| the cadastre says | had WSF settlement by 2015 | pixels |
+|---|---:|---:|
+| new 2016–2024 | **33.1 %** | 27,288 |
+| built by 2015 | 59.5 % | 1,144,697 |
+| nothing built | 1.2 % | 83,282,259 |
+
+Read the second and third rows as the scale: 59.5 % is WSF's recall ceiling — the
+most it ever detects of buildings that genuinely existed — and 1.2 % is how often
+undeveloped land sits inside a settlement cluster anyway.
+
+If a fraction *f* of the "new" class was in fact already built by 2015, then
+0.595·*f* + *b*·(1−*f*) = 0.331, where *b* is the background rate for genuinely new
+buildings. At *b* = 1.2 % that gives *f* ≈ **55 %**; allowing generously for infill
+next to existing towns at *b* = 10 % gives ≈ **47 %**, and at a very generous
+*b* = 20 %, ≈ **33 %**.
+
+**Every one of those is worse than the interpreter's 29 %.** Two independent
+sources, one of them using no labels at all, both say the dating problem is real
+and if anything larger than the manual sample found. The interpretation was, if
+biased at all, biased *conservatively*.
+
 **Two alternative explanations tested and rejected:**
 
 - *The reference imagery might predate the building.* If so the failures would
@@ -225,10 +270,28 @@ and the automated gates agree.
 
 ## 7. Effort
 
-500 points × 2 dates, judged over two sittings on 2026-09-20. The plan estimated
-≈ 12.5 hours; the tool did not begin recording per-point timestamps until after
-this run, so the *measured* figure is unavailable for it. Future runs will report
-it.
+**About 2 hours**, for 500 points × 2 dates, over two sittings on 2026-09-20 —
+roughly 15 seconds per point. Reported by the interpreter; the tool did not begin
+stamping each judgement until after this run, so future runs will measure it
+exactly rather than relying on recall.
+
+**Every estimate this project made for the task was far too high**, and the errors
+compounded: the original plan said 650 points and ≈ 4 person-days; redesigning the
+sample brought it to 500 points and ≈ 12.5 hours; the truth was ≈ 2 hours. So the
+final estimate was still **6× too pessimistic**.
+
+The reason is worth recording, because it changes what is affordable later. The
+estimate assumed 1–2 minutes per point, which is about right for a *hard* point.
+But the strata are not evenly hard: `not_built` points are open countryside and
+take a second or two, and they are a quarter of the sample. The tool also
+auto-advances once both dates are answered, so an easy point costs two keystrokes
+and no navigation.
+
+**What this makes affordable.** §3 dismissed a 2,000-point `not_built` stratum as
+"≈ 50 hours". At the measured rate, and given that `not_built` points are the
+fastest of all, that is more like **4–6 hours** — which moves publishing an
+error-adjusted area from out of the question to a normal afternoon's work. That
+option should be reconsidered rather than treated as closed.
 
 ---
 
