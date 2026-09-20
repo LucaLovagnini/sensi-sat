@@ -95,6 +95,16 @@ These each cost real time to find. Read before touching the data code.
    layers and published as `covered-agriculture` (decision M1.2).
 9. **`stats.zonal()` must stay the only implementation** of per-zone statistics
    (decision 7). `tests/test_api_parity.py` enforces it.
+10. **A protected area is not automatically a negative control.** The legal
+    category decides it: *Parque Nacional* / *Reserva Natural Integral* /
+    *Reserva Natural Especial* forbid settlement, but *Parque Natural*,
+    *Paisaje Protegido* and *Parque Rural* explicitly include inhabited land — a
+    product finding buildings inside one is **right**. And no control works until
+    known roads and buildings are buffered and subtracted: Teide contains 127
+    OSM-mapped buildings.
+11. **A skipped check is not a passed check.** `qa.summarise()` reports measured,
+    skipped and failed separately, because a build once claimed "217/217 passed"
+    when 49 of those had never run.
 
 ## Git
 
