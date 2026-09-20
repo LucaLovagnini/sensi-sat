@@ -176,7 +176,7 @@ uses them.
 ## 7. What M2 actually produced
 
 Built with `python scripts/build.py --all`: **56 files, seven layers across eight
-islands, 168/168 measured QA gates passing** (49 further checks did not apply),
+islands, 188/188 measured QA gates passing** (29 further checks did not apply),
 every COG passing `rio cogeo validate --strict` and every catalogue object passing
 STAC validation.
 
@@ -185,25 +185,63 @@ glossing — a check that did not run is not a check that passed:
 
 | gate | measured | did not apply | catches |
 |---|---|---|---|
-| `totals` | 35 | 21 | a layer whose size has moved by a factor |
 | `cog-valid` | 56 | — | a file a browser cannot read by byte-range |
+| `totals` | 35 | 21 | a layer whose size has moved by a factor |
 | `grid-alignment` | 32 | — | two layers of one island half a pixel apart |
+| `negative-control` | 24 | 8 | settlement hallucinated onto empty ground |
 | `loss-rate` | 16 | — | a method change disguised as demolition |
 | `growth-only` | 16 | — | a year encoding broken by a bad merge |
 | `agreement` | 8 | — | disagreeing with an unrelated producer |
-| `negative-control` | 4 | 28 | settlement hallucinated onto bare lava |
 | `stac-valid` | 1 | — | a catalogue other tools cannot read |
 
-Almost all the skips are the lava control: Timanfaya is on Lanzarote, so 28 of its
-32 instances can say nothing about the other seven islands. The other 21 are
-`totals` on layers with no meaningful CORINE band — greenhouses are not
-"artificial surfaces" and a change layer is not a stock of anything — plus La
-Graciosa, whose CORINE total of 0.27 km² is too small to police.
+The 21 `totals` skips are layers with no meaningful CORINE band — greenhouses are
+not "artificial surfaces" and a change layer is not a stock of anything — plus La
+Graciosa, whose CORINE total of 0.27 km² is about one CORINE mapping unit and too
+small to police. The 8 remaining skips are the two islands with no control.
 
-Measured values, not just verdicts: Timanfaya **0.047 %** of a 50.8 km² control
-against a 0.1 % limit; loss **0.002–0.083 %/yr** outside the whitelisted Tajogaite
-polygon against a 0.2 % limit; agreement with Copernicus **IoU 0.34–0.53** against
-a 0.30 floor.
+Measured values, not just verdicts: loss **0.002–0.083 %/yr** outside the
+whitelisted Tajogaite polygon against a 0.2 % limit; agreement with Copernicus
+**IoU 0.34–0.53** against a 0.30 floor.
+
+### The negative controls
+
+This is the only gate that can catch a product *inventing* settlement, and it used
+to run on one island. Timanfaya alone meant Tenerife and Gran Canaria — which hold
+most of the built-up area — had no commission check at all. Six islands now have
+one, **426 km² of strictly protected ground against the previous 51**:
+
+| island | control | clean km² | worst layer reading |
+|---|---|---|---|
+| Tenerife | Teide NP | 184.2 | 0.015 % |
+| Fuerteventura | Jandía natural park | 82.2 | 0.014 % |
+| Lanzarote | Timanfaya NP | 50.8 | 0.047 % |
+| La Palma | Caldera de Taburiente NP | 43.3 | 0.001 % |
+| Gran Canaria | Inagua strict reserve | 33.2 | 0.000 % |
+| La Gomera | Garajonay NP | 33.0 | 0.000 % |
+
+Two rules decided that list, and both matter:
+
+**Protection category is not enough on its own.** A *Reserva Natural Integral* or a
+*Parque Nacional* forbids settlement. A *Paisaje Protegido* or *Parque Rural*
+explicitly includes inhabited land — a product finding buildings inside one would
+be **right**, so those are useless as controls however scenic.
+
+**The polygon must be cleaned before it means anything.** Every one of these
+contains real structures: Teide has the Parador hotel, mountain refuges and the
+cable-car stations — 127 buildings in OpenStreetMap — and Jandía has 107. Those
+buildings are real, so the control is the polygon *minus* a 30 m buffer around
+every known road and building. Without that subtraction the control would generate
+false alarms instead of catching them.
+
+Each candidate was then measured against the published layers **before** being
+adopted, and all six came in between 0.000 % and 0.047 %.
+
+**El Hierro and La Graciosa still have none.** El Hierro's only protected areas in
+OSM are a *Paisaje Protegido*, which permits settlement, and an archaeological
+site; no protected-area polygon for La Graciosa resolves at all. Those two islands
+have no commission check, the gate reports a SKIP saying so, and closing that gap
+needs a proper protected-areas dataset (Red Canaria de Espacios Naturales
+Protegidos) rather than OpenStreetMap.
 
 ### Totals, and how they check out against M0
 

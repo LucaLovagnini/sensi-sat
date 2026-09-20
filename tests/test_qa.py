@@ -89,7 +89,8 @@ def test_a_skipped_gate_is_not_counted_as_a_pass():
     the other seven islands. That claims more assurance than the build has.
     """
     ran = qa.totals_in_band("buildings-dated", "Gran Canaria", 34.1)
-    did_not = qa.negative_control("x", "Tenerife", np.zeros((4, 4), bool), None)
+    # El Hierro has no qualifying protected area, so the lava control cannot run.
+    did_not = qa.negative_control("x", "El Hierro", np.zeros((4, 4), bool), None)
 
     assert not ran.skipped
     assert did_not.skipped and did_not.passed      # passed, but only vacuously
@@ -102,19 +103,30 @@ def test_a_skipped_gate_is_not_counted_as_a_pass():
 def test_an_unavailable_negative_control_fails_rather_than_skipping():
     """The distinction that matters: 'does not apply' vs 'could not be checked'.
 
-    Timanfaya is genuinely irrelevant to Tenerife — that is a skip. But a control
-    that should apply and cannot be loaded is a failure, because this is the only
-    gate that catches settlement hallucinated onto bare lava, and it once skipped
-    silently on the one island it applies to.
+    El Hierro has no qualifying protected area — that is a skip. But an island that
+    HAS a control whose polygon cannot be loaded is a failure, because this is the
+    only gate that catches settlement hallucinated onto empty ground, and it once
+    went silently missing on the one island it then applied to.
     """
     import sensisat.zones as zones
 
-    original = zones.timanfaya
+    original = zones.negative_control_for
     try:
-        zones.timanfaya = lambda: (_ for _ in ()).throw(LookupError("nominatim returned nothing"))
+        zones.negative_control_for = lambda island: (_ for _ in ()).throw(
+            LookupError("nominatim returned nothing"))
         gate = qa.negative_control("x", "Lanzarote", np.zeros((4, 4), bool), None)
     finally:
-        zones.timanfaya = original
+        zones.negative_control_for = original
 
     assert not gate.passed
     assert not gate.skipped
+
+
+def test_every_control_island_is_one_we_actually_build():
+    """A control registered for an island we do not publish would never run."""
+    from sensisat import zones
+    from sensisat.config import ISLAND_BBOX
+
+    assert set(zones.NEGATIVE_CONTROLS) <= set(ISLAND_BBOX)
+    # The two known gaps, recorded so that closing them is a deliberate act.
+    assert set(ISLAND_BBOX) - set(zones.NEGATIVE_CONTROLS) == {"El Hierro", "La Graciosa"}

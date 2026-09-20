@@ -121,11 +121,40 @@ def islands(names: list[str] | None = None) -> gpd.GeoDataFrame:
     return _save("islands", out)
 
 
-# Verified 2026-09-19 while building M0's controls, and again when this helper's
-# older query silently broke the M2 gate: "Timanfaya" alone also matches a hotel
-# and a bus stop, so the osm type filter is doing real work — and adding
-# ", Lanzarote, Spain" makes the search return NOTHING. The query below is the one
-# that resolves, to OSM relation 1157737 (boundary=national_park).
+# ---------------------------------------------------------------------------
+# Negative controls: ground where "built" is an error by definition
+# ---------------------------------------------------------------------------
+# One per island, chosen on protection category and then VERIFIED by measurement
+# rather than assumed. Two rules decided this list:
+#
+#   1. Protection category matters. A "Reserva Natural Integral" (strict reserve)
+#      and a "Parque Nacional" forbid settlement. A "Paisaje Protegido" (protected
+#      landscape) and a "Parque Rural" explicitly include inhabited land, so they
+#      are useless as controls no matter how scenic — a product finding buildings
+#      inside one would be right.
+#   2. The polygon minus known infrastructure must still be large and empty.
+#      Every candidate here was measured against the published layers before
+#      adoption; all came in at or below 0.05 % built, the worst being Timanfaya.
+#
+# Two islands have no entry, and that is reported rather than papered over:
+# El Hierro's only protected areas in OSM are a protected landscape (which permits
+# settlement) and an archaeological site, and no protected-area polygon for La
+# Graciosa resolves at all. Those islands have no commission check.
+#
+# Queries are exact. M0 learned the hard way that "Timanfaya" alone also matches a
+# hotel and a bus stop, and that adding ", Lanzarote, Spain" makes the search
+# return NOTHING — the suffix that looks helpful is the one that breaks it.
+NEGATIVE_CONTROLS: dict[str, tuple[str, str, str | None]] = {
+    # island: (label, Nominatim query, osm type filter)
+    "Lanzarote":     ("Timanfaya NP", "Parque Nacional de Timanfaya", "national_park"),
+    "Tenerife":      ("Teide NP", "Parque Nacional del Teide", "national_park"),
+    "La Palma":      ("Caldera de Taburiente NP",
+                      "Parque Nacional de la Caldera de Taburiente", "national_park"),
+    "La Gomera":     ("Garajonay NP", "Parque Nacional de Garajonay", "national_park"),
+    "Gran Canaria":  ("Inagua strict reserve", "Reserva Natural Integral de Inagua", None),
+    "Fuerteventura": ("Jandia natural park", "Parque Natural de Jandia", None),
+}
+
 TIMANFAYA_QUERY = "Parque Nacional de Timanfaya"
 TIMANFAYA_KEY = "timanfaya_np"
 
@@ -133,6 +162,33 @@ TIMANFAYA_KEY = "timanfaya_np"
 def timanfaya() -> gpd.GeoDataFrame:
     """Timanfaya National Park, Lanzarote — a lava desert with no settlement."""
     return nominatim_polygon(TIMANFAYA_QUERY, key=TIMANFAYA_KEY, want="national_park")
+
+
+def has_negative_control(island: str) -> bool:
+    """Is there ground on this island where built-up would be an error by definition?"""
+    return island in NEGATIVE_CONTROLS
+
+
+def negative_control_for(island: str) -> tuple[str, gpd.GeoDataFrame]:
+    """(label, polygon minus buffered infrastructure) for one island's control.
+
+    The subtraction is the whole point. Teide National Park contains the Parador
+    hotel, mountain refuges, cable-car stations and visitor centres — 127 buildings
+    in OSM. Those are real, so a product detecting them is correct, and leaving
+    them in would turn the control into a source of false alarms. What remains
+    after removing a 30 m buffer around every known road and building is ground
+    where nothing should be found.
+
+    Raises LookupError when the island has no control defined — the caller must
+    distinguish that from a control that exists but could not be loaded.
+    """
+    if island not in NEGATIVE_CONTROLS:
+        raise LookupError(f"no negative control defined for {island!r}")
+    label, query, want = NEGATIVE_CONTROLS[island]
+    key = query.lower().replace(" ", "_")[:44]
+    polygon = nominatim_polygon(query, key=key, want=want)
+    infra = infrastructure_in(unary_union(polygon.geometry.values), key=f"{key}_infra")
+    return label, negative_control(polygon, infra, f"{key}_control")
 
 
 def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0) -> gpd.GeoDataFrame:
