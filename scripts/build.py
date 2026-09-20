@@ -104,7 +104,7 @@ def run_gates(spec, island, built, path, total) -> list[qa.Gate]:
     gates = [qa.totals_in_band(spec.name, island, total), qa.cog_valid(path, spec.name, island)]
     data = built.data if built.data.ndim == 2 else built.data[0]
 
-    if spec.measure == "extent":
+    if spec.measure == "extent" and spec.commission_risk:
         gates.append(qa.negative_control(spec.name, island, data > 0, built.transform))
     if spec.encoding == "year first built":
         gates.append(qa.growth_only(spec.name, island, data))

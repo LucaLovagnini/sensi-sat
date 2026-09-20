@@ -89,8 +89,8 @@ def test_a_skipped_gate_is_not_counted_as_a_pass():
     the other seven islands. That claims more assurance than the build has.
     """
     ran = qa.totals_in_band("buildings-dated", "Gran Canaria", 34.1)
-    # El Hierro has no qualifying protected area, so the lava control cannot run.
-    did_not = qa.negative_control("x", "El Hierro", np.zeros((4, 4), bool), None)
+    # La Graciosa's only protected area includes its village, so it has no control.
+    did_not = qa.negative_control("x", "La Graciosa", np.zeros((4, 4), bool), None)
 
     assert not ran.skipped
     assert did_not.skipped and did_not.passed      # passed, but only vacuously
@@ -103,7 +103,7 @@ def test_a_skipped_gate_is_not_counted_as_a_pass():
 def test_an_unavailable_negative_control_fails_rather_than_skipping():
     """The distinction that matters: 'does not apply' vs 'could not be checked'.
 
-    El Hierro has no qualifying protected area — that is a skip. But an island that
+    La Graciosa has no qualifying protected area — that is a skip. But an island that
     HAS a control whose polygon cannot be loaded is a failure, because this is the
     only gate that catches settlement hallucinated onto empty ground, and it once
     went silently missing on the one island it then applied to.
@@ -122,11 +122,37 @@ def test_an_unavailable_negative_control_fails_rather_than_skipping():
     assert not gate.skipped
 
 
-def test_every_control_island_is_one_we_actually_build():
-    """A control registered for an island we do not publish would never run."""
-    from sensisat import zones
-    from sensisat.config import ISLAND_BBOX
+def test_only_categories_that_forbid_settlement_can_be_controls():
+    """The protection category decides this, and the tiers are not interchangeable.
 
-    assert set(zones.NEGATIVE_CONTROLS) <= set(ISLAND_BBOX)
-    # The two known gaps, recorded so that closing them is a deliberate act.
-    assert set(ISLAND_BBOX) - set(zones.NEGATIVE_CONTROLS) == {"El Hierro", "La Graciosa"}
+    A Parque Rural or Paisaje Protegido explicitly includes inhabited land, so a
+    product finding buildings inside one is RIGHT. Using it as a control would turn
+    correct detections into reported errors.
+    """
+    from sensisat import zones
+
+    forbidden = {"Parque Natural", "Paisaje Protegido", "Parque Rural"}
+    assert not (set(zones.ENP_TIER1) & forbidden)
+    assert not (set(zones.ENP_TIER2) & forbidden)
+
+
+def test_la_graciosa_is_the_one_island_without_a_control():
+    """Recorded so that closing the gap, or losing a control, is a deliberate act.
+
+    Its only protected area is the Chinijo Parque Natural, which covers nearly the
+    whole island including Caleta de Sebo. Cleaning it would mean trusting OSM to
+    know where the village is, and OSM holds 299 of the island's 539 cadastral
+    buildings.
+    """
+    from sensisat import zones
+
+    assert "La Graciosa" in zones.NO_CONTROL
+    assert not zones.has_negative_control("La Graciosa")
+
+
+def test_a_layer_without_a_classifier_is_not_tested_against_a_control():
+    """Farming is legal inside protected areas, and a crop survey cannot hallucinate."""
+    from sensisat.layers import LAYERS
+
+    assert LAYERS["covered-agriculture"].commission_risk is False
+    assert LAYERS["settlement-era-b"].commission_risk is True

@@ -98,6 +98,13 @@ class LayerSpec:
     # search needs — not the day we happened to build the file.
     start: str = "1975-01-01"
     end: str = "2026-01-01"
+    # Can this layer commit a false positive that a negative control would catch?
+    # Only for layers a classifier produced. `covered-agriculture` is a
+    # rasterised official crop survey, so there is no classifier to be wrong — and
+    # farming is permitted inside most protected areas, so greenhouses found there
+    # are real. Testing it against a no-settlement control measured 0.333 % on La
+    # Palma and read as a failure when it was the gate being misapplied.
+    commission_risk: bool = True
 
 
 # ---------------------------------------------------------------------------
@@ -367,7 +374,7 @@ LAYERS: dict[str, LayerSpec] = {
         ["Mapa de Cultivos"], _covered_agriculture,
         "Greenhouse parcels, removed from the urban layers and published separately so the "
         "ground they cover is neither counted as town nor lost from view.",
-        start="2021-01-01", end="2025-12-31",
+        start="2021-01-01", end="2025-12-31", commission_risk=False,
     ),
     "density-current": LayerSpec(
         "density-current", "Sealed surface, 2024", "surface", "percent", 10,

@@ -57,9 +57,9 @@ CORINE_BAND: dict[str, tuple[float, float]] = {
 }
 MIN_CORINE_KM2 = 1.0     # below this an island's reference is too small to police
 
-# % of a control polygon a product may call built. Measured across all six
-# controls at 0.00-0.05 %, so 0.1 % leaves headroom without being toothless.
-TIMANFAYA_MAX_SHARE = 0.1
+# % of a control polygon a product may call built. Measured across all seven
+# controls at 0.000-0.047 %, so 0.1 % leaves headroom without being toothless.
+CONTROL_MAX_SHARE = 0.1
 LOSS_MAX_PCT_PER_YEAR = 0.2      # real loss measured at 0.017-0.052 %/yr
 MIN_IOU_VS_INDEPENDENT = 0.30    # M0 measured 0.40 for Tracker-2021 vs Copernicus 2021
 
@@ -121,21 +121,20 @@ def negative_control(layer: str, island: str, built: np.ndarray, transform: Affi
     """Does anything appear built on ground where building is impossible?
 
     This is the only gate that can catch a product *inventing* settlement, so its
-    coverage is worth stating plainly: six of the eight islands have a control,
-    together 426 km2 of strictly protected ground. Until this was extended it was
-    Timanfaya alone — 51 km2 on Lanzarote — which left Tenerife and Gran Canaria,
-    the two islands holding most of the built-up area, with no commission check at
-    all.
+    coverage is worth stating plainly: seven of the eight islands have a control,
+    together 623 km2 of protected ground drawn from the official Canary protected
+    areas register. Until this was extended it was Timanfaya alone — 51 km2 on
+    Lanzarote — which left Tenerife and Gran Canaria, the two islands holding most
+    of the built-up area, with no commission check at all.
 
     Not zero, but near it. Every control contains some real structures — Teide has
     the Parador and the cable-car stations, Timanfaya the LZ-67 road and the El
     Diablo restaurant — so the control is the polygon MINUS a 30 m buffer around
     known infrastructure, and the expectation is "almost nothing", not "nothing".
-    Measured across all six before adoption: 0.00-0.05 % built.
 
-    El Hierro and La Graciosa have no control, and this returns a SKIP saying so
-    rather than a pass. A control that should exist and cannot be loaded is a
-    FAILURE, because that is exactly how this gate went silently missing before.
+    La Graciosa has no control, and this returns a SKIP saying so rather than a
+    pass. A control that should exist and cannot be loaded is a FAILURE, because
+    that is exactly how this gate went silently missing before.
     """
     from . import zones
 
@@ -155,8 +154,8 @@ def negative_control(layer: str, island: str, built: np.ndarray, transform: Affi
     control_km2 = area_km2(mask, transform)
     built_km2 = area_km2(built.astype(bool) & mask, transform)
     share = 100 * built_km2 / control_km2 if control_km2 else 0.0
-    return Gate("negative-control", layer, island, share <= TIMANFAYA_MAX_SHARE, share,
-                f"<= {TIMANFAYA_MAX_SHARE} % of {label} ({control_km2:.1f} km2)",
+    return Gate("negative-control", layer, island, share <= CONTROL_MAX_SHARE, share,
+                f"<= {CONTROL_MAX_SHARE} % of {label} ({control_km2:.1f} km2)",
                 f"= {built_km2:.3f} km2")
 
 

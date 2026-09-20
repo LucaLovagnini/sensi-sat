@@ -16,12 +16,23 @@ expected value is "approximately zero outside that infrastructure", not "zero".
 from __future__ import annotations
 
 import json
+import os
 import time
 from pathlib import Path
 
 import geopandas as gpd
 from shapely.geometry import shape
 from shapely.ops import unary_union
+
+# The cached negative-control infrastructure is a single unioned geometry covering
+# every road and building inside an island's protected areas. On Tenerife and Gran
+# Canaria that one feature exceeds GDAL's default 200 MB-equivalent complexity
+# guard for a GeoJSON object, and reading it back fails with "GeoJSON object too
+# complex/large". Lifting the limit is the documented remedy; 0 means no limit.
+# Without this the control could not be loaded on exactly the two islands that
+# hold most of the built-up area — and the gate correctly reported a FAILURE
+# rather than skipping, which is how it was found.
+os.environ.setdefault("OGR_GEOJSON_MAX_OBJ_SIZE", "0")
 
 from .config import ISLAND_BBOX, ZONES
 from .download import fetch_json
@@ -124,36 +135,36 @@ def islands(names: list[str] | None = None) -> gpd.GeoDataFrame:
 # ---------------------------------------------------------------------------
 # Negative controls: ground where "built" is an error by definition
 # ---------------------------------------------------------------------------
-# One per island, chosen on protection category and then VERIFIED by measurement
-# rather than assumed. Two rules decided this list:
+# Source: Red Canaria de Espacios Naturales Protegidos (Gobierno de Canarias),
+# 147 protected areas with their official protection category. This replaced
+# looking parks up by name in Nominatim, which was fragile twice over — a stale
+# query once made the whole gate skip silently, and OSM has no polygon at all for
+# several of these areas.
 #
-#   1. Protection category matters. A "Reserva Natural Integral" (strict reserve)
-#      and a "Parque Nacional" forbid settlement. A "Paisaje Protegido" (protected
-#      landscape) and a "Parque Rural" explicitly include inhabited land, so they
-#      are useless as controls no matter how scenic — a product finding buildings
-#      inside one would be right.
-#   2. The polygon minus known infrastructure must still be large and empty.
-#      Every candidate here was measured against the published layers before
-#      adoption; all came in at or below 0.05 % built, the worst being Timanfaya.
+# The category is what decides whether a polygon can be a control, and the
+# categories are NOT interchangeable:
 #
-# Two islands have no entry, and that is reported rather than papered over:
-# El Hierro's only protected areas in OSM are a protected landscape (which permits
-# settlement) and an archaeological site, and no protected-area polygon for La
-# Graciosa resolves at all. Those islands have no commission check.
-#
-# Queries are exact. M0 learned the hard way that "Timanfaya" alone also matches a
-# hotel and a bus stop, and that adding ", Lanzarote, Spain" makes the search
-# return NOTHING — the suffix that looks helpful is the one that breaks it.
-NEGATIVE_CONTROLS: dict[str, tuple[str, str, str | None]] = {
-    # island: (label, Nominatim query, osm type filter)
-    "Lanzarote":     ("Timanfaya NP", "Parque Nacional de Timanfaya", "national_park"),
-    "Tenerife":      ("Teide NP", "Parque Nacional del Teide", "national_park"),
-    "La Palma":      ("Caldera de Taburiente NP",
-                      "Parque Nacional de la Caldera de Taburiente", "national_park"),
-    "La Gomera":     ("Garajonay NP", "Parque Nacional de Garajonay", "national_park"),
-    "Gran Canaria":  ("Inagua strict reserve", "Reserva Natural Integral de Inagua", None),
-    "Fuerteventura": ("Jandia natural park", "Parque Natural de Jandia", None),
-}
+#   Tier 1  Parque Nacional, Reserva Natural Integral, Reserva Natural Especial
+#           Settlement is forbidden outright. Any built-up pixel is an error.
+#   Tier 2  Monumento Natural, Sitio de Interés Científico
+#           Protect a specific feature — a volcanic cone, a cliff, a dune field.
+#           Usually unbuilt, but small and often close to towns, so they are used
+#           only where an island has no Tier 1 area at all. Measured: adding them
+#           everywhere raised Tenerife's reading from 0.023 % to 0.085 %.
+#   Tier 3  Parque Natural, Paisaje Protegido, Parque Rural
+#           EXPLICITLY include inhabited land. A product finding buildings inside
+#           one is RIGHT, so these can never be controls however scenic.
+ENP_URL = "https://opendata.sitcan.es/upload/medio-ambiente/eennpp.zip"
+ENP_TIER1 = ("Parque Nacional", "Reserva Natural Integral", "Reserva Natural Especial")
+ENP_TIER2 = ("Monumento Natural", "Sitio de Interés Científico")
+
+# La Graciosa has no Tier 1 or Tier 2 area: its only protected area is the Chinijo
+# Parque Natural, which covers nearly the whole island INCLUDING Caleta de Sebo.
+# Cleaning it would mean trusting OSM to know where the village is, and OSM holds
+# 299 of the island's 539 cadastral buildings — 55 %. A control that leaves 240
+# real buildings unsubtracted would flag correct detections as errors, which is
+# worse than having no control. So La Graciosa has none, and the gate says so.
+NO_CONTROL = ("La Graciosa",)
 
 TIMANFAYA_QUERY = "Parque Nacional de Timanfaya"
 TIMANFAYA_KEY = "timanfaya_np"
@@ -164,13 +175,57 @@ def timanfaya() -> gpd.GeoDataFrame:
     return nominatim_polygon(TIMANFAYA_QUERY, key=TIMANFAYA_KEY, want="national_park")
 
 
+def protected_areas() -> gpd.GeoDataFrame:
+    """All 147 Canary protected areas with their official category (cached)."""
+    import zipfile
+
+    from .config import RAW
+    from .download import fetch
+
+    dest = RAW / "enp"
+    shp = dest / "eennpp.shp"
+    if not shp.exists():
+        archive = fetch(ENP_URL, dest / "eennpp.zip", quiet=True).path
+        with zipfile.ZipFile(archive) as zf:
+            zf.extractall(dest)
+    return gpd.read_file(shp).to_crs("EPSG:4326")
+
+
+def control_areas_for(island: str) -> tuple[str, gpd.GeoDataFrame]:
+    """The protected polygons usable as a control on one island, before cleaning.
+
+    Tier 1 where it exists; Tier 2 only as a fallback, because an island with no
+    strictly protected ground is better served by several small feature reserves
+    than by nothing. Clipped to the island's own land, which matters for the
+    coastal and marine areas whose polygons run far out to sea.
+    """
+    if island in NO_CONTROL:
+        raise LookupError(f"no protected area qualifies as a control on {island!r}")
+
+    areas = protected_areas()
+    land = unary_union(islands().query("name == @island").geometry.values)
+    for tier, label in ((ENP_TIER1, "tier 1"), (ENP_TIER1 + ENP_TIER2, "tier 1+2")):
+        chosen = areas[areas["categoria"].isin(tier) & areas.geometry.intersects(land)]
+        if len(chosen):
+            geom = unary_union(chosen.geometry.values).intersection(land)
+            name = f"{len(chosen)} protected areas ({label})"
+            return name, gpd.GeoDataFrame({"name": [island]}, geometry=[geom], crs="EPSG:4326")
+    raise LookupError(f"no protected area qualifies as a control on {island!r}")
+
+
 def has_negative_control(island: str) -> bool:
     """Is there ground on this island where built-up would be an error by definition?"""
-    return island in NEGATIVE_CONTROLS
+    if island in NO_CONTROL:
+        return False
+    try:
+        control_areas_for(island)
+        return True
+    except LookupError:
+        return False
 
 
 def negative_control_for(island: str) -> tuple[str, gpd.GeoDataFrame]:
-    """(label, polygon minus buffered infrastructure) for one island's control.
+    """(label, protected ground minus buffered infrastructure) for one island.
 
     The subtraction is the whole point. Teide National Park contains the Parador
     hotel, mountain refuges, cable-car stations and visitor centres — 127 buildings
@@ -179,23 +234,28 @@ def negative_control_for(island: str) -> tuple[str, gpd.GeoDataFrame]:
     after removing a 30 m buffer around every known road and building is ground
     where nothing should be found.
 
-    Raises LookupError when the island has no control defined — the caller must
+    Raises LookupError when the island has no control — the caller must
     distinguish that from a control that exists but could not be loaded.
     """
-    if island not in NEGATIVE_CONTROLS:
-        raise LookupError(f"no negative control defined for {island!r}")
-    label, query, want = NEGATIVE_CONTROLS[island]
-    key = query.lower().replace(" ", "_")[:44]
-    polygon = nominatim_polygon(query, key=key, want=want)
+    label, polygon = control_areas_for(island)
+    key = f"enp_{island.replace(' ', '_')}"
     infra = infrastructure_in(unary_union(polygon.geometry.values), key=f"{key}_infra")
     return label, negative_control(polygon, infra, f"{key}_control")
 
 
-def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0) -> gpd.GeoDataFrame:
+def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0,
+                      clip: bool = True) -> gpd.GeoDataFrame:
     """Buildings and roads inside a polygon, from OSM Overpass, buffered (cached).
 
     Used to carve real structures out of a negative control so that what remains
     genuinely should contain nothing built.
+
+    Overpass can only be queried by bounding box, and the bounding box of an
+    island's protected areas is most of the island — so the raw result is a 30 m
+    buffer around every road on Tenerife, which cached to 80 MB of GeoJSON and was
+    mostly ground the control never touches. `clip` intersects it with the polygon
+    before caching, which is both what the caller means and two orders of
+    magnitude smaller.
     """
     cached = _load_cached(key)
     if cached is not None:
@@ -237,6 +297,10 @@ def infrastructure_in(polygon, *, key: str, buffer_m: float = 30.0) -> gpd.GeoDa
     gs = gpd.GeoSeries(geoms, crs="EPSG:4326").to_crs("EPSG:32628")
     merged = unary_union(gs.buffer(buffer_m).values)
     gdf = gpd.GeoDataFrame({"name": [key]}, geometry=[merged], crs="EPSG:32628").to_crs("EPSG:4326")
+    if clip:
+        gdf = gpd.GeoDataFrame({"name": [key]},
+                               geometry=[gdf.geometry.iloc[0].intersection(polygon)],
+                               crs="EPSG:4326")
     return _save(key, gdf)
 
 
