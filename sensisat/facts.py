@@ -72,6 +72,14 @@ def area_by(layer: str, year: int, island: str | None = None) -> float:
     return one(d[island]) if island else sum(one(v) for v in d.values())
 
 
+def prop_sum(layer: str, key: str, island: str | None = None) -> float:
+    """Sum of one numeric per-island property — `sealed_km2_including_greenhouses`,
+    `greenhouse_removed_km2` — for the figures that compare masked with unmasked."""
+    d = stats()[layer]
+    rows = [d[island]] if island else list(d.values())
+    return sum(v["properties"].get(key, 0.0) for v in rows)
+
+
 # --- sizes, which is what went stale the first time ------------------------
 
 def size_mib(layer: str) -> float:

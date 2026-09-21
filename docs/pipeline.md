@@ -20,6 +20,7 @@ later serve, so the deployment step has nothing left to decide.
 ---
 
 ## 1. The idea that makes all of this work: one shared grid
+<!-- figures: sensisat/grid.py; sensisat/config.py @ 2026-09-19 -->
 
 Seven layers come from five producers who each use a different coordinate system —
 a different way of flattening the round Earth onto a flat grid of pixels. WSF uses
@@ -51,6 +52,7 @@ here, deliberately, and the fact is recorded in their catalogue entry.
 > with the true latitude, never counted.
 
 ## 2. The seven layers
+<!-- figures: sensisat/layers.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
 
 | layer | what it shows | resolution | source |
 |---|---|---|---|
@@ -98,6 +100,7 @@ its own layer**. Because it ships beside the others on the same grid, anyone who
 disagrees with the call can add it back exactly.
 
 ## 3. How "we don't know" survives to the map
+<!-- figures: scripts/analysis_03_seam_factors.py; sensisat/encoding.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 Three of the layers carry a **provenance band**: a second band saying, per pixel,
 where that pixel's year came from.
@@ -124,6 +127,7 @@ ambiguous, so it stays undated rather than being resolved to whichever century
 looks likelier.
 
 ## 4. The checks that run on every build
+<!-- figures: sensisat/qa.py @ 2026-09-19 -->
 
 These are cheap, automatic, and run in seconds. They are **not** an accuracy
 assessment — that is M3, needs a human reading aerial photographs, and produces a
@@ -166,6 +170,7 @@ and asserts the two return **byte-identical JSON**. If someone later writes a se
 implementation, that test fails.
 
 ## 6. Running it
+<!-- figures: sensisat/datasets/cadastre.py @ 2026-09-19 -->
 
 ```bash
 python scripts/build.py --all                              # everything
@@ -182,6 +187,7 @@ uses them.
 ---
 
 ## 7. What M2 actually produced
+<!-- figures: scripts/verify_m2.py; scripts/build.py; data/processed/statistics/layers.json @ 2026-09-19 -->
 
 Built with `python scripts/build.py --all`: **56 files, seven layers across eight
 islands, 185/185 measured QA gates passing** (24 further checks did not apply),
@@ -276,20 +282,51 @@ M0 measured these quantities independently, months of analysis before any of thi
 code existed. The pipeline reproducing them is the real test that it is doing what
 it claims.
 
+<!--[[[cog
+# Left column: this build. Right column: M0's own measurement of the same quantity,
+# typed here from docs/figures/data/m0_totals.csv, m0_imd_2024.csv and
+# m0_undated_vs_crops.csv — historical by design, so a rebuild moves only the left.
+bd = area_by("buildings-dated", 2020)
+dc, dc_all = area("density-current"), f.prop_sum("density-current", "sealed_km2_including_greenhouses")
+eb, eb_all = area("settlement-era-b"), area("settlement-era-b") + f.prop_sum("settlement-era-b", "greenhouse_removed_km2")
+rows = [
+    ("buildings-dated", f"**{km2(bd)} km²** (by 2020)", f"100.3 km² — agrees to **{bd / 100.3:.3f}×**"),
+    ("density-trend", f"**{km2(area('density-trend'))} km²** (2020)",
+     f"152.9 km² — differs by {abs(area('density-trend') - 152.9):.2f} km²"),
+    ("density-current", f"{km2(dc, 1)} km² masked / {km2(dc_all, 1)} incl. greenhouses", "341.5 km² sealed"),
+    ("settlement-era-a", f"{km2(area('settlement-era-a'), 1)} km² (2016 baseline, masked)",
+     "per-island extents reproduce M0 **exactly**"),
+    ("settlement-era-b", f"{km2(eb, 1)} km² (masked)",
+     f"{km2(eb_all, 1)} km² unmasked — the {km2(eb_all - eb, 1)} km² gap is the greenhouses"),
+    ("covered-agriculture", f"{km2(area('covered-agriculture'), 1)} km²",
+     f"{km2(area('covered-agriculture', 'Gran Canaria'), 1)} km² on Gran Canaria alone"),
+    ("loss-events", f"{km2(area('loss-events'), 1)} km² of change-layer built-up", "—"),
+]
+cog.outl("| layer | archipelago | independent M0 figure |")
+cog.outl("|---|---|---|")
+for name, ours, m0 in rows:
+    cog.outl(f"| `{name}` | {ours} | {m0} |")
+]]]-->
 | layer | archipelago | independent M0 figure |
 |---|---|---|
 | `buildings-dated` | **101.98 km²** (by 2020) | 100.3 km² — agrees to **1.017×** |
-| `density-trend` | **152.87 km²** (2020) | 152.9 km² — agrees to three digits |
+| `density-trend` | **152.87 km²** (2020) | 152.9 km² — differs by 0.03 km² |
 | `density-current` | 317.9 km² masked / 338.8 incl. greenhouses | 341.5 km² sealed |
 | `settlement-era-a` | 239.1 km² (2016 baseline, masked) | per-island extents reproduce M0 **exactly** |
-| `settlement-era-b` | 262.5 km² (masked) | 305.2 km² unmasked — the 42.7 km² gap is the greenhouses |
+| `settlement-era-b` | 262.5 km² (masked) | 305.2 km² unmasked — the 42.8 km² gap is the greenhouses |
 | `covered-agriculture` | 63.3 km² | 27.1 km² on Gran Canaria alone |
 | `loss-events` | 167.2 km² of change-layer built-up | — |
+<!--[[[end]]]-->
 
-The cadastre's 1.7 % excess over M0 is not an error in either: M0 used HISDAC-ES,
-which sums exact polygon areas, while this rasterises polygons onto 10 m pixels.
-A small building narrower than a pixel still lights the whole pixel. The two
-measure slightly different things and agreeing to 1.7 % is what should happen.
+<!--[[[cog
+excess = f"{100 * (area_by('buildings-dated', 2020) / 100.3 - 1):.1f} %"
+cog.outl(f"The cadastre's {excess} excess over M0 is not an error in either: M0 used HISDAC-ES, "
+         "which sums exact polygon areas, while this rasterises polygons onto 10 m pixels. "
+         "A small building narrower than a pixel still lights the whole pixel. The two measure "
+         f"slightly different things and agreeing to {excess} is what should happen.")
+]]]-->
+The cadastre's 1.7 % excess over M0 is not an error in either: M0 used HISDAC-ES, which sums exact polygon areas, while this rasterises polygons onto 10 m pixels. A small building narrower than a pixel still lights the whole pixel. The two measure slightly different things and agreeing to 1.7 % is what should happen.
+<!--[[[end]]]-->
 
 The seam factors reproduce `m0_seam_factors.csv` **exactly** — five islands × four
 extents, to the last published decimal — and now extend to all eight.

@@ -1,0 +1,22 @@
+[
+  {
+    "file": "docs/data-evaluation.md",
+    "figure": "3.6 km²",
+    "why": "WSF Tracker's largest half-year gain (analysis 10); coincides with La Gomera's era-b extent"
+  },
+  {
+    "file": "docs/data-evaluation.md",
+    "figure": "14.8 km²",
+    "why": "GAIA's flat total on Tenerife (analysis 15); coincides with Fuerteventura's GHSL surface"
+  },
+  {
+    "file": "docs/data-evaluation.md",
+    "figure": "27.1 km²",
+    "why": "Gran Canaria's greenhouse parcels as M0 measured them from the Mapa de Cultivos (analysis 12); our covered-agriculture layer rasterises the same survey, so the two agree by construction"
+  },
+  {
+    "file": "docs/data-evaluation.md",
+    "figure": "2.1 ×",
+    "why": "how many times its neighbours the year 2000 holds in the cadastre (analysis 19); coincides with the sealed-to-built ratio"
+  }
+]

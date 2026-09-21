@@ -4,6 +4,7 @@ Status: proposal, 2026-09-19. Grounded in published methods; the parts that are 
 choices are marked as such. Plain-language definitions are in `docs/concepts.md`.
 
 ## 1. The problem in one paragraph
+<!-- figures: scripts/analysis_01_totals.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 SensiSat's timeline is carried by two datasets that meet at one point in time. Before
 2015: **WSF Evolution** (DLR), 30 m pixels, Landsat, one value per pixel = year first
@@ -15,6 +16,7 @@ more importantly, about *which land* is built. Glued naively, the map would show
 decides how the join is made.
 
 ## 2. What we measured (Milestone 0, `docs/data-evaluation.md`)
+<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 - The 27 % gap is two opposite effects: pixel size (30 m → 10 m shrinks extent ÷ 2.27)
   and definition (Tracker counts more: × 1.66). They partly cancel archipelago-wide
@@ -28,6 +30,7 @@ decides how the join is made.
   real change" flag between its own releases.
 
 ## 3. What the literature and the producers actually do
+<!-- figures: external:CEOS LPV protocol v1.1 (2025) / Serra Pons & Saurí (2003) / the WSF Evolution GHSL GAIA and GISD30 method papers @ 2026-09-19 -->
 
 Six practices, each with a source we read:
 
@@ -84,6 +87,7 @@ change)**" for 2018–2021. That is a producer facing our exact problem and choo
 transparency over a smoothed series.
 
 ## 4. Options considered
+<!-- figures: scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 | | mechanism | backed by | verdict |
 |---|---|---|---|
@@ -94,6 +98,7 @@ transparency over a smoothed series.
 | E | **Spatial infill of unknown years** (give an orphan pixel the year of the nearest dated pixel). | none found for urban products | **Reject for v1**; revisit only after M3 tells us what the orphans are |
 
 ## 5. The mechanism (recommended)
+<!-- figures: sensisat/derive.py; sensisat/encoding.py; scripts/analysis_03_seam_factors.py @ 2026-09-19 -->
 
 **5.1 Two eras as first-class objects.** The catalog declares `era-a` (WSF Evolution,
 1985–2015, 30 m) and `era-b` (WSF Tracker, 2016-07–2026-01, 10 m). Every statistic and
@@ -142,6 +147,7 @@ never picked up.
 adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrite.
 
 ## 6. Decisions (Luca, 2026-09-19)
+<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_12_undated_vs_crops.py @ 2026-09-19 -->
 
 1. **Viewer behaviour at the seam: explicit method-change transition.** The slider
    pauses on a marker ("dataset changes here — 30 m Landsat → 10 m Sentinel"), shows
@@ -160,6 +166,7 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
    mainland Spain).
 
 ## 7. Open technical items (ours to resolve, not decisions)
+<!-- figures: scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; scripts/analysis_16_copernicus_status.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 - ~~Test the "roads" hypothesis~~ **Tested, not supported** (analysis 11, Gran
   Canaria, 60,603 OSM highway ways, 15 m buffer): 28.7 % of undated pixels lie within
@@ -254,6 +261,7 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   resampling. (Done in analysis 3.)
 
 ## Sources read for this design
+<!-- figures: external:the publications cited in this list @ 2026-09-19 -->
 
 WSF Evolution method and license — https://geoservice.dlr.de/web/datasets/wsf_evo ·
 WSF Tracker inputs, training ("WSF2019 reference ~300K settlements samples"), validation

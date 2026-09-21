@@ -10,6 +10,7 @@ Evidence tags: **measured** = computed from public data files by us · **verifie
 ---
 
 ## 1. A map frame is two layers: someone else's basemap + our thin overlay
+<!-- figures: scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py @ 2026-09-19 -->
 
 ![What a SensiSat frame is](figures/sensisat_preview.png)
 
@@ -30,6 +31,7 @@ just a threshold applied in the browser ("show values ≤ 1995"): panels B and C
 is downloaded when the slider moves.
 
 ## 2. Pixels and resolution — the same city has different areas at 30 m and at 10 m
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
 
 A raster is a grid of pixels; the **resolution** is the ground size of one pixel. A 30 m pixel is
 "built" if it contains *any* building, so it contributes its full 900 m² to the total even when one house
@@ -44,6 +46,7 @@ A subtlety: WSF Evolution pixels are 0.00026949° on both axes — ~30 m north�
 east–west at 28° N, so ~793 m² each, not 900. We use 793 m² when converting pixel counts to km².
 
 ## 3. Extent vs surface — "how much land got urbanised" vs "how much got built"
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/extent_vs_surface.py @ 2026-09-19 -->
 
 ![Extent vs surface](figures/extent_vs_surface.png)
 
@@ -91,6 +94,7 @@ both, each with its definition attached. The **fraction grid** — share of each
 is the bridge: summing fractions gives surface; counting cells above a threshold gives extent.
 
 ## 4. State view vs change view — why two frames can look identical
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/change_view.py @ 2026-09-19 -->
 
 ![Change view](figures/sensisat_change_preview.png)
 
@@ -101,6 +105,7 @@ red = added) and the growth becomes visible. The viewer therefore needs two mode
 and "added since year X".
 
 ## 5. The first frame of a time series is a baseline, not a growth year
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/ghsl_built_surface_gran_canaria_km2.json; geeLocalTesting @ 2026-09-19 -->
 
 WSF Evolution starts in 1985 and its first value means "already built by 1985" — centuries of Las Palmas
 history collapsed into one class. On Gran Canaria it puts **108.6 of 124.6 km² (87 %) in that baseline**
@@ -112,6 +117,7 @@ risk. Whether Gran Canaria really was 87 % "done" by 1985 is a question M0 tests
 (HISDAC-ES construction years) and 1980s orthophotos, not something to assume.
 
 ## 6. Growth-only products cannot show loss
+<!-- figures: scripts/analysis_01_totals.py; external:JRC GHSL Data Package 2023 @ 2026-09-19 -->
 
 GHSL's method works backwards in time and, per JRC's Data Package 2023, "by definition… can only decrease
 the amount of built-up surface going from recent to past epochs" — i.e. forward in time it never falls
@@ -125,6 +131,7 @@ GHSL epochs with real imagery are **1975, 1990, 2000, 2014 (Landsat) and 2018 (S
 5-year epochs are interpolated, 2025/2030 extrapolated (verified).
 
 ## 7. Three products, three numbers — the same island
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_corine_2018.csv; geeLocalTesting @ 2026-09-19 -->
 
 | Product | What a "built" value means | Gran Canaria, ~2015–2020 |
 |---|---|---|
@@ -138,6 +145,7 @@ has no real-world counterpart — classification flicker. A number like "20 % ur
 its definition.
 
 ## Regenerating the figures
+<!-- figures: docs/figures/src/preview_frame.py; docs/figures/src/m0_results.py @ 2026-09-19 -->
 
 ```bash
 pip install rasterio matplotlib numpy scipy pillow requests

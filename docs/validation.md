@@ -1,4 +1,5 @@
 # M3 — Accuracy assessment of the building layer
+<!-- figures: scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 <!--[[[cog cog.outl(f.contract()) ]]]-->
 **About the numbers in this document.** Figures fall into two kinds.
@@ -26,6 +27,7 @@ Reproduce: `scripts/m3_sample.py`, `scripts/m3_score.py`, `scripts/m3_diagnose.p
 ---
 
 ## In plain words, before any numbers
+<!-- figures: scripts/m3_score.py; scripts/m3_recheck.py; docs/figures/data/m3_labels_30m.json; docs/figures/data/m3_labels_30m_pass2.json @ 2026-09-20 -->
 
 **What we did.** A computer picked 911 spots at random across the Canary Islands.
 For each one, Luca looked at two aerial photographs — one from 2015, one from now —
@@ -88,6 +90,7 @@ nobody could, using aerial photographs.
 ---
 
 ## 0. What was measured, and what was not
+<!-- figures: scripts/m3_sample.py @ 2026-09-20 -->
 
 This covers **`buildings-dated`** — the cadastral building layer, the primary
 pre-2016 timeline (decision M1.1) and the layer the viewer's time slider is drawn
@@ -110,6 +113,7 @@ photography.
 ---
 
 ## 1. The design
+<!-- figures: scripts/m3_sample.py; data/processed/statistics/layers.json @ 2026-09-20 -->
 
 The four strata are the four claims the map makes about a 30 m cell, taking the
 oldest claim inside it — which mirrors the paint order the layer was built with:
@@ -135,6 +139,7 @@ what made the area figure publishable for the first time.
 ---
 
 ## 2. The confusion matrix
+<!-- figures: scripts/m3_score.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 Rows are what the map says, columns what the photographs show.
 
@@ -151,6 +156,7 @@ knowledge, not something a photograph can return. It is read separately in §6.
 ---
 
 ## 3. The result
+<!-- figures: scripts/m3_score.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 **Overall accuracy: 98.0 %.** Reported because it is conventional, and close to
 meaningless: it is dominated by the 95.5 % of land that is empty and correctly
@@ -186,6 +192,7 @@ difference is 557 points in `not_built` instead of 123.
 ---
 
 ## 4. Finding: the register misses isolated rural buildings
+<!-- figures: scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 Producer's accuracy of 68.8 % means roughly **three in ten (31 %) 30 m cells that hold a
 building are not in the map at all**. Eleven sampled points drive it, and they were
@@ -212,6 +219,7 @@ qualitatively.
 ---
 
 ## 5. Finding: a quarter to a third (24–33 %) of "new construction" was already standing
+<!-- figures: scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 Of the cells the map calls new building 2015–2024:
 
@@ -261,9 +269,17 @@ recent growth — is its least reliable layer, and the "about the data" page say
 ---
 
 ## 6. Finding: the undated class is about a quarter (28 %) empty
+<!-- figures: scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
-`undated` is pixels the map knows are built but cannot date — 43 % of the 2016
-footprint. Decision 15 created a dedicated stratum because M0 could not explain it.
+`undated` is pixels the map knows are built but cannot date. Decision 15 created a
+dedicated stratum because M0 could not explain it: in the satellite settlement layer
+that class is
+
+<!--[[[cog cog.outl(f"**{f.undated_share():.0f} % of the 2016 footprint**") ]]]-->
+**37 % of the 2016 footprint**
+<!--[[[end]]]-->
+
+(M0 measured 43 % on the raw, unmasked Tracker baseline).
 
 Of 85 usable points: **60 hold a building (70.6 %)**, **24 show nothing at either
 date (28.2 %)**, 1 is new construction.
@@ -285,6 +301,7 @@ class is remains unexplained; it is now at least measured.
 ---
 
 ## 7. How consistent is the interpreter? A second blind pass
+<!-- figures: scripts/m3_recheck.py; docs/figures/data/m3_labels_30m_pass2.json @ 2026-09-20 -->
 
 Every figure above treats the interpretation as truth. It is not truth; it is one
 person reading photographs. So both weak classes were **re-judged from scratch**:
@@ -360,6 +377,7 @@ because a bigger square contains more debatable things. The overall rate still f
 from 10.4 % to 8.0 % only because `not_built` dominates the count.
 
 ## 7b. Why 2015, and what that leaves unchecked
+<!-- figures: measured:IGN PNOA historical WMS GetCapabilities queried 2026-09-20; scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv @ 2026-09-20 -->
 
 **Why 2015 was the boundary.** IGN photographs the Canary Islands about every three
 years and nothing else is available: verified 2026-09-20 by querying every layer on
@@ -411,6 +429,7 @@ can be reached at all without a non-IGN source such as GRAFCAN's 1980s orthophot
 which are not redistributable.
 
 ## 8. Effort
+<!-- figures: measured:judgement timestamps written by viewer/label.js; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 **About 2 hours for the 10 m run (500 points) and about 3.5 for the 30 m run
 (911).** Reported by the interpreter; the tool now stamps each judgement, so the
@@ -429,6 +448,7 @@ about 90 minutes.
 ---
 
 ## 9. Why the first run was rebuilt — the transferable lesson
+<!-- figures: scripts/m3_score.py; scripts/m3_dating_independent.py; scripts/analysis_20_cadastre_date_validity.py; docs/figures/data/m3_labels.json @ 2026-09-20 -->
 
 The 10 m run measured the wrong thing, and the reason generalises to any raster
 accuracy assessment.
@@ -480,6 +500,7 @@ fix the measurement rather than modelling your way around it.
 ---
 
 ## 10. What this does and does not license
+<!-- figures: scripts/m3_score.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
 
 **You may say:** of the 30 m cells SensiSat marks as holding a building from before
 2015, 98.1 % ± 2.7 do; of those marked new construction 2015–2024, 64.1 % ± 9.9 do;

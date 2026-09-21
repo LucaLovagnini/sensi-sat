@@ -11,6 +11,7 @@ python viewer/serve.py       # then open http://127.0.0.1:8777/viewer/
 ---
 
 ## 1. Why the time slider costs nothing
+<!-- figures: measured:arithmetic stated in the text (years × zoom levels) @ 2026-09-20 -->
 
 This is the idea the whole project was arranged around, and it is worth stating
 plainly because it is what removes the infrastructure.
@@ -36,6 +37,7 @@ year needs its own pre-rendered tiles, which is exactly the tile server this des
 exists to avoid. OpenLayers' `WebGLTile` does it natively.
 
 ## 3. Things that had to be got right, and were not obvious
+<!-- figures: sensisat/raster.py; measured:M4 experiments on a synthetic island and Tenerife's building layer on 2026-09-20 @ 2026-09-20 -->
 
 Each of these cost real time, and each is a property of the published data rather
 than of the viewer code — which is why they are written down here.
@@ -89,8 +91,9 @@ actually contains.
 
 - **State at year** — everything built up to that year.
 - **Added since** — only what appeared after it. This exists because two states
-  side by side *hide* change: Gran Canaria grew 9 % between 1995 and 2015 and the
-  two maps look identical to the eye.
+  side by side *hide* change: Gran Canaria's settlement extent grew by a few per
+  cent between 1995 and 2015 (the exact figure is in the viewer's note, generated
+  from the layer) and the two maps look identical to the eye.
 
 **"We don't know" survives to the screen.** The undated class — pixels that are
 built but carry no year — is drawn in its own colour and never given an invented
@@ -102,8 +105,15 @@ note saying what it is and that it does not join continuously to the other, and
 that the two must not be added together because they share the 2016 baseline.
 
 Per-island figures come from the published statistics, so the number on screen is
-the same number the build measured: 35.647 km² of buildings on Gran Canaria,
-27.058 km² of greenhouses, 109.682 km² sealed.
+the same number the build measured:
+
+<!--[[[cog
+cog.outl(f"{km2(area('buildings-dated', 'Gran Canaria'))} km² of buildings on Gran Canaria, "
+         f"{km2(area('covered-agriculture', 'Gran Canaria'))} km² of greenhouses, "
+         f"{km2(area('density-current', 'Gran Canaria'))} km² sealed.")
+]]]-->
+35.65 km² of buildings on Gran Canaria, 27.06 km² of greenhouses, 109.68 km² sealed.
+<!--[[[end]]]-->
 
 ## 5. Not done
 
@@ -118,6 +128,7 @@ deep-linking of state into the URL.
 ---
 
 ## 6. Deployment
+<!-- figures: scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20 -->
 
 Live, unannounced, at **`https://sensisat.ensi-at.workers.dev`** (2026-09-20).
 

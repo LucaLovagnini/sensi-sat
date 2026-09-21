@@ -10,6 +10,7 @@ re-checked before committing.
 ---
 
 ## 1. What one visitor actually costs
+<!-- figures: measured:Chrome DevTools network panel over the local viewer on 2026-09-20 @ 2026-09-20 -->
 
 The important correction first: **the per-island file sizes are not what a visitor
 downloads.** A Cloud-Optimized GeoTIFF is read by HTTP range request — the client
@@ -33,6 +34,7 @@ For planning, assume an *engaged* visitor who opens several layers and islands:
 deliberately about 2.5× the measured cold visit.
 
 ## 2. What that costs at each scale
+<!-- figures: external:Cloudflare / AWS / Netlify list prices read 2026-09-20; measured:arithmetic on §1's per-visit cost @ 2026-09-20 -->
 
 | visitors / month | egress `[est]` | requests `[est]` |
 |---|---|---|
@@ -61,6 +63,7 @@ is *structurally* zero, so no traffic event can produce a bandwidth bill at all.
 Everywhere else, cost is a function of popularity and must be watched.
 
 ## 3. The risk that is not cost
+<!-- figures: measured:Chrome DevTools network panel on 2026-09-20 @ 2026-09-20 -->
 
 At a million visitors our own bandwidth is free and our origin is nearly idle. The
 things that actually break are **other people's servers**:
@@ -78,6 +81,7 @@ things that actually break are **other people's servers**:
 None of these bill us. All of them can take the site down.
 
 ## 4. Guardrails
+<!-- figures: scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20 -->
 
 Ordered by how much they protect, not by effort.
 
@@ -147,6 +151,7 @@ per-request cost exactly where there currently is none.
 ---
 
 ## 6. The intended end state: R2, and no Worker at all
+<!-- figures: scripts/publish.py; external:Cloudflare R2 pricing and documentation read 2026-09-20 @ 2026-09-20 -->
 
 Decided 2026-09-20, **deferred until `sensisat.org` is registered**. Recorded here
 because the current deployment is a workaround, and workarounds that are not

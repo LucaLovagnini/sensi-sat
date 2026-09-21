@@ -3,6 +3,7 @@
 Guidance for Claude Code (claude.ai/code) when working in this repository.
 
 ## Project Overview
+<!-- figures: sensisat/config.py; external:design target set by Luca (plan §4 decision 4) @ 2026-09-18 -->
 
 SensiSat visualises urban expansion in the Canary Islands over time from open
 land-cover and cadastral datasets, for researchers, conservation NGOs and
@@ -29,6 +30,7 @@ about working here:
   a stated assumption can carry.
 
 ## Current state (2026-09-20)
+<!-- figures: docs/validation.md; docs/data-evaluation.md @ 2026-09-21 -->
 
 M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 (accuracy assessment), M4 (viewer) and M4b (the public "about the data" page) are
@@ -63,6 +65,7 @@ archipelago in every other product. The notebooks under `geeLocalTesting/` are k
 as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 
 ## Layout
+<!-- figures: scripts/build.py; scripts/fetch_m0.py; docs/pipeline.md @ 2026-09-21 -->
 
 | | |
 |---|---|
@@ -75,7 +78,7 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `sensisat/facts.py` | the published figures as functions — the single source for prose |
 | `sensisat/provenance.py` | where every hand-written figure on the public page came from |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |
-| `tests/` | 56 pytest tests over small fixture rasters |
+| `tests/` | the pytest suite over small fixture rasters — `pytest` counts them |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
 
 ### The documentation, and which question each file answers
@@ -110,6 +113,7 @@ pytest && ruff check .          # M0 analysis scripts have relaxed layout rules
 ```
 
 ## Things that are easy to get wrong here
+<!-- figures: docs/data-evaluation.md; docs/validation.md; docs/pipeline.md; docs/design/seam-harmonization.md; docs/viewer.md @ 2026-09-21 -->
 
 These each cost real time to find. Read before touching the data code.
 

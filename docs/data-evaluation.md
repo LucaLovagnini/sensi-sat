@@ -1,4 +1,5 @@
 # Milestone 0 — dataset evaluation for the Canary Islands
+<!-- figures: scripts/fetch_m0.py @ 2026-09-19 -->
 
 <!--[[[cog cog.outl(f.contract()) ]]]-->
 **About the numbers in this document.** Figures fall into two kinds.
@@ -24,6 +25,7 @@ source · **estimate** = our arithmetic, shown.
 ---
 
 ## Headline findings
+<!-- figures: scripts/analysis_01_totals.py; scripts/analysis_02_negative_controls.py; scripts/analysis_03_seam_factors.py; scripts/analysis_08_cadastre.py; scripts/analysis_13_hrl_change.py; scripts/analysis_16_copernicus_status.py @ 2026-09-19 -->
 
 1. **Dynamic World is disqualified.** It reports 307.8 km² built on Gran Canaria
    alone. The whole archipelago measures 376.9 km² (WSF Evolution, 30 m),
@@ -67,6 +69,7 @@ source · **estimate** = our arithmetic, shown.
 ---
 
 ## 1. How much is built? (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
 
 Per island, with the same island polygon applied to every product.
 
@@ -96,6 +99,7 @@ class includes urban open space and confuses bare ground, crops and greenhouses
 **Verdict: do not use, not even as an experimental layer, without correction.**
 
 ## 2. Lava: one control passes, one test is not yet testable (analysis 2)
+<!-- figures: scripts/analysis_02_negative_controls.py; docs/figures/data/m0_negative_controls.csv @ 2026-09-19 -->
 
 | polygon | role | product | built | share | verdict |
 |---|---|---|---:|---:|---|
@@ -132,6 +136,7 @@ polygon, WSF Evolution at 30 m reports 4.8× the extent that WSF 2015 reports at
 whole coarse pixel. **measured**
 
 ## 3. Extent vs surface: the direction of the gap depends on density (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
 
 Growth 1990 → 2015, same island polygon, extent (WSF Evolution) vs surface (GHSL):
 
@@ -161,6 +166,7 @@ whichever half of the archipelago it suits less**, which settles the plan's
 decision to publish both.
 
 ## 4. The 1985 baseline (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
 
 WSF Evolution's first year is a baseline: everything built before satellite record
 began. The plan flagged a risk that early Landsat over-detects bare dry soil,
@@ -193,6 +199,7 @@ It remains true that for Gran Canaria and Tenerife the product has little to say
 the cadastre dates ≤ 1985. That needs HISDAC-ES (not yet fetched).
 
 ## 5. Loss and demolition: still unanswered (analysis 7)
+<!-- figures: scripts/analysis_07_loss_rate.py; scripts/analysis_13_hrl_change.py; docs/figures/data/m0_loss_rate.csv; docs/figures/data/m0_hrl_change_2018_2021.csv @ 2026-09-19 -->
 
 The plan needs the real rate at which built-up land stops being built-up, because
 that is the cost of a growth-only time encoding.
@@ -247,6 +254,7 @@ Two consequences for the plan:
   layer is the one that will show Todoque disappear.
 
 ## 6. WSF Tracker: plausible, but the seam is worse than we thought (analysis 10)
+<!-- figures: scripts/analysis_10_wsf_tracker.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_wsf_tracker.csv; docs/figures/data/m0_wsf_tracker_lava.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
 
 Read directly from the GeoZarr on source.coop over anonymous HTTP range requests —
 no bulk download of the 1.54M × 4.01M global grid, only the windows we ask for.
@@ -340,6 +348,7 @@ inflation — it only provides a common support for cell-by-cell comparison. Onl
 surface products (GHSL, HRL, cadastre) are free of the pixel-size effect.
 
 ## 6b. The greenhouse question, answered sideways (analysis 11)
+<!-- figures: scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_undated_roads.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
 
 43 % of Tracker's 2016 footprint has no WSF Evolution year. Roads do not explain it:
 28.7 % of those pixels lie within 15 m of an OpenStreetMap road, against 47.0 % of the
@@ -367,6 +376,7 @@ Timanfaya remains clean; the *lava* mask is still unnecessary. The two masks ans
 different failure modes.
 
 ## 6c. The cadastre as an independent witness (analysis 8)
+<!-- figures: scripts/analysis_08_cadastre.py; scripts/analysis_14_baseline_nobuilding.py; docs/figures/data/m0_cadastre_vs_wsf.csv; docs/figures/data/m0_cadastre_bufa_series.csv; docs/figures/data/m0_cadastre_completeness_canarias.csv; docs/figures/data/m0_cadastre_cell_omission.csv; docs/figures/data/m0_cadastre_baseline_refined.csv; docs/figures/data/m0_baseline_nobuilding.csv; docs/figures/data/m0_cadastre_vs_ghsl.csv; docs/figures/data/m0_cadastre_vs_ghsl_thresholds.csv @ 2026-09-19 -->
 
 Spain's cadastre records a construction year for every building; HISDAC-ES (Uhl et
 al. 2023, CC BY 4.0) grids it at 100 m: earliest construction year per cell, and
@@ -506,6 +516,7 @@ extent* and the only global option; the two answer different questions and the m
 must say which one it is showing.
 
 ## 6c′. The other global candidates, through the same test (analysis 15)
+<!-- figures: sensisat/evaluate.py; docs/figures/data/m0_alternatives_gran_canaria.csv; docs/figures/data/m0_alternatives_tenerife.csv @ 2026-09-19 -->
 
 Every remaining global "year first built" product was put through one harness
 (`sensisat/evaluate.py`): extent by year on Gran Canaria, and the cadastre cell test
@@ -532,6 +543,7 @@ The candidate list for the pre-2016 era is therefore closed: **WSF Evolution for
 settlement extent (global), the cadastre for buildings (Spain), GHSL for surface.**
 
 ## 6e. Copernicus status layers 2018 / 2021 / 2024 (analysis 16)
+<!-- figures: scripts/analysis_16_copernicus_status.py; docs/figures/data/m0_copernicus_status.csv; docs/figures/data/m0_copernicus_tajogaite.csv; docs/figures/data/m0_copernicus_loss_2021_2024.csv @ 2026-09-19 -->
 
 Downloaded 2026-09-19 (five products, 41 tiles, 25 MiB, EPSG:3035). Four results.
 
@@ -582,6 +594,7 @@ snapshots, its change layers the time series. Coverage stops at the EU's border 
 2018.
 
 ## 6f. CORINE 2018: the "official ~6 %" measured (analysis 17)
+<!-- figures: docs/figures/data/m0_corine_2018.csv; external:one-off measurement in commit 0694845 — no script survives @ 2026-09-19 -->
 
 The CNIG GeoPackage has a dedicated Canarias layer (2,565 polygons, EPSG:4083).
 Artificial surfaces (CORINE class 1xx, 25 ha minimum mapping unit): **469.5 km² =
@@ -605,6 +618,7 @@ Dynamic World's 308 km² for Gran Canaria *alone* exceeds CORINE's artificial to
 that island (149.8 km²) — every artificial thing CORINE can find, doubled.
 
 ## 6d. How big is it, really? (analysis 9)
+<!-- figures: scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/data/m0_sizes_raw.csv @ 2026-09-19 -->
 
 Every dataset's Canary window, re-encoded the way we would publish it (GeoTIFF,
 DEFLATE, sparse blocks, overviews):
@@ -625,6 +639,7 @@ use total ~200 MiB. The plan's hosting argument — that no server is needed to
 display this — is confirmed by measurement. **measured**
 
 ## 7. What each dataset is good for
+<!-- figures: docs/figures/data/m0_totals.csv; docs/figures/data/m0_wsf_tracker.csv; docs/figures/data/m0_copernicus_status.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
 
 | dataset | verdict | use it for | do not use it for |
 |---|---|---|---|
@@ -642,6 +657,7 @@ display this — is confirmed by measurement. **measured**
 | **HISDAC-ES** | **NOT YET FETCHED** | testing the 1985 baseline against cadastral dates | — |
 
 ## 7. Blocked — needs your account (resolved 2026-09-19)
+<!-- figures: scripts/fetch_m0.py @ 2026-09-19 -->
 
 Both account-gated inputs were downloaded by Luca on 2026-09-19 and are analysed in
 §6e (Copernicus Impervious Built-Up 2018/2021/2024 and the 2018–2021 and 2021–2024
@@ -651,6 +667,7 @@ not downloaded: the Change *Support* layers (technical vs real change) and the
 Imperviousness *Density* layers. Everything else was obtained without any account.
 
 ## Reproducing
+<!-- figures: pyproject.toml; scripts/fetch_m0.py @ 2026-09-19 -->
 
 ```bash
 pip install -e .                                  # then the extras you need
@@ -679,6 +696,7 @@ contributors (ODbL) via Nominatim and Overpass · Dynamic World figures from the
 project's own earlier notebook.
 
 ## 10. The cadastre's construction years are bucketed before 1980 (analysis 19)
+<!-- figures: scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv; docs/figures/data/m0_cadastre_spike_by_island.csv; docs/figures/data/m0_cadastre_year_histogram.csv @ 2026-09-20 -->
 
 Found from the viewer on 2026-09-20: Caleta de Famara (Lanzarote) showed **two**
 buildings standing by 1949, in a village the historical record dates to the late
@@ -785,6 +803,7 @@ slider sits below 1980, and names the year when it sits on one of the ten major
 buckets.
 
 ## 11. What the cadastre's construction year actually means (analysis 20)
+<!-- figures: scripts/analysis_20_cadastre_date_validity.py; external:Catastro methodology note and the INSPIRE Buildings specification @ 2026-09-20 -->
 
 **Sources** — primary, both from the Dirección General del Catastro:
 [*Metodología — Mapas temáticos*](https://www.catastro.hacienda.gob.es/ayuda/METODOLOGIA_MAPAS%20TEMATICOS_DEF.pdf)
@@ -923,6 +942,7 @@ choice, and a ruin is one candidate explanation for the buildings M3 found in
    layer is derivable from data already downloaded. Not built; recorded here.
 
 ## 12. GHSL and the cadastre agree before 2010 and diverge after (analysis 21)
+<!-- figures: scripts/analysis_21_ghsl_vs_cadastre_timing.py @ 2026-09-20 -->
 
 M3 left a gap it could not close: aerial photography of the Canaries begins in
 2005, so **85 % of the building layer carries a date no photograph can check**

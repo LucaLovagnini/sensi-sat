@@ -53,6 +53,7 @@ COG_REGION = re.compile(r"\[\[\[cog.*?\[\[\[end\]\]\]", re.S)
 
 _UNIT = r"(?:km²|km2|m²|MiB|GiB|%|×|ha\b|cm\b|m\b|-?metres?\b|years?\b)"
 _NUM = r"\d[\d.,]*"
+_DATE = r"(?:18|19|20)\d\d-\d\d(?:-\d\d)?"
 
 #: Every run of digits a reader could read as a number — as the reader reads it.
 #: Composite claims are ONE token, tried first: "98 times in 100", "463 ± 83 km²",
@@ -60,8 +61,9 @@ _NUM = r"\d[\d.,]*"
 #: "7" and "26", which match anything. The negative lookbehind stops identifiers
 #: being read as numbers: M3, km2, EPSG4326 are names, not figures.
 TOKEN = re.compile(
-    r"(?<![A-Za-z0-9])(?:"
-    rf"\d{{1,3}} (?:to \d{{1,3}} )?times in \d{{1,3}}"           # accuracy in words
+    r"(?<![A-Za-z0-9_])(?:"
+    rf"{_DATE}"                                                        # a date, exempted below
+    rf"|\d{{1,3}} (?:to \d{{1,3}} )?times in \d{{1,3}}"          # accuracy in words
     rf"|{_NUM}\s?±\s?{_NUM}(?:\s?{_UNIT})?"                        # value ± interval
     rf"|{_NUM}\s?[–-]\s?{_NUM}(?:\s?{_UNIT})?"                     # a range
     rf"|{_NUM}(?:\s?{_UNIT})?"                                        # a plain figure
@@ -70,12 +72,13 @@ TOKEN = re.compile(
 #: Exceptions — every one defined by WHERE the token sits or what it plainly is,
 #: never by a shape a real figure could share. `^\d{1,2}\.$` once exempted the `12.`
 #: in "reached 12."; `^\d{1,3}$` would exempt a bare `377` in a table.
-YEAR = re.compile(r"^(?:18|19|20)\d\d(?:\s?[–-]\s?(?:18|19|20)\d\d)?[.,]?$")
+YEAR = re.compile(r"^(?:18|19|20)\d\d(?:-\d\d(?:-\d\d)?|\s?[–-]\s?(?:18|19|20)\d\d)?[.,]?$")
 LIST_MARKER_AT_LINE_START = re.compile(r"(?:^|\n)\s{0,3}(?:#{1,6}\s+)?(\d{1,2}\.)(?=\s)")
 #: A number that names something rather than measuring it: a cross-reference, an
 #: epoch index, a coordinate system, a hash length. Matched with its context so the
 #: same digits elsewhere are still a figure.
-REFERENCE = re.compile(r"(?:[Ss]ection|§|[Ee]poch|EPSG:?|SHA-|analysis[ _])\s?\d+\.?")
+REFERENCE = re.compile(
+    r"(?:[Ss]ection|§|[Ee]poch|EPSG:?|SHA-|analysis[ _]|[Dd]ecisions?\s?(?:M\d\.)?|[Gg]uardrail G)\s?\d+\.?")
 #: Structure a reader never sees as a number: identifiers, DOIs, URLs, HTML
 #: entities, footnote superscripts, CSS colour tuples and angles, and code inside a
 #: template literal's `${…}`. Removed before tokenising.
@@ -83,6 +86,10 @@ STRUCTURE = {
     "doi": re.compile(r"doi:\S+"), "url": re.compile(r"https?://\S+"),
     "entity": re.compile(r"&#\d+;"), "css": re.compile(r"rgba?\([^)]*\)|\d+deg\b"),
     "interpolation": re.compile(r"\$\{[^}]*\}"), "licence": re.compile(r"CC BY(?:-SA)? \d\.\d"),
+    "issue": re.compile(r"#\d+\b"),
+    # a comment is invisible to the reader, so nothing in it is a claim — this is
+    # also what makes the section declarations below cost nothing
+    "comment": re.compile(r"<!--.*?-->", re.S),
 }
 SUPERSCRIPT = re.compile(r"<sup>.*?</sup>", re.S)
 #: How many tokens each exception exempts, per surface. A pattern that starts
@@ -414,6 +421,159 @@ def test_stac_descriptions_are_filled_from_the_same_run() -> None:
 
 
 # ---------------------------------------------------------------------------
+# Section-level surfaces: docs/*.md and CLAUDE.md declare where their numbers came from
+# ---------------------------------------------------------------------------
+
+SECTION_SURFACES = ["CLAUDE.md",
+                    *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").rglob("*.md"))]
+#: `<!-- figures: <source>[; <source>…] @ <YYYY-MM-DD> -->` — a source is a repository
+#: file that must exist, or `external:<what>` for a published source outside the
+#: repository (a price list, a paper), or `measured:<how>` for a hand measurement
+#: that left no file (a browser's network panel). The labels are the honest form
+#: for numbers that have no script; they are counted, and the design doc says how many.
+DECLARATION = re.compile(
+    r"<!--\s*figures:\s*(?P<sources>.+?)\s*@\s*(?P<date>\d{4}-\d{2}-\d{2})\s*-->", re.S)
+LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
+
+
+def sections(md: str) -> list[tuple[str, str]]:
+    """(heading, text) per section: the H1 preamble, then each `## ` block with its
+    `###` children. The preamble counts because two documents state figures there."""
+    return [(p.splitlines()[0].strip(), p) for p in re.split(r"(?m)^(?=## )", md) if p.strip()]
+
+
+def declaration_problems(md: str, *, root: Path = ROOT) -> list[str]:
+    """A section needs a declaration iff it holds a figure that is neither generated
+    nor excepted. Declared sources must exist (or be labelled external/measured)."""
+    out = []
+    for heading, body in sections(md):
+        toks = figures_in(body, html=False)
+        decl = DECLARATION.search(body)
+        if toks and not decl:
+            out.append(f"{heading!r}: {len(toks)} undeclared figures "
+                       f"({', '.join(sorted(toks)[:4])}{'…' if len(toks) > 4 else ''})")
+        elif decl:
+            for src in (s.strip() for s in decl.group("sources").split(";")):
+                if not LABELLED_SOURCE.match(src) and not (root / src).exists():
+                    out.append(f"{heading!r}: declared source {src!r} does not exist")
+    return out
+
+
+def test_every_section_with_a_figure_declares_its_source() -> None:
+    """docs/ holds ~1,700 figures, overwhelmingly historical; a registry entry each
+    would be abandoned in a week. So the unit is the section: every section that
+    states a figure names the script or data file that produced it, under its heading.
+    The declaration records origin — what verifies digits is cog and the collision
+    check below. A historical digit mis-typed once is caught by nothing mechanical."""
+    problems = [f"  {rel}: {p}" for rel in SECTION_SURFACES
+                for p in declaration_problems((ROOT / rel).read_text())]
+    assert not problems, (
+        "sections stating figures with no declared source, or a source that does not exist:\n"
+        + "\n".join(problems)
+        + "\n\nAdd under the heading: <!-- figures: scripts/analysis_NN_x.py; "
+          "docs/figures/data/m0_x.csv @ YYYY-MM-DD -->  (or external:<what> / measured:<how>)")
+
+
+@pytest.mark.parametrize("md,ok", [
+    ("# T\n\nintro\n\n## A\n<!-- figures: scripts/build.py @ 2026-09-19 -->\n12 km² built\n", True),
+    ("# T\n\n## A\n\n12 km² built with no declaration\n", False),
+    ("# T\n\n12 km² in the preamble, undeclared\n\n## A\ntext\n", False),           # H1 preamble
+    ("# T\n<!-- figures: scripts/build.py @ 2026-09-19 -->\n12 km²\n\n## A\ntext\n", True),
+    ("## A\n<!-- figures: scripts/nope.py @ 2026-09-19 -->\n12 km²\n", False),          # missing file
+    ("## A\n<!-- figures: external:Cloudflare price list, read 2026-09-20; scripts/build.py @ 2026-09-20 -->\n$4\n", True),
+    ("## A\n<!-- figures: scripts/build.py, scripts/nope.py @ 2026-09-20 -->\n$4\n", False),  # comma is not a separator
+    ("## A\n<!-- figures: measured:Chrome DevTools @ 2026-09-20 -->\n150 KiB\n", True),
+    ("## A\n\nno figures, no declaration needed\n", True),
+    ("## A\n\nyears alone: 1985 to 2015, decision 7\n", True),                          # excepted only
+])
+def test_section_declaration_fixtures(md: str, ok: bool) -> None:
+    assert (declaration_problems(md) == []) is ok, declaration_problems(md)
+
+
+def test_markdown_cog_regions_stand_alone() -> None:
+    """In Markdown a comment line ends the paragraph it interrupts, so a region set
+    mid-sentence renders as three paragraphs. A region must be preceded and followed
+    by a blank line (or a file boundary) and generate whole lines."""
+    problems = []
+    for rel in [d for d in DOCUMENTS if d.endswith(".md")]:
+        lines = (ROOT / rel).read_text().splitlines()
+        for i, ln in enumerate(lines):
+            if ln.lstrip().startswith("<!--[[[cog") and i > 0 and lines[i - 1].strip():
+                problems.append(f"  {rel}:{i + 1} region opens mid-paragraph")
+            if ln.strip() == "<!--[[[end]]]-->" and i + 1 < len(lines) and lines[i + 1].strip():
+                problems.append(f"  {rel}:{i + 1} region closes mid-paragraph")
+    assert not problems, "Markdown cog regions must stand alone:\n" + "\n".join(problems)
+
+
+# ---------------------------------------------------------------------------
+# The collision check: a live value typed by hand anywhere in prose
+# ---------------------------------------------------------------------------
+
+COLLISIONS_ALLOWED = ROOT / "tests" / "fixtures" / "figure_collisions.json"
+_UNIT_TEXT = {"km2": ("km²", r"\**\s?(?:km²|km2)"), "mib": ("MiB", r"\**\s?MiB"),
+              "pct": ("%", r"\**\s?%"), "x": ("×", r"\**\s?×")}
+
+
+def live_values() -> list[tuple[str, float, str]]:
+    """Every headline figure facts.py can produce, with the unit prose would attach.
+    Not the seam record's per-island fields: the M2 seam reproduces M0's CSV to the
+    published decimal, so every one of them collides with the M0 tables by design."""
+    import sensisat.facts as f
+    out = []
+    for layer in f.stats():
+        out += [(f"area({layer})", f.area(layer), "km2"), (f"size_mib({layer})", f.size_mib(layer), "mib")]
+        out += [(f"area({layer}, {isl})", f.area(layer, isl), "km2") for isl in f.stats()[layer]]
+    out += [("size_six_layers()", f.size_six_layers(), "mib"), ("size_confidence()", f.size_confidence(), "mib"),
+            ("size_published()", f.size_published(), "mib"), ("dated_share()", f.dated_share(), "pct"),
+            ("undated_share()", f.undated_share(), "pct"), ("sealed_vs_built_ratio()", f.sealed_vs_built_ratio(), "x"),
+            ("crash_pct()", f.crash_pct(), "pct"),
+            ("growth_pct(era-a, Gran Canaria, 1995, 2015)", f.growth_pct("settlement-era-a", "Gran Canaria", 1995, 2015), "pct")]
+    return out
+
+
+def hand_typed_live_figures() -> dict[tuple[str, str], list[str]]:
+    """(file, figure) -> facts that produce it, for every live value found in prose
+    outside a cog region and not declared historical in the registry. Values below 1
+    are skipped — at two decimals they collide by coincidence ($0.36/million matched
+    La Graciosa's extent) — and a unit must be attached, so a bare table cell is not
+    seen. Both limits are recorded in the design doc."""
+    from sensisat.provenance import HISTORICAL
+    declared = {re.sub(r"\s?(km²|%|×|MiB)$", "", k) for k in HISTORICAL}
+    hits: dict[tuple[str, str], list[str]] = {}
+    for rel in PROSE_SURFACES:
+        body = strip_generated((ROOT / rel).read_text())
+        for name, v, u in live_values():
+            if v < 1:
+                continue
+            unit, unit_rx = _UNIT_TEXT[u]
+            for s in {f"{v:,.2f}", f"{v:,.1f}"}:
+                if s in declared:
+                    continue
+                if re.search(rf"(?<![\d.]){re.escape(s)}{unit_rx}", body):
+                    hits.setdefault((rel, f"{s} {unit}"), []).append(name)
+    return hits
+
+
+@needs_build
+def test_no_live_figure_is_typed_by_hand() -> None:
+    """The check that closes the docs/ drift hole without 1,700 registry entries.
+    A figure the build computes, found typed in prose, is a copy that the next build
+    will silently orphan — unless a human has decided, once, that it is a historical
+    measurement which happens to coincide (recorded with its reason in the fixture)."""
+    allowed = {(e["file"], e["figure"]): e["why"] for e in json.loads(COLLISIONS_ALLOWED.read_text())}
+    hits = hand_typed_live_figures()
+    new = [f"  {rel}: {fig}  (= {', '.join(names)})" for (rel, fig), names in sorted(hits.items())
+           if (rel, fig) not in allowed]
+    dead = [f"  {rel}: {fig}" for (rel, fig) in allowed if (rel, fig) not in hits]
+    assert not new, (
+        "a figure the build computes is typed by hand in prose:\n" + "\n".join(new)
+        + "\n\nEither generate it (a cog region calling sensisat/facts.py) or, if it is a "
+          "historical measurement that coincides with the current build, add it to "
+          "tests/fixtures/figure_collisions.json saying why.")
+    assert not dead, "allowed collisions no longer present — delete them:\n" + "\n".join(dead)
+
+
+# ---------------------------------------------------------------------------
 # The exceptions stay narrow
 # ---------------------------------------------------------------------------
 
@@ -441,6 +601,11 @@ def test_no_exception_matches_a_token_carrying_a_unit() -> None:
     ("about 463 ± 83 km² of land", {"463 ± 83 km²"}),
     ("drops by 26–52 % at the join", {"26–52 %"}),
     ("between 1985-2015 and 2016", set()),               # a year range, a year
+    ("status: proposal, 2026-09-19.", set()),            # a date
+    ("decision 7 says; guardrail G6 holds", set()),      # references
+    ("maplibre-gl-js#4479 is open", set()),              # an issue number
+    ("see analysis_01_totals.py", set()),                # an identifier
+    ("<!-- figures: scripts/analysis_01_totals.py; x.csv @ 2026-09-19 --> 12 km²", {"12 km²"}),
 ])
 def test_structure_is_not_a_figure_and_composites_are_one_token(text: str, kept: set) -> None:
     assert figures_in(text, html=False) == kept
