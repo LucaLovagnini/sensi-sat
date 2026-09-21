@@ -7,6 +7,11 @@ The project is also a way to learn the geospatial domain properly, so the
 documentation explains its terms rather than assuming them. If a word here is new,
 `docs/concepts.md` defines it with a worked example.
 
+**Every published figure, with the conditions under which it is true, is on the
+public page: [sensisat.ensi-at.workers.dev/about-the-data.html](https://sensisat.ensi-at.workers.dev/about-the-data.html).**
+The numbers below are M0's measurements of the *source* products (2026-09-19), not
+the totals of the layers SensiSat publishes; the page states the difference.
+
 ## The finding that shapes everything else
 
 There is no single number for "how much of the Canaries is built". Measured across

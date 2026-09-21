@@ -103,9 +103,11 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/design/figure-provenance.md` | M4c: how every published number is generated, declared or excepted; the limits; what building it found | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 
-**The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404), so `docs/`
-is internal and the HTML page is the only thing readers see. Never link from the
-public page into the repo.
+**The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404) until the
+going-public checklist below is walked, so `docs/` is internal and the HTML page is
+the only thing readers see. The page's "How to cite" section links to the
+repository — a 404 until step 9 — and `scripts/verify_m4b.py` fails on that link
+until then, **by design**: it is the one check that runs *after* the settings click.
 
 **Keeping this honest.** When something load-bearing is learned, the one-line
 version belongs here and the working detail belongs in `docs/`. A fact that exists
@@ -270,11 +272,16 @@ gate (M4c).** Walk it in order; each line is a command or a look.
 5. `python scripts/publish.py` assembles `dist/` (it refuses while anything above
    is stale); open the viewer and the page from `dist/` in a browser.
 6. `git config core.hooksPath .githooks` is set in the clone that will push.
-7. M4b's one unmet requirement — how to cite, and the link to the scripts — is
-   written on the page (`scripts/verify_m4b.py`, once it exists).
+7. `python scripts/verify_m4b.py` — every promised topic present, every external
+   link resolving, the accuracy section carrying real figures. **Its repository-link
+   check fails until step 9**; everything else must pass here.
 8. The repository README says what the numbers are conditional on, and links to
    the page rather than restating figures.
-9. Only then the GitHub settings click. Nothing else re-checks after it.
+9. Only then the GitHub settings click — then `python scripts/verify_m4b.py` once
+   more, which is the only check that can see the result of the click.
+10. Decide the formal licence of the derived layers (the page says "free to reuse
+    with attribution"; the STAC collections say `license: other`). CC BY 4.0 is the
+    natural fit — the largest sources use it — but it is Luca's call, not the data's.
 
 ## Git
 

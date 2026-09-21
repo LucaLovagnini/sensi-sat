@@ -370,10 +370,25 @@
     </tbody>
   </table>
   <p>Every figure on this page is computed from the datasets listed above, by the
-  methods described, and nothing here is an estimate unless it says so. The analysis
-  code and the working notes behind each number are not yet published; until they
-  are, treat this page as the statement of what was measured rather than as the
-  means to re-measure it.</p>
+  methods described, and nothing here is an estimate unless it says so. The code,
+  the evidence tables behind every number and the working notes are at
+  <a href="https://github.com/LucaLovagnini/sensi-sat">github.com/LucaLovagnini/sensi-sat</a>;
+  each figure on this page is either generated from the published statistics or
+  names the analysis that produced it, and a test fails the build otherwise.</p>
+
+  <h3 id="cite">How to cite</h3>
+  <p>The layers are free to reuse with attribution, and they inherit the attribution
+  requirements of the sources in the table above. Cite the data build you used —
+  the figures change when the sources are re-fetched or the pipeline is re-run:</p>
+  <blockquote class="cite">Lovagnini, L. (2026). <cite>SensiSat — urban expansion in
+  the Canary Islands, 1900–2026</cite>
+  (<!--[[[cog cog.out(f.data_version()) ]]]-->
+  sensisat 0.1.0, data of 2026-09-21
+  <!--[[[end]]]-->).
+  https://sensisat.ensi-at.workers.dev — accessed [date].</blockquote>
+  <p>For a specific number, cite the layer it comes from as well (the map names it),
+  because the same word means different quantities across layers — see the ladder in
+  the first section.</p>
 
   <ol class="notes">
     <li id="n1">Dirección General del Catastro, <cite>Metodología — Mapas

@@ -1,6 +1,6 @@
 {
   "viewer/about-the-data.html": {
-    "generated": 9,
+    "generated": 10,
     "superscript": 2,
     "doi": 1,
     "url": 0,
@@ -11,7 +11,7 @@
     "issue": 0,
     "comment": 0,
     "reference": 3,
-    "year": 51,
+    "year": 53,
     "list_marker": 0
   },
   "viewer/app.js": {
@@ -39,7 +39,7 @@
     "issue": 0,
     "comment": 0,
     "reference": 1,
-    "year": 4,
+    "year": 5,
     "list_marker": 0
   }
 }
