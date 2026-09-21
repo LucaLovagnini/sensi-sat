@@ -93,6 +93,27 @@ def size_published() -> float:
     return sum(f.stat().st_size for f in PROCESSED.rglob("*") if f.is_file()) / 2**20
 
 
+# --- shares, which drift faster than totals and are quoted as percentages ---
+
+def dated_share() -> float:
+    """% of the cadastral footprint carrying a construction year."""
+    d = stats()["buildings-dated"]
+    dated = sum(v["properties"]["dated by the source"] for v in d.values())
+    return 100 * dated / sum(v["headline_km2"] for v in d.values())
+
+
+def undated_share(layer: str = "settlement-era-a") -> float:
+    """% of a settlement layer's footprint that no source can date.
+
+    Published as 43 % from M0, which measured the raw WSF Tracker baseline. The
+    layer we actually publish reads lower, because era-a is greenhouse-masked and
+    clipped to land. Quoting the M0 figure for our own layer was wrong by six points.
+    """
+    d = stats()[layer]
+    und = sum(v["properties"].get("pre-2016, undated", 0) for v in d.values())
+    return 100 * und / sum(v["headline_km2"] for v in d.values())
+
+
 # --- the seam --------------------------------------------------------------
 
 def seam_factor(island: str, which: str = "definition_factor_masked") -> float:

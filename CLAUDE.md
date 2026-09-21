@@ -71,6 +71,7 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `scripts/m3_*.py` | M3: `sample` (draw), `label` via viewer, `score` (Olofsson), `diagnose`, `recheck`, `review` |
 | `scripts/sync_docs.py` | rewrite (or `--check`) every live figure in the documents |
 | `sensisat/facts.py` | the published figures as functions — the single source for prose |
+| `sensisat/provenance.py` | where every hand-written figure on the public page came from |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |
 | `tests/` | 56 pytest tests over small fixture rasters |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
@@ -201,14 +202,22 @@ These each cost real time to find. Read before touching the data code.
     review the diff), `pytest` checks them, and `publish.py` refuses to assemble
     `dist/` while any disagrees. **Never hand-type a live figure** — mark it, or it
     will go stale in silence, which has already happened twice.
-22. **Historical measurements must NOT be updated, and must be distinguishable.**
+22. **No figure may reach the public page unaccounted for.** Cog generates what is
+    marked and is blind to the rest, so a number typed in tomorrow would be guarded
+    by nothing. `tests/test_documented_numbers.py` strips the cog regions from
+    `viewer/about-the-data.html` and requires every surviving figure to be in
+    `sensisat/provenance.HISTORICAL` with what it is and which analysis produced it.
+    Adding a number therefore forces a choice: **mark it live, or declare where it
+    came from.** This caught two published figures that were already wrong — the
+    settlement layer's undated share read 43 % when our layer holds 37 %.
+23. **Historical measurements must NOT be updated, and must be distinguishable.**
     Most of the ~1,300 numbers in `docs/` record why a decision was taken — the
     figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting
     them to match a later build destroys the reasoning they exist to support. But a
     reader cannot tell a frozen measurement from a stale one, so every document
     carries a generated block (`facts.contract()`) stating which is which, and a
     historical figure names the analysis script that produced it.
-23. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+24. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point

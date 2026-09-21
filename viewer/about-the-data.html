@@ -121,8 +121,11 @@
   <h2>4. “We don’t know” is shown, not guessed</h2>
 
   <p>Some pixels are built, and no source can say when. In the satellite
-  settlement layer, <strong>43 %</strong> of the footprint that existed in 2016
-  carries no year at all.</p>
+  settlement layer,
+  <strong><!--[[[cog cog.out(f"{f.undated_share():.0f} %") ]]]-->
+  37 %
+  <!--[[[end]]]--></strong>
+  of the footprint that existed in 2016 carries no year at all.</p>
 
   <p>There were three options: guess a year from a neighbouring pixel, assign
   everything to the earliest frame, or admit it. The first two would have
@@ -137,7 +140,10 @@
   <h2>5. Before 1980, building dates are good to about a decade</h2>
 
   <p>The building layer comes from the Spanish cadastre — the official register,
-  <strong>474,292 buildings</strong> in the Canaries, <strong>98.9 %</strong>
+  <strong>474,292 buildings</strong> in the Canaries,
+  <strong><!--[[[cog cog.out(f"{f.dated_share():.1f} %") ]]]-->
+  98.8 %
+  <!--[[[end]]]--></strong>
   carrying a construction year. That is an unusually complete record, and it is why
   the pre-2016 timeline is built from it rather than from satellites.</p>
 
