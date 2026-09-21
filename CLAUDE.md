@@ -279,9 +279,11 @@ gate (M4c).** Walk it in order; each line is a command or a look.
    the page rather than restating figures.
 9. Only then the GitHub settings click — then `python scripts/verify_m4b.py` once
    more, which is the only check that can see the result of the click.
-10. Decide the formal licence of the derived layers (the page says "free to reuse
-    with attribution"; the STAC collections say `license: other`). CC BY 4.0 is the
-    natural fit — the largest sources use it — but it is Luca's call, not the data's.
+10. **Decided 2026-09-21:** code MIT (`LICENSE`), published layers / statistics /
+    docs / page **CC BY 4.0** (`LICENSE-DATA.md`, with every source's terms read at
+    source and the attribution block). Every input is attribution-only, so CC0 was
+    unavailable and share-alike unnecessary. The STAC collections say `CC-BY-4.0`
+    (`python scripts/build.py --catalog-only` rewrites the catalogue from disk).
 
 ## Git
 

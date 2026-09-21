@@ -360,13 +360,13 @@
   <table>
     <thead><tr><th>source</th><th>producer</th><th>licence</th></tr></thead>
     <tbody>
-      <tr><td>Cadastre (INSPIRE Buildings)</td><td>Dirección General del Catastro, Spain</td><td>free reuse with attribution</td></tr>
+      <tr><td>Cadastre (INSPIRE Buildings)</td><td>Dirección General del Catastro, Spain</td><td>transformed reuse, incl. commercial, with attribution (INSPIRE licence v1.0); never presented as cadastral cartography</td></tr>
       <tr><td>World Settlement Footprint</td><td>DLR (German Aerospace Center)</td><td>CC BY 4.0</td></tr>
       <tr><td>WSF Tracker</td><td>DLR + MindEarth</td><td>CC BY 4.0</td></tr>
       <tr><td>GHS-BUILT-S</td><td>EU Joint Research Centre</td><td>CC BY 4.0</td></tr>
-      <tr><td>Imperviousness, Impervious Built-Up, CORINE</td><td>Copernicus / EEA</td><td>free reuse with attribution</td></tr>
-      <tr><td>Mapa de Cultivos</td><td>Gobierno de Canarias</td><td>open data</td></tr>
-      <tr><td>Protected areas (ENP)</td><td>Gobierno de Canarias</td><td>open data</td></tr>
+      <tr><td>Imperviousness, Impervious Built-Up, CORINE</td><td>Copernicus / EEA</td><td>Regulation (EU) 1159/2013 — attribution; modifications stated; no EU endorsement implied</td></tr>
+      <tr><td>Mapa de Cultivos</td><td>Gobierno de Canarias</td><td>CC BY 4.0</td></tr>
+      <tr><td>Protected areas (ENP)</td><td>Gobierno de Canarias</td><td>CC BY 4.0</td></tr>
     </tbody>
   </table>
   <p>Every figure on this page is computed from the datasets listed above, by the
@@ -377,15 +377,21 @@
   names the analysis that produced it, and a test fails the build otherwise.</p>
 
   <h3 id="cite">How to cite</h3>
-  <p>The layers are free to reuse with attribution, and they inherit the attribution
-  requirements of the sources in the table above. Cite the data build you used —
-  the figures change when the sources are re-fetched or the pipeline is re-run:</p>
+  <p>The layers, the statistics and this page are published under
+  <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a>: reuse them
+  for any purpose, credit SensiSat and the sources in the table above, and say if
+  you changed them. Every source is attribution-only, which is why the whole can be
+  too. Two conditions come from the sources: the building layer is a
+  <em>transformation</em> of cadastral data and is not cadastral cartography, and the
+  Copernicus-derived layers are modified data that the EU has not endorsed. Cite the
+  data build you used — the figures change when the sources are re-fetched or the
+  pipeline is re-run:</p>
   <blockquote class="cite">Lovagnini, L. (2026). <cite>SensiSat — urban expansion in
   the Canary Islands, 1900–2026</cite>
   (<!--[[[cog cog.out(f.data_version()) ]]]-->
   sensisat 0.1.0, data of 2026-09-21
   <!--[[[end]]]-->).
-  https://sensisat.ensi-at.workers.dev — accessed [date].</blockquote>
+  https://sensisat.ensi-at.workers.dev — accessed [date]. Licence: CC BY 4.0.</blockquote>
   <p>For a specific number, cite the layer it comes from as well (the map names it),
   because the same word means different quantities across layers — see the ladder in
   the first section.</p>

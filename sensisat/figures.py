@@ -80,6 +80,8 @@ STRUCTURE = {
     "entity": re.compile(r"&#\d+;"), "css": re.compile(r"rgba?\([^)]*\)|\d+deg\b"),
     "interpolation": re.compile(r"\$\{[^}]*\}"), "licence": re.compile(r"CC BY(?:-SA)? \d\.\d"),
     "issue": re.compile(r"#\d+\b"),
+    "regulation": re.compile(r"Regulation \(EU\) (?:No )?\d+/\d{4}|Directive \d{4}/\d+/E[CU]"),
+    "version": re.compile(r"\bv\d+(?:\.\d+)+\b"),
     # a comment is invisible to the reader, so nothing in it is a claim — this is
     # also what makes the section declarations below cost nothing
     "comment": re.compile(r"<!--.*?-->", re.S),

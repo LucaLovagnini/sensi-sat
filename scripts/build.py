@@ -235,10 +235,23 @@ def main() -> int:
     ap.add_argument("--all", action="store_true", help="every layer on every island")
     ap.add_argument("--skip-existing", action="store_true")
     ap.add_argument("--no-seam", action="store_true")
+    ap.add_argument("--catalog-only", action="store_true",
+                    help="rewrite the STAC catalogue from what is on disk (metadata changes such "
+                         "as the licence); builds nothing, runs the catalogue gates only")
     args = ap.parse_args()
 
-    if not (args.all or args.layer):
+    if not (args.all or args.layer or args.catalog_only):
         ap.error("give --layer/--island or --all")
+    if args.catalog_only:
+        # The catalogue is assembled from disk anyway (CLAUDE.md #15); this is that
+        # step alone, for changes to what the catalogue SAYS about unchanged files.
+        stats = json.loads((STATS_DIR / "layers.json").read_text())
+        catalog_path = write_catalog(stats)
+        gates = [qa.stac_valid(catalog_path), qa.assets_resolve(catalog_path)]
+        passed, measured, skipped = qa.summarise(gates)
+        print(f"\n  {passed}/{measured} catalogue gates passed")
+        return 0 if passed == measured else 2
+
     chosen_layers = sorted(layers.LAYERS) if args.all else args.layer
     chosen_islands = args.island or sorted(ISLAND_BBOX)
 

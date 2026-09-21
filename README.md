@@ -63,9 +63,16 @@ Every other source downloads itself.
 
 ## Status
 
-M0 (data evaluation) and M1 (which sources to use) are complete; M2 (the local
-processing pipeline) produces the published layers. Next is M3, a manual accuracy
-assessment against aerial photography, and M4, the viewer.
+M0 (data evaluation), M1 (which sources), M2 (the pipeline), M3 (accuracy assessment
+against aerial photography), M4 (the viewer, live at sensisat.ensi-at.workers.dev),
+M4b (the public page) and M4c (every published number accounted for) are complete.
+Next is M5: a per-zone statistics panel, attribution, releases.
+
+## Licence
+
+Code: MIT (`LICENSE`). Published layers, statistics, evidence tables, documentation
+and the public page: **CC BY 4.0** (`LICENSE-DATA.md`, which also lists every
+source's own terms and the attribution to give when reusing).
 
 There is deliberately no cloud infrastructure yet. The complete archipelago
 timeline is a few megabytes, which a browser can read directly from static files —

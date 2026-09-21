@@ -54,14 +54,25 @@ CATALOG_DESCRIPTION = (
     "GHSL's built surface 152.9 and the cadastre's building footprints 100.3."
 )
 
-LICENSES = {
-    "Catastro INSPIRE Buildings": "other",
-    "WSF Evolution": "CC-BY-4.0",
-    "WSF Tracker": "CC-BY-4.0",
-    "Mapa de Cultivos": "other",
-    "Copernicus Imperviousness Density 2024": "other",
-    "Copernicus Impervious Built-Up Change": "other",
-    "GHS-BUILT-S R2023A": "CC-BY-4.0",
+#: The licence of what WE publish. Every source is attribution-only (none is
+#: share-alike or non-commercial), so a derivative may carry CC BY 4.0 and may not
+#: drop attribution (no CC0). Decided 2026-09-21; the reasoning and the full
+#: attribution block are in LICENSE-DATA.md at the repository root.
+LICENSE = "CC-BY-4.0"
+LICENSE_URL = "https://creativecommons.org/licenses/by/4.0/"
+
+#: The sources' own terms, as read at source on 2026-09-21 — published beside our
+#: licence so a reuser sees what attribution they inherit. Not SPDX identifiers where
+#: the source has none.
+SOURCE_TERMS = {
+    "Catastro INSPIRE Buildings": "Catastro INSPIRE licence v1.0 (2016): transformed reuse incl. commercial, "
+                                  "attribution with access date, never presented as cadastral cartography",
+    "WSF Evolution": "CC-BY-4.0 (DLR)",
+    "WSF Tracker": "CC-BY-4.0 (DLR + MindEarth; acknowledge MindEarth)",
+    "Mapa de Cultivos": "CC-BY-4.0 (Gobierno de Canarias)",
+    "Copernicus Imperviousness Density 2024": "Regulation (EU) 1159/2013: attribution, state modifications, no implied endorsement",
+    "Copernicus Impervious Built-Up Change": "Regulation (EU) 1159/2013: attribution, state modifications, no implied endorsement",
+    "GHS-BUILT-S R2023A": "CC-BY-4.0 (European Commission reuse notice; cite Pesaresi & Politis 2023)",
 }
 
 # What the class codes in each band mean, published so a reader never has to guess.
@@ -304,14 +315,17 @@ def collection_for(spec, items: list[pystac.Item],
         title=spec.title,
         description=_fill(spec.description, **_description_values(spec, totals, stats)),
         extent=pystac.Extent(spatial, temporal),
-        license=LICENSES.get(spec.sources[0], "other"),
+        license=LICENSE,
         extra_fields={
             "sensisat:measure": spec.measure,
             "sensisat:encoding": spec.encoding,
             "sensisat:resolution_m": spec.resolution_m,
             "sensisat:sources": spec.sources,
+            "sensisat:source_terms": {s: SOURCE_TERMS.get(s, "see the producer") for s in spec.sources},
         },
     )
+    collection.add_link(pystac.Link("license", LICENSE_URL, media_type="text/html",
+                                    title="CC BY 4.0 — the licence of this collection"))
     for item in items:
         collection.add_item(item)
     return collection

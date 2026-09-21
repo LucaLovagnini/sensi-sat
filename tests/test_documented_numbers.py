@@ -391,6 +391,7 @@ def test_no_exception_matches_a_token_carrying_a_unit() -> None:
     ("maplibre-gl-js#4479 is open", set()),              # an issue number
     ("see analysis_01_totals.py", set()),                # an identifier
     ("<!-- figures: scripts/analysis_01_totals.py; x.csv @ 2026-09-19 --> 12 km²", {"12 km²"}),
+    ("under Regulation (EU) 1159/2013 and licence v1.0", set()),   # a law and a version
 ])
 def test_structure_is_not_a_figure_and_composites_are_one_token(text: str, kept: set) -> None:
     assert figures_in(text, html=False) == kept

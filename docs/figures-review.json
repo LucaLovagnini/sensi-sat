@@ -282,7 +282,7 @@
    "size_mib(loss-events)": 1.337,
    "size_mib(settlement-era-a)": 4.666,
    "size_mib(settlement-era-b)": 3.823,
-   "size_published()": 60.218,
+   "size_published()": 60.22,
    "size_six_layers()": 22.056,
    "undated_share()": 36.557
   },
@@ -355,6 +355,7 @@
    "CLAUDE.md": {
     "## Before the site goes public": [
      "0",
+     "4.0",
      "9"
     ],
     "## Current state (2026-09-20)": [
@@ -1671,7 +1672,6 @@
      "68 %"
     ],
     "## 3. What the literature and the producers actually do": [
-     "1,",
      "100 m",
      "29",
      "2×",
@@ -1796,7 +1796,6 @@
      "98.5 %"
     ],
     "## Sources read for this design": [
-     "1",
      "14,",
      "16",
      "236,",
@@ -2306,10 +2305,10 @@
    ]
   }
  },
- "fingerprint": "1b95ca89d7b634a904ca242d06d13347b416116fddae8e8c5b898f63746df15a",
+ "fingerprint": "833942f9b6874a8f55ee14674748797c78dca6f94c00a826783b53b6822c3b76",
  "judgements": {
   "declarations_plausible": "81 declarations. Three opened against their sections: m0_cadastre_spike_years.csv (25,971 at 1900, ratio 1145.8) correct; m3_labels_30m_pass2.json (228 entries) correct; concepts.md §5 named the wrong file and was corrected to an external source with no output kept (bc2316c). Analyses 15 and 17 have no surviving script and say so.",
-  "generated_from_right_fact": "All 21 generated regions read against the sentence each lands in: footprint 104.33 km² and sealed surface 317.91 km² (headline_km2 of buildings-dated and density-current); the seam range 26–52 % with an assert pinning 'five main islands'; La Gomera's 3 km² 2016 footprint and +83 %; undated share 37 %; dated share 98.8 % stated as a share of footprint AREA (the wrong-fact match found and fixed this session); 27.06 km² greenhouse layer beside M0's 72 % on 27.1 km² of parcels, accepted; sizes 60.2 / 22.1 / 11.8 / 25.5 MiB; the M2 table and its 1.7 % paragraph; validation.md's 37 %; viewer.md's Gran Canaria 35.65 / 27.06 / 109.68 km²; the design doc's contract and surface-count blocks; and the new citation's data version (facts.data_version: package version + the date the statistics file was last committed). Each fact matches its sentence and unit.",
+  "generated_from_right_fact": "All 21 generated regions read against the sentence each lands in (2026-09-21): footprint and sealed surface (headline_km2), the seam range with the five-island assert, La Gomera's 3 km² and +83 %, undated share 37 %, dated share 98.8 % as a share of footprint AREA (the wrong-fact match found and fixed this session), 27.06 km² greenhouse layer beside M0's 72 %, sizes, the M2 table and its 1.7 % paragraph, validation.md's 37 %, viewer.md's Gran Canaria figures, the design doc's blocks, and the citation's data version. Each fact matches its sentence and unit. The licence section added today carries no generated figure.",
   "registry_holds_no_live_claim": "All 63 entries read; none is a claim about the published layers. Six coincide with a live value today (37 %, 11 %, 17 km², 152.9, 4.7, 2.7); every use on the page and README checked to be the historical one."
  },
  "reviewed": "2026-09-21",
