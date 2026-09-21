@@ -1,0 +1,26 @@
+# Security headers for every response from the static site. Cloudflare's Workers
+# static-assets platform reads this file from the assets directory (dist/), so it
+# costs no Worker invocation; publish.py copies it there.
+#
+# What each line does, in plain words:
+#   Content-Security-Policy  the browser may run scripts only from this site, load
+#                            images/tiles only from this site and the two basemap and
+#                            orthophoto providers, and never embed this site in a frame.
+#                            'unsafe-inline' for styles is needed because the legend
+#                            colours its swatches with inline style attributes.
+#                            blob: for workers/images covers OpenLayers' WebGL helpers.
+#                            'wasm-unsafe-eval' and data: in connect-src let geotiff.js
+#                            load its bundled WebAssembly decoders (LERC, zstd, JPEG),
+#                            which it fetches as data: URLs. Our COGs are DEFLATE and
+#                            decode in plain JS today; a future layer may not be, and
+#                            a policy that silently broke it would be found in a browser,
+#                            not in a test. 'wasm-unsafe-eval' permits WebAssembly only,
+#                            never JavaScript eval.
+#   X-Content-Type-Options   never guess a file's type (a .json served as script, say).
+#   Referrer-Policy          other sites learn only our origin when a visitor follows a link out.
+#   Permissions-Policy       this site never asks for location, camera or microphone.
+/*
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://server.arcgisonline.com https://www.ign.es; connect-src 'self' data: https://server.arcgisonline.com https://www.ign.es; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+  Permissions-Policy: geolocation=(), camera=(), microphone=()

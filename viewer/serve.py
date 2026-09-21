@@ -144,13 +144,20 @@ def main() -> int:
 
     if args.stats:
         import json as _json
+
+        # A per-user path, not a fixed name in /tmp: on a shared machine a fixed
+        # name can be pre-created as a symlink by another user and we would write
+        # through it.
+        import os as _os
+        import tempfile as _tempfile
         import threading
+        tally_path = Path(_tempfile.gettempdir()) / f"sensisat-serve-tally-{_os.getuid()}.json"
 
         def dump():
             while True:
                 import time as _t
                 _t.sleep(1)
-                Path("/tmp/serve_tally.json").write_text(_json.dumps(TALLY))
+                tally_path.write_text(_json.dumps(TALLY))
         threading.Thread(target=dump, daemon=True).start()
 
     handler = functools.partial(RangeHandler, directory=str(ROOT))

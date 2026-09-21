@@ -138,6 +138,10 @@ python scripts/publish.py         # bundle the JS, assemble dist/, check the siz
 npx wrangler deploy               # deploy (needs `wrangler login` once)
 ```
 
+`dist/` also carries `_headers` (from `viewer/_headers`): a Content Security Policy
+and three hardening headers that the static-assets platform applies to every
+response without a Worker invocation — the browser will run scripts only from the
+site itself and load tiles only from the two named providers.
 `dist/` holds the viewer at its root and the published layers under `data/` — 137
 files, 60.6 MiB. The repository is not the website: scripts, docs, raw downloads
 and notebooks never reach the public host.

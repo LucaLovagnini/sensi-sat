@@ -43,7 +43,8 @@ SIZE_BUDGET_MIB = 100.0
 
 # Files the viewer needs. Anything not listed does not reach the public host.
 VIEWER_FILES = ["index.html", "about-the-data.html", "style.css", "about.css",
-                "ol.css", "app.bundle.js"]
+                "ol.css", "app.bundle.js",
+                "_headers"]          # security headers, read by the assets platform
 
 
 def build_bundle() -> None:
