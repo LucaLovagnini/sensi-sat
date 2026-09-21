@@ -150,6 +150,13 @@ def main() -> int:
     if figure_gate() != 0:
         print("\n  refusing to assemble dist/ while a figure is unaccounted for")
         return 3
+    # And the judgement the gate cannot make: a named reviewer has read the generated
+    # figures against their facts, the registry against the layers, the declarations
+    # against their sources — for THIS set of figures (scripts/review_figures.py).
+    review = subprocess.run([sys.executable, str(ROOT / "scripts" / "review_figures.py"), "--check"])
+    if review.returncode != 0:
+        print("\n  refusing to assemble dist/ until the figure review is current (/verify-figures)")
+        return 3
 
     print(f"Assembling {DIST}")
     if not args.skip_bundle:
