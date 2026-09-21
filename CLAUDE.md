@@ -33,8 +33,10 @@ about working here:
 M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 (accuracy assessment), M4 (viewer) and M4b (the public "about the data" page) are
 complete. The site is live but **unannounced** at
-`https://sensisat.ensi-at.workers.dev`. **M5** — the per-zone statistics panel,
-attribution and releases — is next.
+`https://sensisat.ensi-at.workers.dev`. Two milestones remain: **M4c** — figure
+provenance, designed 2026-09-21 and **gating a public repository**
+(`docs/design/figure-provenance.md`) — and **M5**, the per-zone statistics panel,
+attribution and releases.
 
 M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16).
 User's accuracy: **98 %** for "holds a pre-2015 building", **98 %** for "holds no
@@ -90,6 +92,7 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
 | `docs/viewer.md` | M4: how the map works, why OpenLayers, the WebGL constraints | internal |
 | `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration still pending | internal |
+| `docs/design/figure-provenance.md` | **M4c, designed not built**: making every number in every document resolve to generated, declared or excepted | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 
 **The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404), so `docs/`
