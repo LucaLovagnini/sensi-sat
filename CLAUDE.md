@@ -37,10 +37,9 @@ M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 complete. The site is live but **unannounced** at
 `https://sensisat.ensi-at.workers.dev`. **M4c** — figure provenance, every published
 number accounted for — was **implemented 2026-09-21** (`docs/design/figure-provenance.md`;
-acceptance `python scripts/verify_m4c.py`); it gates the repository going public, and
-what remains of it is human: Luca's own `/verify-figures` review and the checklist at
-the end of this file. **M5** — the per-zone statistics panel, attribution and
-releases — remains.
+acceptance `python scripts/verify_m4c.py`). **The repository went public on
+2026-09-21** after the checklist at the end of this file was walked. **M5** — the
+per-zone statistics panel, attribution and releases — remains.
 
 M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16).
 User's accuracy: **98 %** for "holds a pre-2015 building", **98 %** for "holds no
@@ -103,11 +102,12 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/design/figure-provenance.md` | M4c: how every published number is generated, declared or excepted; the limits; what building it found | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 
-**The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404) until the
-going-public checklist below is walked, so `docs/` is internal and the HTML page is
-the only thing readers see. The page's "How to cite" section links to the
-repository — a 404 until step 9 — and `scripts/verify_m4b.py` fails on that link
-until then, **by design**: it is the one check that runs *after* the settings click.
+**The repo is public since 2026-09-21** (github.com/LucaLovagnini/sensi-sat; the
+going-public checklist below was walked in full, `verify_m4b.py` 18/18). `docs/`
+is therefore readable by anyone, though written for us; the page remains the only
+thing written *for* a cold reader, and it links to the repository from "How to
+cite". Being public changes one habit — see `CONTRIBUTING.md`: the documents
+execute code, so never run the gate on a branch you have not read.
 
 **Keeping this honest.** When something load-bearing is learned, the one-line
 version belongs here and the working detail belongs in `docs/`. A fact that exists
