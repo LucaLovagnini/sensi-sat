@@ -1,0 +1,67 @@
+[
+  {
+    "file": "ghsl_built_surface_gran_canaria_km2.json",
+    "introduced": "dabe0ef",
+    "why": "GHSL built surface per epoch on Gran Canaria, exported from Earth Engine by the geeLocalTesting notebooks — the M0 prototype's one surviving output; quoted in docs/concepts.md §5"
+  },
+  {
+    "file": "m0_alternatives_gran_canaria.csv",
+    "introduced": "f6639e6",
+    "why": "analysis 15: GAIA, GISA, GISD30 and Esri swept through sensisat/evaluate.py by a one-off driver that was not kept"
+  },
+  {
+    "file": "m0_alternatives_tenerife.csv",
+    "introduced": "f6639e6",
+    "why": "analysis 15, Tenerife — same one-off driver"
+  },
+  {
+    "file": "m0_cadastre_baseline_refined.csv",
+    "introduced": "adcde8c",
+    "why": "analysis 8 extension written by an earlier version of scripts/analysis_08_cadastre.py, since simplified"
+  },
+  {
+    "file": "m0_cadastre_cell_omission.csv",
+    "introduced": "adcde8c",
+    "why": "analysis 8 extension — the cells with a pre-1985 building WSF Evolution never flagged; same earlier version"
+  },
+  {
+    "file": "m0_cadastre_completeness_canarias.csv",
+    "introduced": "adcde8c",
+    "why": "analysis 8 extension — dated share per municipality; same earlier version"
+  },
+  {
+    "file": "m0_cadastre_vs_ghsl.csv",
+    "introduced": "2497118",
+    "why": "GHSL against the cadastre, from an earlier version of scripts/analysis_14_baseline_nobuilding.py"
+  },
+  {
+    "file": "m0_cadastre_vs_ghsl_thresholds.csv",
+    "introduced": "2497118",
+    "why": "the same test at several m²-per-cell thresholds; same earlier version"
+  },
+  {
+    "file": "m0_corine_2018.csv",
+    "introduced": "0694845",
+    "why": "CORINE 2018 artificial surfaces per island (analysis 17): a one-off measurement in the commit that added analysis 16, no script survives. Read by sensisat/qa.py as the CORINE band, written by nothing"
+  },
+  {
+    "file": "m3_demo_labels.json",
+    "introduced": "4feb9f3",
+    "why": "a hand-made label file for the estimator's first end-to-end run, before any real labelling"
+  },
+  {
+    "file": "m3_labels.json",
+    "introduced": "175dbcd",
+    "why": "the interpreter's judgements for the 10 m run (500 points), downloaded from viewer/label.html as m3-labels.json and renamed"
+  },
+  {
+    "file": "m3_labels_30m.json",
+    "introduced": "8deaa59",
+    "why": "the interpreter's judgements for the 30 m run (911 points) — the M3 result; same tool"
+  },
+  {
+    "file": "m3_labels_30m_pass2.json",
+    "introduced": "075bc8b",
+    "why": "the blind second pass over 228 points (validation.md §7); same tool"
+  }
+]

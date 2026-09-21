@@ -574,6 +574,54 @@ def test_no_live_figure_is_typed_by_hand() -> None:
 
 
 # ---------------------------------------------------------------------------
+# The evidence files: every table under docs/figures/data has a known origin
+# ---------------------------------------------------------------------------
+
+DATA_DIR = ROOT / "docs" / "figures" / "data"
+MANIFEST = DATA_DIR / "manifest.json"
+CODE_DIRS = ("scripts", "sensisat", "docs/figures/src", "viewer", "tests")
+
+
+def code_referring_to(basename: str) -> list[str]:
+    """Code files that name the data file — the mechanical notion of 'produced by'.
+    Grep cannot tell a read from a write, so a file only READ by code (the CORINE
+    band) passes here; the manifest still records it, for honesty."""
+    out = []
+    for d in CODE_DIRS:
+        for p in (ROOT / d).rglob("*.py"):
+            if basename in p.read_text():
+                out.append(str(p.relative_to(ROOT)))
+        for p in (ROOT / d).rglob("*.js"):
+            if basename in p.read_text():
+                out.append(str(p.relative_to(ROOT)))
+    return out
+
+
+def test_every_data_file_has_a_producer_or_a_manifest_entry() -> None:
+    """The declarations above point at these files as evidence. A CSV that nothing
+    writes cannot be regenerated, so it must at least say which commit introduced it
+    and what it is — eight M0 tables and the four label files are of that kind."""
+    manifest = {e["file"]: e for e in json.loads(MANIFEST.read_text())}
+    problems = []
+    for p in sorted(DATA_DIR.iterdir()):
+        if p.suffix not in (".csv", ".json") or p.name == MANIFEST.name:
+            continue
+        if code_referring_to(p.name):
+            continue
+        e = manifest.get(p.name)
+        if not e:
+            problems.append(f"  {p.name}: no code names it and no manifest entry")
+        elif not re.fullmatch(r"[0-9a-f]{7,40}", e.get("introduced", "")) or not e.get("why"):
+            problems.append(f"  {p.name}: manifest entry needs 'introduced' (a commit) and 'why'")
+    for name in manifest:
+        if not (DATA_DIR / name).exists():
+            problems.append(f"  {name}: in the manifest but not on disk — delete the entry")
+    assert not problems, ("data files with no known origin:\n" + "\n".join(problems)
+                          + "\n\nName the file in the script that writes it, or add it to "
+                            "docs/figures/data/manifest.json with the commit that introduced it.")
+
+
+# ---------------------------------------------------------------------------
 # The exceptions stay narrow
 # ---------------------------------------------------------------------------
 
