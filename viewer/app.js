@@ -238,6 +238,12 @@ function colourFor(name) {
 /** Slider year -> WSF Tracker epoch. One rule, used by the shader and the readout. */
 const toEpoch = (y) => Math.max(1, Math.min(20, Math.round((y - 2016) / 0.5)));
 
+/** The epoch's published name, e.g. 2016-07. Falls back to the raw number. */
+function epochLabel(e) {
+  const entry = state.catalog?.[state.layer]?.islands?.[state.island];
+  return entry?.stats?.epoch_labels?.[e] ?? e;
+}
+
 /** Numeric style variables. Changing these re-renders on the GPU and fetches nothing. */
 function variables() {
   const def = LAYERS[state.layer];
@@ -559,7 +565,7 @@ function renderReadout(entry) {
   }
   if (def.kind === 'epoch' && s.extent_by_epoch) {
     const e = toEpoch(state.year);
-    const label = s.epoch_labels?.[e] ?? state.year;
+    const label = epochLabel(e);
     el('readout').innerHTML = `<div class="big">${s.extent_by_epoch[e]} km²</div>`
       + `<div class="cap">${def.title.toLowerCase()} by ${label}, whole island`
       + (s.greenhouse_removed_km2 ? ` · ${s.greenhouse_removed_km2} km² of greenhouses removed` : '')
@@ -590,13 +596,24 @@ function syncTimeControls() {
     slider.value = def.epochs.indexOf(state.year);
     el('tick-min').textContent = def.epochs[0];
     el('tick-max').textContent = def.epochs.at(-1);
+  } else if (def.kind === 'epoch') {
+    // WSF Tracker runs twice a year, so a whole-year step reaches only half the
+    // epochs — and rounding 2016.5 up put epoch 1, the July 2016 baseline this
+    // layer's own note describes, out of reach entirely.
+    slider.min = def.min; slider.max = def.max; slider.step = 0.5;
+    slider.value = sliderYear();
+    el('tick-min').textContent = epochLabel(toEpoch(def.min));
+    el('tick-max').textContent = epochLabel(toEpoch(def.max));
   } else {
     slider.min = Math.ceil(def.min); slider.max = Math.floor(def.max); slider.step = 1;
     slider.value = sliderYear();
     el('tick-min').textContent = Math.ceil(def.min);
     el('tick-max').textContent = Math.floor(def.max);
   }
-  el('year-out').textContent = sliderYear();
+  // A half-year reads as "2016.5" unless it is named, which is what the epoch
+  // labels published with the layer are for.
+  el('year-out').textContent = def.kind === 'epoch'
+    ? epochLabel(toEpoch(sliderYear())) : sliderYear();
   el('mode-note').textContent = modeNote();
   el('precision-note').textContent = precisionNote();
 }
@@ -666,7 +683,9 @@ function init(catalog, stats) {
     // change mode. One control, because the user is always pointing at one year.
     if (state.mode === 'since' && def.kind !== 'trend') state.sinceYear = value;
     else state.year = value;
-    el('year-out').textContent = value;
+    // syncTimeControls names epochs; the live handler has to do the same or the
+    // label reverts to a bare "2016.5" as soon as the slider moves.
+    el('year-out').textContent = def.kind === 'epoch' ? epochLabel(toEpoch(value)) : value;
     el('mode-note').textContent = modeNote();
     el('precision-note').textContent = precisionNote();
     syncBasemapYear();
