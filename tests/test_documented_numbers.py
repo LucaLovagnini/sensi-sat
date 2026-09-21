@@ -67,7 +67,38 @@ def test_every_listed_document_exists() -> None:
 
 PAGE = ROOT / "viewer" / "about-the-data.html"
 COG_REGION = re.compile(r"<!--\[\[\[cog.*?<!--\[\[\[end\]\]\]-->", re.S)
-FIGURE = re.compile(r"\b\d[\d.,]*\s*(?:km²|m²|MiB|%)")
+
+# What counts as a figure a reader would quote. An earlier version required a unit
+# immediately after the number, which silently exempted the whole ladder-of-
+# definitions table — six of the most-quoted totals on the page — because their
+# unit lives in a column header. It also missed the confidence intervals ("± 2.7")
+# and the counts ("25,971 buildings"). So: anything with a decimal point, anything
+# with a thousands separator, or anything carrying a unit.
+FIGURE = re.compile(
+    r"\b\d[\d,]*\.\d+\s*(?:km²|m²|MiB|%|×)?"     # 469.5, 0.052 %, 4.7×
+    r"|\b\d{1,3}(?:,\d{3})+\b"                     # 474,292
+    r"|\b\d+\s*(?:km²|m²|MiB|%)")                   # 308 km², 72 %
+
+#: Years are dates, not measurements.
+_YEAR = re.compile(r"^(?:19|20)\d\d$")
+#: DOIs and licence versions look like decimals and are neither ours nor figures.
+_NOT_A_FIGURE = re.compile(r"doi:|/|CC BY ")
+
+
+def page_figures(text: str) -> set[str]:
+    """Every figure a reader sees, excluding the regions cog generates."""
+    # Tags must go before the exclusions run: a closing </td> puts a "/" two
+    # characters after every table cell's number, which silently exempted the whole
+    # ladder-of-definitions table the first time this was written.
+    body = re.sub(r"<[^>]+>", " ", COG_REGION.sub("", text))
+    out = set()
+    for m in FIGURE.finditer(body):
+        token = m.group().strip()
+        around = body[max(0, m.start() - 8):m.end() + 2]
+        if _YEAR.match(token) or _NOT_A_FIGURE.search(around):
+            continue
+        out.add(token)
+    return out
 
 
 def test_no_unaccounted_figure_on_the_published_page() -> None:
@@ -86,9 +117,7 @@ def test_no_unaccounted_figure_on_the_published_page() -> None:
     """
     from sensisat.provenance import HISTORICAL
 
-    body = COG_REGION.sub("", PAGE.read_text())
-    unaccounted = sorted({m.group().strip() for m in FIGURE.finditer(body)}
-                         - set(HISTORICAL))
+    unaccounted = sorted(page_figures(PAGE.read_text()) - set(HISTORICAL))
     assert not unaccounted, (
         "figures on the published page with no declared source: "
         + ", ".join(unaccounted) + "\n\n"
@@ -107,9 +136,7 @@ def test_the_registry_has_no_dead_entries() -> None:
     """
     from sensisat.provenance import HISTORICAL
 
-    body = COG_REGION.sub("", PAGE.read_text())
-    present = {m.group().strip() for m in FIGURE.finditer(body)}
-    dead = sorted(set(HISTORICAL) - present)
+    dead = sorted(set(HISTORICAL) - page_figures(PAGE.read_text()))
     assert not dead, (
         "registered in sensisat/provenance but no longer on the page: "
         + ", ".join(dead) + " — delete the entries.")

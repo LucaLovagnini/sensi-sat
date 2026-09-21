@@ -72,4 +72,29 @@ HISTORICAL: dict[str, str] = {
     "83 km²": "half-width of the 95 % interval on the error-adjusted area (M3)",
     "324 km²": "30 m squares the map marks as holding a building (M3, strata)",
     "85 %": "share of the building layer dated before 2005, where no imagery exists (validation §7b)",
+
+    # --- M0: the ladder table itself. Each is the SOURCE product's own published
+    #     total, not our layer's — which is why they differ from the generated
+    #     figures in the same section, and why the page now says so.
+    "469.5": "CORINE 2018 artificial surfaces, archipelago (M0, analysis 01)",
+    "376.9": "WSF Evolution 2015 extent, archipelago (M0, analysis 01)",
+    "341.5": "Copernicus Imperviousness 2024 sealed surface (M0, analysis 18)",
+    "259.3": "Copernicus Impervious Built-Up 2024 (M0, analysis 13)",
+    "152.9": "GHSL built surface 2020 (M0, analysis 01)",
+    "100.3": "HISDAC-ES cadastral footprint — the published derivative, not our "
+             "10 m rasterisation, which reads higher (M0, analysis 08)",
+    "4.7": "the spread across those six products, 469.5 / 100.3 (M0)",
+    "4.7×": "the same spread, written as a factor (M0)",
+
+    # --- the cadastre's own counts -------------------------------------------
+    "474,292": "buildings in the 88 Canary municipality feeds (analysis 20)",
+    "25,971": "buildings the register dates to 1900 alone (analysis 19)",
+    "1,146": "how many times its neighbouring years that is (analysis 19)",
+
+    # --- M0: the lower bound of the measured loss rate -----------------------
+    "0.017": "built-up loss per year, Copernicus change layer 2021-2024 (M0, analysis 13)",
+
+    # --- M3: the two confidence intervals quoted in the accuracy table -------
+    "2.7": "half-width of the 95 % interval on 'built before 2015' accuracy (M3)",
+    "1.2": "the same for 'nothing is built here' (M3)",
 }
