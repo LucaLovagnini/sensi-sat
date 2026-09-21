@@ -179,7 +179,7 @@ def main() -> int:
         print(f"\n  FAIL: {total:.1f} MiB exceeds the {args.budget_mib:.0f} MiB budget (G6)")
         return 2
     print(f"\n  within the {args.budget_mib:.0f} MiB budget (G6)")
-    print(f"\nDeploy with:  npx wrangler pages deploy {DIST.relative_to(ROOT)}")
+    print("\nDeploy with:  npx wrangler deploy   (a Worker with assets, see wrangler.jsonc)")
     return 0
 
 

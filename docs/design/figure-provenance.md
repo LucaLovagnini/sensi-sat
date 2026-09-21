@@ -93,7 +93,7 @@ cog.outl(f"| `docs/figures/data/` | a script that names the file, or the manifes
 | `README.md` | every token | 9 declared tokens |
 | `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |
 | `docs/**/*.md` and `CLAUDE.md` | the section | 79 sections carrying figures, 81 declarations |
-| generated regions, all prose | `cog` from `facts.py` | 20 |
+| generated regions, all prose | `cog` from `facts.py` | 21 |
 | `sensisat/provenance.HISTORICAL` | the registry | 63 entries |
 | `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |
 <!--[[[end]]]-->
