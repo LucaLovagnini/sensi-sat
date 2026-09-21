@@ -20,7 +20,7 @@
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/extent_vs_surface.py @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/change_view.py @ 2026-09-19",
-    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/ghsl_built_surface_gran_canaria_km2.json; geeLocalTesting @ 2026-09-19",
+    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19",
     "scripts/analysis_01_totals.py; external:JRC GHSL Data Package 2023 @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_corine_2018.csv; geeLocalTesting @ 2026-09-19",
     "docs/figures/src/preview_frame.py; docs/figures/src/m0_results.py @ 2026-09-19"
@@ -2300,12 +2300,12 @@
    ]
   }
  },
- "fingerprint": "815c1c6f3d0f4ec0720dbd8d0042227077bd094197ac6c57f7f576ca0f961cfa",
+ "fingerprint": "0fac67355e4bf425877064bff09472fd05e38ba17e62a9d2ff73f7ba22af7629",
  "judgements": {
-  "declarations_plausible": "81 declarations: 68 written 2026-09-21 with each section's content in view, 13 added for docs/design/figure-provenance.md and CLAUDE.md's going-public checklist, naming the mechanism's own files and this session's measured runs. Spot-checked validation §7b (analysis 19 CSV + the IGN WMS query), concepts §5 (the Earth Engine GHSL JSON), data-evaluation §6f (CORINE: a one-off in commit 0694845, declared external). Analyses 15 and 17 have no surviving script and say so; 7 sources are external, 12 measured by hand.",
-  "generated_from_right_fact": "Read all 20 generated regions against the sentence each lands in (2026-09-21), including the design doc's two (the contract block and the surface-count table, both computed by sensisat.figures from the mechanism itself). One wrong-fact match found earlier in the session and fixed: facts.dated_share() is a share of footprint AREA but the page sentence read as a share of the 474,292 BUILDINGS (the count-based figure is 98.92 %); reworded to 'of their footprint'. Accepted: the 27.06 km² greenhouse figure is our rasterised layer while the 72 % beside it was measured on M0's parcel polygons (27.1 km²), 0.15 % apart. Everything else matches: footprint, sealed surface, seam range with the five-island assert, La Gomera's 3 km² and +83 %, undated share, sizes, the M2 table, viewer.md's three Gran Canaria figures.",
-  "registry_holds_no_live_claim": "Read all 63 entries. None is a claim about the published layers; the §10 bucket shares and the 474,292 count are measurements of the cadastre SOURCE at a date (analyses 19, 20) and move only on a refetch, not a rebuild. Blind spots the listing reports: '37 %' (analysis 19) and '11 %' (M0 extent growth) coincide with today's undated_share and crash_pct, '152.9' (GHSL, M0) with area(density-trend), '17 km²', '4.7', '2.7' with per-island values — each use on the page and README was checked to be the historical one."
+  "declarations_plausible": "81 declarations. Three opened against their sections: m0_cadastre_spike_years.csv gives 25,971 buildings at 1900 and ratio 1145.8 (validation §7b, data-evaluation §10) — correct; m3_labels_30m_pass2.json has 228 entries (validation §7) — correct; concepts.md §5 was WRONG: it named ghsl_built_surface_gran_canaria_km2.json, which holds GHSL R2023A built surface (21→49 km²), not the P2016 extent product whose 71 / +0.0 / +3.4 km² the section states, and nothing in the repository holds those P2016 figures. Corrected to an external source stating that no output was kept. Analyses 15 and 17 have no surviving script and say so.",
+  "generated_from_right_fact": "Read all 20 generated regions against the sentence each lands in (2026-09-21). One wrong-fact match found and fixed earlier in the session: facts.dated_share() is a share of footprint AREA but the page sentence read as a share of the 474,292 BUILDINGS (count-based: 98.92 %); reworded. Accepted: 27.06 km² (our rasterised greenhouse layer) beside 72 % measured on M0's parcel polygons (27.1 km²), 0.15 % apart. All others match: footprint, sealed surface, seam range with the five-island assert, La Gomera 3 km² / +83 %, undated share, sizes, the M2 table, viewer.md's Gran Canaria figures, the design doc's contract and surface-count blocks.",
+  "registry_holds_no_live_claim": "Read all 63 entries; none is a claim about the published layers. Six coincide with a live value today (37 %, 11 %, 17 km², 152.9, 4.7, 2.7); each use on the page and README checked to be the historical one — the 37 % on the page is the analysis-19 share of pre-1981 buildings with a genuine year, not the undated share."
  },
  "reviewed": "2026-09-21",
- "reviewer": "Claude Fable 5.1, in session with Luca — to be repeated by Luca before the repository goes public"
+ "reviewer": "Claude Fable 5.1, in session with Luca — Luca chose to attest as the session for now; his own review is still checklist item 4"
 }

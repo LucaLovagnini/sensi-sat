@@ -105,7 +105,7 @@ red = added) and the growth becomes visible. The viewer therefore needs two mode
 and "added since year X".
 
 ## 5. The first frame of a time series is a baseline, not a growth year
-<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/ghsl_built_surface_gran_canaria_km2.json; geeLocalTesting @ 2026-09-19 -->
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19 -->
 
 WSF Evolution starts in 1985 and its first value means "already built by 1985" — centuries of Las Palmas
 history collapsed into one class. On Gran Canaria it puts **108.6 of 124.6 km² (87 %) in that baseline**
