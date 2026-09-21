@@ -92,7 +92,6 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
 | `docs/viewer.md` | M4: how the map works, why OpenLayers, the WebGL constraints | internal |
 | `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration still pending | internal |
-| `docs/design/figure-provenance.md` | **M4c, designed not built**: making every number in every document resolve to generated, declared or excepted | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 
 **The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404), so `docs/`
@@ -213,14 +212,20 @@ These each cost real time to find. Read before touching the data code.
     Adding a number therefore forces a choice: **mark it live, or declare where it
     came from.** This caught two published figures that were already wrong — the
     settlement layer's undated share read 43 % when our layer holds 37 %.
-23. **Historical measurements must NOT be updated, and must be distinguishable.**
+23. **A quantity word must carry its digits.** Write "three in ten (31 %)", not
+    "three in ten"; "a third (33.8 %)", not "a third". The figure gates are
+    digit-based, so a number written as a word escapes them — which would make
+    dodging the gate easier than satisfying it. This is the one way the whole
+    arrangement could leave the project worse off than before, so it is a writing
+    rule, not a preference (M4c, `docs/design/figure-provenance.md`).
+24. **Historical measurements must NOT be updated, and must be distinguishable.**
     Most of the ~1,300 numbers in `docs/` record why a decision was taken — the
     figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting
     them to match a later build destroys the reasoning they exist to support. But a
     reader cannot tell a frozen measurement from a stale one, so every document
     carries a generated block (`facts.contract()`) stating which is which, and a
     historical figure names the analysis script that produced it.
-24. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+25. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point
