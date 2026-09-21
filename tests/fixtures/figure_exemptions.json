@@ -1,0 +1,39 @@
+{
+  "viewer/about-the-data.html": {
+    "generated": 9,
+    "superscript": 2,
+    "doi": 1,
+    "url": 0,
+    "entity": 0,
+    "css": 0,
+    "interpolation": 0,
+    "licence": 3,
+    "reference": 3,
+    "year": 51,
+    "list_marker": 10
+  },
+  "viewer/app.js": {
+    "generated": 0,
+    "doi": 0,
+    "url": 0,
+    "entity": 3,
+    "css": 10,
+    "interpolation": 9,
+    "licence": 0,
+    "reference": 2,
+    "year": 16,
+    "list_marker": 0
+  },
+  "README.md": {
+    "generated": 0,
+    "doi": 0,
+    "url": 0,
+    "entity": 0,
+    "css": 0,
+    "interpolation": 0,
+    "licence": 0,
+    "reference": 1,
+    "year": 4,
+    "list_marker": 0
+  }
+}

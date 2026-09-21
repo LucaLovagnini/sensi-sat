@@ -57,8 +57,8 @@ source · **estimate** = our arithmetic, shown.
    the cleanest empirical demonstration of the distinction so far (section 3).
 7. **The 1985 baseline is half-confirmed and WSF Evolution misses the other half of
    the island.** Against the cadastre (98.5 % of Canary buildings carry a construction
-   year), about half of WSF's "built by 1985" pixels sit on cells with a pre-1985
-   building, a quarter to a third on cells with **no building at all**. And WSF has no
+   year), about half (42–61 %) of WSF's "built by 1985" pixels sit on cells with a pre-1985
+   building, a quarter to a third (22–31 %) on cells with **no building at all**. And WSF has no
    built pixel in ~50 % of the cells that held a pre-1985 building — 89 % on La Gomera.
    WSF maps *settlement*, not *buildings*; dispersed rural stock is largely invisible
    to it (section 6c). The cadastre-derived HISDAC-ES becomes a serious candidate for
@@ -325,8 +325,9 @@ of cell fractions.
 | Fuerteventura | 42.1 | 18.0 | 23.7 → 23.3 | 2.33 | 1.31 → 1.29 | 0.55 | 0.49 | 0.79 |
 | Lanzarote | 57.9 | 22.6 | 28.1 → 28.1 | 2.56 | 1.24 → 1.24 | 0.48 | 0.61 | 0.85 |
 
-The greenhouse mask takes a third off the definitional jump where greenhouses are
-common (Gran Canaria, Tenerife, La Palma) and nothing where they are not. A residual
+The greenhouse mask takes 32–46 % off the definitional jump where greenhouses are
+common (the excess over ×1: Gran Canaria 0.73 → 0.41, Tenerife 0.82 → 0.56, La Palma
+1.02 → 0.55) and nothing where they are not. A residual
 ×1.24–1.56 remains — the dispersed buildings and infrastructure Landsat never saw
 (section 6c). Spliced naively, the footprint would **drop by 26–52 % at the join,
 differently on every island**; the calibration is per island, as the design requires.
@@ -386,10 +387,10 @@ cadastre has in the same 100 m cell:
 | La Palma | 15.6 | 61.4 % | 16.4 % | 22.1 % |
 | Fuerteventura | 7.6 | 42.0 % | 29.1 % | 28.7 % |
 
-About half is confirmed. A quarter to a third sits in cells with **no building** —
+About half (42–61 %) is confirmed. A quarter to a third (22–31 %) sits in cells with **no building** —
 roads, ports, airports and quarries (the cadastre excludes them, and they *are*
-built-up under our definition), greenhouses, or bare-soil commission. A fifth sits
-where the earliest surviving building post-dates 1985 — WSF early, or the whole cell
+built-up under our definition), greenhouses, or bare-soil commission. Roughly a fifth
+(16–29 %) sits where the earliest surviving building post-dates 1985 — WSF early, or the whole cell
 rebuilt. Because a 100 m cell is generous (any building within it counts), the
 confirmed share is an upper bound and the no-building share a lower bound.
 
@@ -793,7 +794,7 @@ buckets.
 2026-09-20, not quoted second-hand. Reproduce the measurements with
 `scripts/analysis_20_cadastre_date_validity.py --all`.
 
-Established 2026-09-20, after M3 found that a quarter to a third of the buildings
+Established 2026-09-20, after M3 found that a quarter to a third (24–33 %) of the buildings
 our map dates 2016–2024 were already standing in 2015. That looked like a data
 quality problem. It is not. **The field does not mean what this project assumed**,
 and the Dirección General del Catastro says so in its own methodology:
@@ -899,7 +900,7 @@ but does not stop.
 
 Agricultural buildings are the worst dated and offices the best, which fits how
 each reaches the register. The 7,282 rows with no recorded use are the weakest of
-all: only a third carry any date, and half of those sit on a round year.
+all: only a third (32.1 %) carry any date, and half of those (47.3 %) sit on a round year.
 
 Also available and unused: `conditionOfConstruction` marks **17,255 buildings as
 `declined` and 1,829 as `ruin`** (4.1 % together). Our layer counts all of them as

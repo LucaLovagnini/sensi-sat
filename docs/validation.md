@@ -40,7 +40,7 @@ good at all four.
 2. **"There's nothing built here."** Almost always true — 98 times in 100. Trust
    this too.
 3. **"A building appeared here between 2015 and 2024."** True only **6 to 7 times
-   in 10**. A quarter to a third of these places already had a building in 2015.
+   in 10**. A quarter to a third (24–33 %) of these places already had a building in 2015.
    **This is the weakest thing on the map.**
 4. **"There's a building here but we don't know its age."** True about **7 times in
    10**. The rest have nothing on them.
@@ -76,7 +76,7 @@ often could not call either way.
 *there*. We barely checked whether the *dates* are right. Aerial photography of the
 Canaries only exists back to 2005, so 85 % of the map's buildings are dated in a
 period no photograph can check. The one date boundary we could test — 2015 — came
-back a quarter to a third wrong, and there is separate evidence (`data-evaluation.md`
+back a quarter to a third (24–33 %) wrong, and there is separate evidence (`data-evaluation.md`
 §10) that the older dates are worse still. §7b has the numbers. **Trust the map on
 where buildings are; treat its years before 2005 as unverified.**
 
@@ -187,7 +187,7 @@ difference is 557 points in `not_built` instead of 123.
 
 ## 4. Finding: the register misses isolated rural buildings
 
-Producer's accuracy of 68.8 % means roughly **three in ten 30 m cells that hold a
+Producer's accuracy of 68.8 % means roughly **three in ten (31 %) 30 m cells that hold a
 building are not in the map at all**. Eleven sampled points drive it, and they were
 checked against the raw INSPIRE feed rather than our raster:
 
@@ -211,7 +211,7 @@ qualitatively.
 
 ---
 
-## 5. Finding: a quarter to a third of "new construction" was already standing
+## 5. Finding: a quarter to a third (24–33 %) of "new construction" was already standing
 
 Of the cells the map calls new building 2015–2024:
 
@@ -260,7 +260,7 @@ recent growth — is its least reliable layer, and the "about the data" page say
 
 ---
 
-## 6. Finding: the undated class is about a quarter empty
+## 6. Finding: the undated class is about a quarter (28 %) empty
 
 `undated` is pixels the map knows are built but cannot date — 43 % of the 2016
 footprint. Decision 15 created a dedicated stratum because M0 could not explain it.
@@ -419,8 +419,8 @@ next run measures it directly.
 **Every estimate this project made was far too high.** The original plan said 650
 points and ≈ 4 person-days; the redesign said 500 points and ≈ 12.5 hours; the
 truth was ≈ 2 hours — the final estimate was still **6× too pessimistic**. The
-cause: 1–2 minutes per point is right for a *hard* point, but two-thirds of the
-sample is open countryside dismissed in a second, and the tool auto-advances.
+cause: 1–2 minutes per point is right for a *hard* point, but 61 % of the
+sample (557 of 911 points) is open countryside dismissed in a second, and the tool auto-advances.
 
 Recorded because it changed a decision. The 500-point `not_built` stratum that made
 §3 publishable had been dismissed as "≈ 50 hours" on the old estimate. It cost

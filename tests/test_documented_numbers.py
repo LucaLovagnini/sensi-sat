@@ -79,12 +79,16 @@ REFERENCE = re.compile(r"(?:[Ss]ection|§|[Ee]poch|EPSG:?|SHA-|analysis[ _])\s?\
 #: Structure a reader never sees as a number: identifiers, DOIs, URLs, HTML
 #: entities, footnote superscripts, CSS colour tuples and angles, and code inside a
 #: template literal's `${…}`. Removed before tokenising.
-STRUCTURE = [
-    re.compile(r"doi:\S+"), re.compile(r"https?://\S+"), re.compile(r"&#\d+;"),
-    re.compile(r"rgba?\([^)]*\)"), re.compile(r"\d+deg\b"),
-    re.compile(r"\$\{[^}]*\}"), re.compile(r"CC BY(?:-SA)? \d\.\d"),
-]
+STRUCTURE = {
+    "doi": re.compile(r"doi:\S+"), "url": re.compile(r"https?://\S+"),
+    "entity": re.compile(r"&#\d+;"), "css": re.compile(r"rgba?\([^)]*\)|\d+deg\b"),
+    "interpolation": re.compile(r"\$\{[^}]*\}"), "licence": re.compile(r"CC BY(?:-SA)? \d\.\d"),
+}
 SUPERSCRIPT = re.compile(r"<sup>.*?</sup>", re.S)
+#: How many tokens each exception exempts, per surface. A pattern that starts
+#: matching more than it did is the fail-open failure this whole test guards
+#: against, so the counts are pinned and change only by editing the fixture.
+EXEMPTIONS_BASELINE = ROOT / "tests" / "fixtures" / "figure_exemptions.json"
 
 
 def strip_generated(text: str) -> str:
@@ -98,10 +102,30 @@ def _prose(text: str, *, html: bool) -> str:
         # Tags become newlines, not spaces, so a heading's "1." begins a line for
         # the list-marker rule — and so `</td>` never sits beside a cell's number.
         body = re.sub(r"<[^>]+>", "\n", body)
-    for rx in STRUCTURE:
+    for rx in STRUCTURE.values():
         body = rx.sub(" ", body)
     body = REFERENCE.sub(" ", body)
     return body
+
+
+def exemption_counts(text: str, *, html: bool) -> dict[str, int]:
+    """What each exception removed, counting only matches that carried a digit."""
+    digits = lambda ms: sum(1 for m in ms if re.search(r"\d", m.group()))  # noqa: E731
+    body = strip_generated(text)
+    counts = {"generated": len(COG_REGION.findall(text))}
+    if html:
+        counts["superscript"] = digits(SUPERSCRIPT.finditer(body))
+        body = SUPERSCRIPT.sub("", body)
+        body = re.sub(r"<[^>]+>", "\n", body)
+    for name, rx in STRUCTURE.items():
+        counts[name] = digits(rx.finditer(body))
+        body = rx.sub(" ", body)
+    counts["reference"] = len(REFERENCE.findall(body))
+    body = REFERENCE.sub(" ", body)
+    exempt_at = {m.start(1) for m in LIST_MARKER_AT_LINE_START.finditer(body)}
+    counts["year"] = sum(1 for m in TOKEN.finditer(body) if YEAR.match(normalise(m.group())))
+    counts["list_marker"] = sum(1 for m in TOKEN.finditer(body) if m.start() in exempt_at)
+    return counts
 
 
 def figures_in(text: str, *, html: bool) -> set[str]:
@@ -122,6 +146,55 @@ def normalise(token: str) -> str:
     claim, and the registry should say so once."""
     tok = re.sub(r"\s+", " ", token.strip())
     return re.sub(r"\s?-?metres?$", " m", tok)
+
+
+#: Words that stand in for a figure. Deliberately narrow — "half", "twice",
+#: "double" and "most" are ordinary English far more often than they are numbers
+#: (measured: 14 false hits on the real prose), and a lint that cries wolf gets
+#: switched off. These six shapes are almost always a measurement in disguise.
+QUANTITY_WORD = re.compile(
+    r"\b(?:a (?:third|quarter|fifth|tenth)|two[- ]thirds|three[- ]quarters"
+    r"|(?:one|two|three|four|five|six|seven|eight|nine) in (?:ten|five|four|three)"
+    r"|[a-z]+-fold)\b", re.I)
+#: Ordinals and idioms that share a spelling with a fraction. Each is here because
+#: it occurred in the prose; extend this list, never loosen the rule above.
+NOT_A_QUANTITY = re.compile(r"third part(?:y|ies)|as a third\b|a third surface", re.I)
+#: A quoted phrase is mentioned, not used — CLAUDE.md #23 quotes the wrong form to
+#: forbid it, and validation.md quotes what a reviewer was told.
+MENTION = re.compile(r"[\"“][^\"“”\n]{1,80}[\"”]")
+#: How far from the word its digits may sit, within the same paragraph.
+DIGIT_REACH = 60
+
+
+def _generated_output(region: str) -> str:
+    """The text cog wrote — what the reader sees — without the code that wrote it."""
+    body = re.sub(r"\[\[\[cog.*?\]\]\](?:-->|\*/)?", "", region, count=1, flags=re.S)
+    return re.sub(r"(?:<!--|/\*|//|#)?\s*\[\[\[end\]\]\].*$", "", body, flags=re.S)
+
+
+def quantity_words_without_digits(text: str, *, html: bool) -> list[str]:
+    """Every quantity word with no figure beside it. Years do not count as figures."""
+    body = COG_REGION.sub(lambda m: _generated_output(m.group()), text)
+    if html:
+        body = re.sub(r"<[^>]+>", " ", body)
+    body = MENTION.sub(lambda m: " " * len(m.group()), body)
+    idioms = [(m.start(), m.end()) for m in NOT_A_QUANTITY.finditer(body)]
+    out = []
+    for m in QUANTITY_WORD.finditer(body):
+        if any(s < m.end() and m.start() < e for s, e in idioms):  # spans overlap
+            continue
+        lo, hi = max(0, m.start() - DIGIT_REACH), m.end() + DIGIT_REACH
+        window = body[lo:hi]
+        # stay inside the paragraph
+        before, after = window[:m.start() - lo], window[m.start() - lo:]
+        before = before.rsplit("\n\n", 1)[-1]
+        after = after.split("\n\n", 1)[0]
+        window = before + after
+        if not any(re.search(r"\d", normalise(t.group())) and not YEAR.match(normalise(t.group()))
+                   for t in TOKEN.finditer(window)):
+            line = body.count("\n", 0, m.start()) + 1
+            out.append(f"line {line}: …{body[max(0, m.start()-30):m.end()+30].strip()}…".replace("\n", " "))
+    return out
 
 
 def js_user_facing_strings(js: str) -> list[str]:
@@ -181,6 +254,39 @@ def token_level_figures() -> dict[str, set[str]]:
     }
 
 
+def current_exemptions() -> dict[str, dict[str, int]]:
+    js_strings = "\n".join(js_user_facing_strings(APP_JS.read_text()))
+    return {
+        "viewer/about-the-data.html": exemption_counts(PAGE.read_text(), html=True),
+        "viewer/app.js": exemption_counts(js_strings, html=False),
+        "README.md": exemption_counts(README.read_text(), html=False),
+    }
+
+
+def test_exemption_counts_match_the_baseline() -> None:
+    """The exceptions are the fail-open surface of this gate; pin what they do.
+
+    A year rule that one day also matches `2015.5`, or a reference rule widened to
+    swallow `section 7 %`, would exempt real figures without any test failing —
+    exactly how the ladder table vanished twice. So the number of tokens each
+    exception removes, per file, is recorded and any change has to be made on
+    purpose: python tests/test_documented_numbers.py --write-baseline
+    """
+    assert EXEMPTIONS_BASELINE.exists(), "tests/fixtures/figure_exemptions.json missing"
+    baseline = json.loads(EXEMPTIONS_BASELINE.read_text())
+    now = current_exemptions()
+    diffs = [f"  {f}.{k}: baseline {baseline.get(f, {}).get(k)} -> now {v}"
+             for f, counts in now.items() for k, v in counts.items()
+             if baseline.get(f, {}).get(k) != v]
+    assert not diffs, (
+        "an exception exempts a different number of tokens than it did:\n"
+        + "\n".join(diffs)
+        + "\n\nIf you edited the prose and the change is what you meant, run\n"
+          "  python tests/test_documented_numbers.py --write-baseline\n"
+          "and review the diff of tests/fixtures/figure_exemptions.json. If you did "
+          "NOT touch that file, an exception pattern has widened — look there first.")
+
+
 def test_no_unaccounted_figure_on_any_published_surface() -> None:
     """Per file, so a regression names where it is rather than that it exists."""
     from sensisat.provenance import HISTORICAL
@@ -207,6 +313,52 @@ def test_the_registry_has_no_dead_entries() -> None:
     dead = sorted(set(HISTORICAL) - present)
     assert not dead, ("registered in sensisat/provenance but on no published surface: "
                       + ", ".join(dead) + " — delete the entries.")
+
+
+PROSE_SURFACES = [
+    "viewer/about-the-data.html", "README.md", "CLAUDE.md",
+    *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").rglob("*.md")),
+]
+
+
+def test_quantity_words_carry_their_digits() -> None:
+    """CLAUDE.md #23: "three in ten (31 %)", never "three in ten".
+
+    The figure gate would otherwise create a perverse incentive — a number written
+    as words is invisible to it, so the path of least resistance under a strict gate
+    is to stop writing digits. This closes that path. Applied to every prose surface
+    and to the viewer's strings; comments and code are not prose.
+    """
+    problems = []
+    for rel in PROSE_SURFACES:
+        hits = quantity_words_without_digits((ROOT / rel).read_text(), html=rel.endswith(".html"))
+        problems += [f"  {rel} {h}" for h in hits]
+    for s in js_user_facing_strings(APP_JS.read_text()):
+        problems += [f"  viewer/app.js {h}" for h in quantity_words_without_digits(s, html=False)]
+    assert not problems, (
+        "a quantity word with no figure beside it:\n" + "\n".join(problems)
+        + "\n\nWrite the digits next to the word — \"a quarter to a third (24–33 %)\" — or "
+          "replace the word with the figure. If it is an ordinal or an idiom "
+          "(\"a third party\"), add it to NOT_A_QUANTITY in this file.")
+
+
+@pytest.mark.parametrize("text,ok", [
+    ("the undated class is about a quarter empty.", False),
+    ("about a quarter (28 %) empty.", True),
+    ("three in ten (31 %) cells are missing", True),
+    ("three in ten cells are missing", False),
+    ("31 % — three in ten — are missing", True),           # digits before the word
+    ("that is a third party on the critical path", True),  # idiom
+    ("the mode as a third number", True),                   # ordinal
+    ("a third of these already stood in 2015", False),      # a year is not the figure
+    ("gain is 0.394 %/yr, about a third of Tracker's rate", True),
+    ('write "three in ten (31 %)", not "three in ten".', True),  # mentioned, not used
+    ("six-fold (2,700 m² against 450 m²)", True),
+    ("overstates it six-fold.", False),
+    ("Growth ×7.5 in the table.\n\nOverstates it six-fold.", False),  # not across paragraphs
+])
+def test_quantity_word_rule_fixtures(text: str, ok: bool) -> None:
+    assert (quantity_words_without_digits(text, html=False) == []) is ok, text
 
 
 def test_no_cog_marker_inside_a_string_literal() -> None:
@@ -307,3 +459,11 @@ def test_list_marker_rule_is_positional(text: str, exempt: bool) -> None:
     toks = list(TOKEN.finditer(text))
     assert toks, text
     assert (toks[0].start() in exempt_at) is exempt, f"{text!r}: exempt={not exempt} — wrong"
+
+
+if __name__ == "__main__":
+    if "--write-baseline" not in sys.argv:
+        raise SystemExit(__doc__ + "\n\nusage: python tests/test_documented_numbers.py --write-baseline")
+    EXEMPTIONS_BASELINE.parent.mkdir(exist_ok=True)
+    EXEMPTIONS_BASELINE.write_text(json.dumps(current_exemptions(), indent=2) + "\n")
+    print(f"wrote {EXEMPTIONS_BASELINE.relative_to(ROOT)}")

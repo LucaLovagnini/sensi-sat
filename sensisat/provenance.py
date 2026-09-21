@@ -67,6 +67,7 @@ HISTORICAL: dict[str, str] = {
     "121 m²": "median Canary cadastral building footprint (analysis 20)",
     "95 %": "share of the archipelago that is empty land (M3, 30 m strata)",
     "28 %": "undated 30 m squares showing no building (M3, second pass)",
+    "24–33 %": "squares dated 2015-2024 whose building already stood in 2015: 30 of 92, or 24 % once roof-lean cases are charged elsewhere (M3, scripts/m3_diagnose.py)",
     "91 %": "median Copernicus sealing where photographs found a building (M3)",
     "3 %": "the same where they found nothing (M3)",
     "463 ± 83 km²": "error-adjusted area of 30 m squares holding a building, with its 95 % interval (M3, scripts/m3_score.py)",

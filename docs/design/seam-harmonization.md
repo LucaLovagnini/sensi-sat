@@ -204,7 +204,7 @@ adapter pattern keeps era-a a plug-in so swapping it is one module, not a rewrit
   | Tenerife | 53.3 | 26.6 % | 32.4 % | 67.6 % | 2.9 % |
   | Fuerteventura | 7.8 | 5.4 % | 8.6 % | 91.4 % | 0.2 % |
 
-  Greenhouses explain a quarter to a third of the undated class on the two
+  Greenhouses explain a quarter to a third (27–37 %) of the undated class on the two
   agricultural islands and almost none of it on Fuerteventura, which has few. Roads add
   ≈ 11 km² on Gran Canaria (analysis 11). **The majority of the class — 58 % to 91 % —
   sits outside any agricultural parcel and remains unexplained**: candidates are

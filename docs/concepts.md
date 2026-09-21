@@ -56,7 +56,7 @@ A synthetic 90 × 90 m neighbourhood, 3 × 3 pixels of 30 m, houses of 150 m²:
 | **Surface** — m² actually built | 450 m² | 1,200 m² | 3,390 m² |
 | Growth since 1985 | — | — | extent ×3.0 · surface ×7.5 |
 
-Already in 1985 extent overstates the footprint six-fold. By 2015 every pixel is touched, so **extent
+Already in 1985 extent overstates the footprint six-fold (2,700 m² against 450 m²). By 2015 every pixel is touched, so **extent
 cannot grow any more** — yet infill keeps adding surface. From then on an extent product reports zero
 growth for this neighbourhood forever.
 
