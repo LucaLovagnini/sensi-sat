@@ -27,11 +27,17 @@ without rebuilding 13 GB of rasters.
 from __future__ import annotations
 
 import json
+import os
 from functools import cache
+from pathlib import Path
 
 from .config import PROCESSED
 
-STATS = PROCESSED / "statistics" / "layers.json"
+#: `SENSISAT_STATS` points every consumer at a different statistics file. It exists
+#: for one reason: `scripts/verify_m4c.py` perturbs a COPY of layers.json and shows
+#: that the page, the viewer module and the STAC template all move together — the
+#: single most important property of the design, testable without a rebuild.
+STATS = Path(os.environ.get("SENSISAT_STATS", PROCESSED / "statistics" / "layers.json"))
 SEAM = PROCESSED / "statistics" / "seam.json"
 
 ISLANDS = 8

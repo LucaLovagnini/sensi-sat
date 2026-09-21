@@ -35,10 +35,12 @@ about working here:
 M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 (accuracy assessment), M4 (viewer) and M4b (the public "about the data" page) are
 complete. The site is live but **unannounced** at
-`https://sensisat.ensi-at.workers.dev`. Two milestones remain: **M4c** — figure
-provenance, designed 2026-09-21 and **gating a public repository**
-(design lives in the plan, `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`, M4c) — and **M5**, the per-zone statistics panel,
-attribution and releases.
+`https://sensisat.ensi-at.workers.dev`. **M4c** — figure provenance, every published
+number accounted for — was **implemented 2026-09-21** (`docs/design/figure-provenance.md`;
+acceptance `python scripts/verify_m4c.py`); it gates the repository going public, and
+what remains of it is human: Luca's own `/verify-figures` review and the checklist at
+the end of this file. **M5** — the per-zone statistics panel, attribution and
+releases — remains.
 
 M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16).
 User's accuracy: **98 %** for "holds a pre-2015 building", **98 %** for "holds no
@@ -79,6 +81,9 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `sensisat/provenance.py` | where every hand-written figure on the public page came from |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |
 | `tests/` | the pytest suite over small fixture rasters — `pytest` counts them |
+| `sensisat/figures.py`, `tests/test_documented_numbers.py` | the figure gate: what a figure is, and the tests that every one is accounted for |
+| `scripts/review_figures.py`, `.claude/skills/verify-figures/` | the three judgements the gate cannot make, and their attestation `docs/figures-review.json` |
+| `.githooks/pre-push` | refuses to push while the review is stale; enable per clone with `git config core.hooksPath .githooks` |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
 
 ### The documentation, and which question each file answers
@@ -95,6 +100,7 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
 | `docs/viewer.md` | M4: how the map works, why OpenLayers, the WebGL constraints | internal |
 | `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration still pending | internal |
+| `docs/design/figure-provenance.md` | M4c: how every published number is generated, declared or excepted; the limits; what building it found | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 
 **The repo is private** (github.com/LucaLovagnini/sensi-sat returns 404), so `docs/`
@@ -208,27 +214,35 @@ These each cost real time to find. Read before touching the data code.
     review the diff), `pytest` checks them, and `publish.py` refuses to assemble
     `dist/` while any disagrees. **Never hand-type a live figure** — mark it, or it
     will go stale in silence, which has already happened twice.
-22. **No figure may reach the public page unaccounted for.** Cog generates what is
-    marked and is blind to the rest, so a number typed in tomorrow would be guarded
-    by nothing. `tests/test_documented_numbers.py` strips the cog regions from
-    `viewer/about-the-data.html` and requires every surviving figure to be in
-    `sensisat/provenance.HISTORICAL` with what it is and which analysis produced it.
-    Adding a number therefore forces a choice: **mark it live, or declare where it
-    came from.** This caught two published figures that were already wrong — the
-    settlement layer's undated share read 43 % when our layer holds 37 %.
+22. **No figure may reach a reader unaccounted for.** Every run of digits on the
+    page, in `app.js` strings and in `README.md` must be generated, in
+    `sensisat/provenance.HISTORICAL`, or excepted by a positional rule; every
+    section of `docs/` and this file that states a figure carries
+    `<!-- figures: <source>; … @ <date> -->` under its heading; every headline
+    value `facts.py` computes is searched for typed by hand (the collision check).
+    `sensisat/figures.py` is the one definition; `pytest`, `build.py` (exit 4) and
+    `publish.py` (exit 3) run the same tests. Adding a number forces a choice —
+    **generate it, or declare where it came from** — and the failure names the
+    token and the file. The first fail-closed run surfaced 45 figures the old
+    regex had silently exempted, and four viewer figures wrong on the live site.
 23. **A quantity word must carry its digits.** Write "three in ten (31 %)", not
     "three in ten"; "a third (33.8 %)", not "a third". The figure gates are
     digit-based, so a number written as a word escapes them — which would make
     dodging the gate easier than satisfying it. This is the one way the whole
     arrangement could leave the project worse off than before, so it is a writing
-    rule, not a preference (M4c; design in `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`, M4c).
+    rule, not a preference, and a lint enforces it (`docs/design/figure-provenance.md` §4).
 24. **Historical measurements must NOT be updated, and must be distinguishable.**
     Most of the ~1,300 numbers in `docs/` record why a decision was taken — the
     figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting
     them to match a later build destroys the reasoning they exist to support. But a
     reader cannot tell a frozen measurement from a stale one, so every document
     carries a generated block (`facts.contract()`) stating which is which, and a
-    historical figure names the analysis script that produced it.
+    historical figure names the analysis script that produced it — per token in the
+    registry, per section in the declaration. **The gate cannot judge** whether a
+    generated figure comes from the right fact, whether a registry entry is really
+    a live claim, or whether a declared source fits: that is `/verify-figures`,
+    attested in `docs/figures-review.json`, which `publish.py` and the pre-push
+    hook require to be current.
 25. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
@@ -236,6 +250,7 @@ These each cost real time to find. Read before touching the data code.
     on a built pixel must then measure 0.0 m from one.
 
 ## Before the site goes public
+<!-- figures: scripts/build.py; scripts/publish.py @ 2026-09-21 -->
 
 It must carry an **"about the data" page** (plan M4b) explaining every number's
 conditions for a reader who is not us — the ladder of definitions, extent vs
@@ -243,6 +258,23 @@ surface, the 2015/2016 seam, the undated class, the cadastre's pre-1980 buckets,
 growth-only encoding, greenhouses, and per-island quality. The audience quotes
 these figures; publishing them without their conditions is the failure M0 spent
 three findings learning to avoid.
+
+**Checklist — nothing runs when the repository is made public, so this is the
+gate (M4c).** Walk it in order; each line is a command or a look.
+
+1. `python scripts/build.py --all` exits 0 — layers, QA gates and the figure gate.
+2. `python -m pytest -q && ruff check .` clean.
+3. `python scripts/verify_m4c.py` passes every criterion it can run.
+4. **Luca runs `/verify-figures` himself** — the review on file was made by the
+   implementing session; the three judgements need his eyes once — and attests.
+5. `python scripts/publish.py` assembles `dist/` (it refuses while anything above
+   is stale); open the viewer and the page from `dist/` in a browser.
+6. `git config core.hooksPath .githooks` is set in the clone that will push.
+7. M4b's one unmet requirement — how to cite, and the link to the scripts — is
+   written on the page (`scripts/verify_m4b.py`, once it exists).
+8. The repository README says what the numbers are conditional on, and links to
+   the page rather than restating figures.
+9. Only then the GitHub settings click. Nothing else re-checks after it.
 
 ## Git
 

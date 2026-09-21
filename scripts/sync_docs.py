@@ -49,6 +49,7 @@ DOCUMENTS = [
     "docs/viewer.md",
     "docs/design/scaling.md",
     "docs/design/seam-harmonization.md",
+    "docs/design/figure-provenance.md",
     "CLAUDE.md",
     # NOT sensisat/layers.py: its STAC descriptions are templates filled by
     # catalog.py at write time, because a figure written into the module lags the

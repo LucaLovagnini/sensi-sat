@@ -18,5 +18,15 @@
     "file": "docs/data-evaluation.md",
     "figure": "2.1 ×",
     "why": "how many times its neighbours the year 2000 holds in the cadastre (analysis 19); coincides with the sealed-to-built ratio"
+  },
+  {
+    "file": "docs/design/figure-provenance.md",
+    "figure": "2.1 ×",
+    "why": "the sealed-to-built ratio our layers gave on 2026-09-21, recorded as the value the viewer's typed 2.2× was corrected to — a record of the defect, not a live claim"
+  },
+  {
+    "file": "docs/design/figure-provenance.md",
+    "figure": "42.8 km²",
+    "why": "the greenhouse gap as generated on 2026-09-21, recorded against the 42.7 that had been typed from a rounded subtraction; coincides with Tenerife's building footprint"
   }
 ]

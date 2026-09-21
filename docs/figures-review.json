@@ -1,9 +1,9 @@
 {
  "counts": {
-  "declarations": 68,
-  "generated_regions": 18,
+  "declarations": 81,
+  "generated_regions": 20,
   "registry_entries": 63,
-  "sections_with_figures": 68,
+  "sections_with_figures": 79,
   "token_level_figures": 74
  },
  "figures": {
@@ -12,7 +12,8 @@
     "sensisat/config.py; external:design target set by Luca (plan §4 decision 4) @ 2026-09-18",
     "docs/validation.md; docs/data-evaluation.md @ 2026-09-21",
     "scripts/build.py; scripts/fetch_m0.py; docs/pipeline.md @ 2026-09-21",
-    "docs/data-evaluation.md; docs/validation.md; docs/pipeline.md; docs/design/seam-harmonization.md; docs/viewer.md @ 2026-09-21"
+    "docs/data-evaluation.md; docs/validation.md; docs/pipeline.md; docs/design/seam-harmonization.md; docs/viewer.md @ 2026-09-21",
+    "<source>; … @ <date> -->` under its heading; every headline\n    value `facts.py` computes is searched for typed by hand (the collision check).\n    `sensisat/figures.py` is the one definition; `pytest`, `build.py` (exit 4) and\n    `publish.py` (exit 3) run the same tests. Adding a number forces a choice —\n    **generate it, or declare where it came from** — and the failure names the\n    token and the file. The first fail-closed run surfaced 45 figures the old\n    regex had silently exempted, and four viewer figures wrong on the live site.\n23. **A quantity word must carry its digits.** Write \"three in ten (31 %)\", not\n    \"three in ten\"; \"a third (33.8 %)\", not \"a third\". The figure gates are\n    digit-based, so a number written as a word escapes them — which would make\n    dodging the gate easier than satisfying it. This is the one way the whole\n    arrangement could leave the project worse off than before, so it is a writing\n    rule, not a preference, and a lint enforces it (`docs/design/figure-provenance.md` §4).\n24. **Historical measurements must NOT be updated, and must be distinguishable.**\n    Most of the ~1,300 numbers in `docs/` record why a decision was taken — the\n    figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting\n    them to match a later build destroys the reasoning they exist to support. But a\n    reader cannot tell a frozen measurement from a stale one, so every document\n    carries a generated block (`facts.contract()`) stating which is which, and a\n    historical figure names the analysis script that produced it — per token in the\n    registry, per section in the declaration. **The gate cannot judge** whether a\n    generated figure comes from the right fact, whether a registry entry is really\n    a live claim, or whether a declared source fits: that is `/verify-figures`,\n    attested in `docs/figures-review.json`, which `publish.py` and the pre-push\n    hook require to be current.\n25. **`rasterio.windows.from_bounds` returns a fractional window** whose transform\n    is offset from the array `read()` actually returns. Distances computed that way\n    carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that\n    matter. Take the window in integer pixels around `src.index(lon, lat)`; a point\n    on a built pixel must then measure 0.0 m from one.\n\n## Before the site goes public\n<!-- figures: scripts/build.py; scripts/publish.py @ 2026-09-21"
    ],
    "docs/concepts.md": [
     "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py @ 2026-09-19",
@@ -45,6 +46,20 @@
     "scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv; docs/figures/data/m0_cadastre_spike_by_island.csv; docs/figures/data/m0_cadastre_year_histogram.csv @ 2026-09-20",
     "scripts/analysis_20_cadastre_date_validity.py; external:Catastro methodology note and the INSPIRE Buildings specification @ 2026-09-20",
     "scripts/analysis_21_ghsl_vs_cadastre_timing.py @ 2026-09-20"
+   ],
+   "docs/design/figure-provenance.md": [
+    "sensisat/figures.py; tests/test_documented_numbers.py; scripts/review_figures.py; measured:the runs of this mechanism on 2026-09-21, recorded in the M4c commits @ 2026-09-21",
+    "sensisat/facts.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-21",
+    "sensisat/figures.py; tests/fixtures/figure_exemptions.json @ 2026-09-21",
+    "… @ date -->` declaration\n  (section-level surfaces);\n- **excepted** — a year or a year range, a date, a Markdown list marker *by\n  position* (the shape rule `^\\d{1,2}\\.$` once exempted \"reached 12.\").\n\n**The exceptions are the fail-open surface**, so what they do is pinned: the number\nof tokens each pattern removes, per file, is recorded in\n`tests/fixtures/figure_exemptions.json` and any change fails until the fixture is\nrewritten on purpose and its diff reviewed. No exception may match a token\ncarrying a unit.\n\n## 3. The surfaces, and the burden each carries\n<!-- figures: sensisat/figures.py; scripts/review_figures.py; docs/figures/data/manifest.json @ 2026-09-21",
+    "sensisat/facts.py; sensisat/catalog.py; scripts/sync_docs.py; sensisat/figures.py; measured:the runs of this mechanism on 2026-09-21 @ 2026-09-21",
+    "<source>[; <source>…] @ <YYYY-MM-DD> -->`\nunder a heading; a section needs one iff it holds a token that is neither\ngenerated nor excepted; the H1 preamble is a section. A source is a repository\nfile that must exist, or `external:<what>` (a price list, a paper) or\n`measured:<how>` (a browser's network panel) for a number that has no file — the\nhonest form, counted and shown by the review. Sources are separated by `;` so a\nlabel may contain commas. A declaration records **origin, not correctness**.\n\n**The collision check** is what closes the drift hole in `docs/` without a registry\nentry per number: every headline value `facts.py` computes — areas per layer and\nisland, sizes, shares, the sealed-to-built ratio, growth, the construction crash —\nis searched for in all prose outside generated regions, **with its unit attached**,\nat one and two decimals. A hit is a live figure someone typed, which the next\nbuild orphans. It is fail-closed: every hit must be generated instead, or\nallow-listed in `tests/fixtures/figure_collisions.json` as a historical\nmeasurement that coincides with the current build, with the reason written down.\nValues below 1 are skipped (at two decimals they collide by coincidence —\n`$0.36/million` matched La Graciosa's extent) and the seam record's per-island\nfields are not searched (the M2 seam reproduces M0's CSV to the published decimal,\nso every one collides by construction).\n\n**The quantity-word lint** closes the perverse incentive a digit-based gate\ncreates: a number written as words is invisible to it. A narrow list — \"a third\",\n\"a quarter\", \"a fifth\", \"a tenth\", \"two thirds\", \"three quarters\", \"N in ten\",\n\"N-fold\"; deliberately not \"half\", \"twice\", \"double\" or \"most\", which are ordinary\nEnglish — must have a figure within 60 characters in the same paragraph; a year\ndoes not count; a quoted phrase is a mention, not a use (which is why this\nparagraph passes); three ordinals that share a spelling (\"a third party\",\n\"as a third\", \"a third surface\") are listed by name.\nCLAUDE.md #23 is the writing rule; this is its enforcement.\n\n**Section numbers on the page are CSS counters** (`about.css`), so the source\nholds no typed heading number and the list-marker exception is Markdown-only.\n\n**The data-file manifest** (`docs/figures/data/manifest.json`) records, for every\ntable no code names, the commit that introduced it and what it is. \"Named by\ncode\" is the mechanical notion of *produced by*; grep cannot tell a read from a\nwrite, so the CORINE band — read by `qa.py`, written by nothing — is listed too.\n\n## 5. The judgements the gate cannot make\n<!-- figures: scripts/review_figures.py; docs/figures-review.json; .githooks/pre-push @ 2026-09-21",
+    ".githooks/pre-push; scripts/publish.py @ 2026-09-21",
+    "measured:the runs of this mechanism on 2026-09-21 @ 2026-09-21",
+    "measured:the runs of this mechanism on 2026-09-21, recorded in the M4c commits @ 2026-09-21",
+    "external:Inline XBRL, DITA keyref and Sphinx substitutions, Quarto — their public documentation, read 2026-09-21 @ 2026-09-21",
+    "scripts/sync_docs.py; scripts/review_figures.py @ 2026-09-21",
+    "scripts/verify_m4c.py @ 2026-09-21"
    ],
    "docs/design/scaling.md": [
     "measured:Chrome DevTools network panel over the local viewer on 2026-09-20 @ 2026-09-20",
@@ -98,6 +113,16 @@
     [
      "cog.outl(f.contract())",
      "**About the numbers in this document.** Figures fall into two kinds.\n\n*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.\n\n*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted."
+    ]
+   ],
+   "docs/design/figure-provenance.md": [
+    [
+     "cog.outl(f.contract())",
+     "**About the numbers in this document.** Figures fall into two kinds.\n\n*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.\n\n*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted."
+    ],
+    [
+     "import sensisat.figures as g\nfs = g.figure_set()\ntok = fs[\"tokens\"]\nn_sections = sum(len(v) for v in fs[\"sections\"].values())\nn_decl = sum(len(v) for v in fs[\"declarations\"].values())\nn_gen = sum(len(v) for v in fs[\"generated\"].values())\ncog.outl(\"| surface | unit of accounting | today |\")\ncog.outl(\"|---|---|---|\")\ncog.outl(f\"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |\")\ncog.outl(f\"| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok['viewer/app.js'])} declared tokens |\")\ncog.outl(f\"| `README.md` | every token | {len(tok['README.md'])} declared tokens |\")\ncog.outl(f\"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\")\ncog.outl(f\"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |\")\ncog.outl(f\"| generated regions, all prose | `cog` from `facts.py` | {n_gen} |\")\ncog.outl(f\"| `sensisat/provenance.HISTORICAL` | the registry | {len(fs['registry'])} entries |\")\ncog.outl(f\"| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |\")",
+     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 79 sections carrying figures, 81 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 20 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
     ]
    ],
    "docs/pipeline.md": [
@@ -324,6 +349,9 @@
   ],
   "sections": {
    "CLAUDE.md": {
+    "## Before the site goes public": [
+     "0"
+    ],
     "## Current state (2026-09-20)": [
      "100 km²",
      "16",
@@ -380,16 +408,17 @@
      "26–52 %",
      "28",
      "29 %",
+     "3",
      "30 m",
      "31 %",
      "324 km²",
      "33 %",
      "33.8 %",
      "341.5,",
-     "37 %",
      "376.9,",
+     "4",
      "400 %",
-     "43 %",
+     "45",
      "469.5,",
      "49",
      "5 %",
@@ -1461,6 +1490,77 @@
      "90 MiB"
     ]
    },
+   "docs/design/figure-provenance.md": {
+    "## 1. The problem in one paragraph": [
+     "2.1×",
+     "2.2×",
+     "37 %",
+     "43 %",
+     "5 %",
+     "56",
+     "9 %"
+    ],
+    "## 10. Working with it": [
+     "28 %",
+     "4,"
+    ],
+    "## 2. What a figure is, mechanically": [
+     "1,2",
+     "1.5 MiB",
+     "12.",
+     "26–52 %",
+     "30 m",
+     "463 ± 83 km²",
+     "98 times in 100"
+    ],
+    "## 3. The surfaces, and the burden each carries": [
+     "1,400"
+    ],
+    "## 4. The mechanism, piece by piece": [
+     "0.36",
+     "1",
+     "60"
+    ],
+    "## 5. The judgements the gate cannot make": [
+     "43 %",
+     "474,292",
+     "98.92 %"
+    ],
+    "## 6. What the enforcement really enforces": [
+     "3",
+     "4"
+    ],
+    "## 7. Honest limits": [
+     "1,",
+     "2 %"
+    ],
+    "## 8. What building it found": [
+     "11",
+     "13",
+     "15",
+     "17",
+     "2",
+     "2.1×",
+     "2.2×",
+     "3 km²",
+     "32–46 %",
+     "37 %",
+     "4",
+     "42.7",
+     "42.8 km²",
+     "43 %",
+     "45",
+     "5 %",
+     "56 %",
+     "61 %",
+     "7",
+     "83 %",
+     "9 %"
+    ],
+    "## 9. Alternatives considered": [
+     "1,400"
+    ]
+   },
    "docs/design/scaling.md": {
     "## 1. What one visitor actually costs": [
      "0",
@@ -2200,11 +2300,11 @@
    ]
   }
  },
- "fingerprint": "33a73d140fa38341aa04a8349de036bda0b4301d5f7918d95c38f5e76f346a5e",
+ "fingerprint": "815c1c6f3d0f4ec0720dbd8d0042227077bd094197ac6c57f7f576ca0f961cfa",
  "judgements": {
-  "declarations_plausible": "68 declarations written 2026-09-21 with each section's content in view; spot-checked validation §7b (analysis 19 CSV + the IGN WMS query), concepts §5 (the Earth Engine GHSL JSON), data-evaluation §6f (CORINE: a one-off in commit 0694845, declared external). Analyses 15 and 17 have no surviving script and say so; 6 sources are external, 9 measured by hand.",
-  "generated_from_right_fact": "Read all 18 generated regions against the sentence each lands in (2026-09-21). One wrong-fact match found and fixed: facts.dated_share() is a share of footprint AREA, but the page sentence read as a share of the 474,292 BUILDINGS (the count-based figure is 98.92 %); reworded to 'of their footprint'. Accepted: the 27.06 km² greenhouse figure is our rasterised layer while the 72 % beside it was measured on M0's parcel polygons (27.1 km²), 0.15 % apart. Everything else matches: footprint, sealed surface, seam range with the five-island assert, La Gomera's 3 km² and +83 %, undated share, sizes, the M2 table, viewer.md's three Gran Canaria figures.",
-  "registry_holds_no_live_claim": "Read all 63 entries. None is a claim about the published layers; the §10 bucket shares and the 474,292 count are measurements of the cadastre SOURCE at a date (analyses 19, 20) and move only on a refetch, not a rebuild. Blind spots recorded by the listing: '37 %' (analysis 19) and '11 %' (M0 extent growth) coincide with today's undated_share and crash_pct, and '152.9' (GHSL M0) with area(density-trend) — each use on the page and README was checked to be the historical one."
+  "declarations_plausible": "81 declarations: 68 written 2026-09-21 with each section's content in view, 13 added for docs/design/figure-provenance.md and CLAUDE.md's going-public checklist, naming the mechanism's own files and this session's measured runs. Spot-checked validation §7b (analysis 19 CSV + the IGN WMS query), concepts §5 (the Earth Engine GHSL JSON), data-evaluation §6f (CORINE: a one-off in commit 0694845, declared external). Analyses 15 and 17 have no surviving script and say so; 7 sources are external, 12 measured by hand.",
+  "generated_from_right_fact": "Read all 20 generated regions against the sentence each lands in (2026-09-21), including the design doc's two (the contract block and the surface-count table, both computed by sensisat.figures from the mechanism itself). One wrong-fact match found earlier in the session and fixed: facts.dated_share() is a share of footprint AREA but the page sentence read as a share of the 474,292 BUILDINGS (the count-based figure is 98.92 %); reworded to 'of their footprint'. Accepted: the 27.06 km² greenhouse figure is our rasterised layer while the 72 % beside it was measured on M0's parcel polygons (27.1 km²), 0.15 % apart. Everything else matches: footprint, sealed surface, seam range with the five-island assert, La Gomera's 3 km² and +83 %, undated share, sizes, the M2 table, viewer.md's three Gran Canaria figures.",
+  "registry_holds_no_live_claim": "Read all 63 entries. None is a claim about the published layers; the §10 bucket shares and the 474,292 count are measurements of the cadastre SOURCE at a date (analyses 19, 20) and move only on a refetch, not a rebuild. Blind spots the listing reports: '37 %' (analysis 19) and '11 %' (M0 extent growth) coincide with today's undated_share and crash_pct, '152.9' (GHSL, M0) with area(density-trend), '17 km²', '4.7', '2.7' with per-island values — each use on the page and README was checked to be the historical one."
  },
  "reviewed": "2026-09-21",
  "reviewer": "Claude Fable 5.1, in session with Luca — to be repeated by Luca before the repository goes public"
