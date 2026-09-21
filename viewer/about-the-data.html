@@ -103,8 +103,24 @@
 
   <p>Before 2016 and after it, the settlement layers come from different
   instruments at different resolutions with different definitions. Crossing that
-  join, the measured extent <strong>drops by 26–52 %</strong> — and nothing was
-  demolished. The map simply started being made a different way.</p>
+  join, on the five main islands the measured extent <strong>drops by
+  <!--[[[cog
+  lo, hi, n = f.seam_drop_range()
+  assert n == 5, f"the prose says 'five main islands' but the criterion selects {n}"
+  cog.out(f"{lo:.0f}–{hi:.0f} %")
+  ]]]-->
+  26–52 %
+  <!--[[[end]]]--></strong>
+  — and nothing was demolished. The map simply started being made a different way.
+  (La Gomera goes the other way: its 2016 footprint is only
+  <!--[[[cog cog.out(km2(f.seam_factor("La Gomera", "trk_e1_nogh"), 0) + " km²") ]]]-->
+  3 km²
+  <!--[[[end]]]-->
+  and there the finer instrument finds
+  <!--[[[cog cog.out(f"{100 * (f.seam_factor('La Gomera', 'net_evo_to_tracker_masked') - 1):.0f} %") ]]]-->
+  83 %
+  <!--[[[end]]]-->
+  more.)</p>
 
   <p>We could have blended the two into one smooth timeline. We deliberately did
   not: that would bake the artefact into the data, and no reader could then tell it
@@ -264,7 +280,7 @@
 
   <p>Each check covers a <strong>30-metre square</strong>, not a single building.
   So we can tell you the map puts buildings in the right place to within 30 metres.
-  We cannot tell you it is right to within 10. The reason is physical: a typical
+  We cannot tell you it is right to within 10 m. The reason is physical: a typical
   building here is about 121 m², and an aerial photo shows you a <em>roof</em>,
   which sits several metres away from the walls beneath it whenever the building is
   tall. Below 30 metres, the photograph and the map are not describing the same

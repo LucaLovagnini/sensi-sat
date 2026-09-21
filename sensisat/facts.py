@@ -102,22 +102,87 @@ def dated_share() -> float:
     return 100 * dated / sum(v["headline_km2"] for v in d.values())
 
 
-def undated_share(layer: str = "settlement-era-a") -> float:
+def undated_share(layer: str = "settlement-era-a", island: str | None = None) -> float:
     """% of a settlement layer's footprint that no source can date.
 
     Published as 43 % from M0, which measured the raw WSF Tracker baseline. The
     layer we actually publish reads lower, because era-a is greenhouse-masked and
-    clipped to land. Quoting the M0 figure for our own layer was wrong by six points.
+    clipped to land. Quoting the M0 figure for our own layer was wrong by six points
+    — and it was wrong in three places at once (the page, the viewer's note, and
+    every STAC item), which is why this function exists rather than three numbers.
     """
     d = stats()[layer]
-    und = sum(v["properties"].get("pre-2016, undated", 0) for v in d.values())
-    return 100 * und / sum(v["headline_km2"] for v in d.values())
+    rows = [d[island]] if island else list(d.values())
+    und = sum(v["properties"].get("pre-2016, undated", 0) for v in rows)
+    return 100 * und / sum(v["headline_km2"] for v in rows)
+
+
+def growth_pct(layer: str, island: str, y0: int, y1: int) -> float:
+    """% growth of a layer's extent between two years, from the slider's own series.
+
+    The viewer said "Gran Canaria grew 9 % between 1995 and 2015" — an M0 figure
+    from raw 30 m WSF Evolution. Our published era-a layer, the thing the reader is
+    actually looking at, gives about 5 %. Same claim, different instrument, stated
+    as one number.
+    """
+    by = stats()[layer][island]["properties"]["extent_by_year"]
+    return 100 * (by[str(y1)] / by[str(y0)] - 1)
+
+
+def sealed_vs_built_ratio() -> float:
+    """Copernicus sealed surface over GHSL built surface, from OUR two layers.
+
+    M0 measured 341.5 / 152.9 = 2.2 on the raw products; the layers we publish are
+    greenhouse-masked and land-clipped and give about 2.1. The viewer quoted 2.2 as
+    if it described the layers on screen.
+    """
+    return area("density-current") / area("density-trend")
+
+
+def crash_pct(layer: str = "buildings-dated") -> float:
+    """Cadastral footprint added per year 2012-2019 as a % of the 2000-2007 rate.
+
+    Spain's construction collapse, read from the register's own annual series: it
+    falls monotonically from 2008 to 2013 and stays flat (analysis 21). GHSL cannot
+    see this event, which is the caveat the density-trend description carries.
+    """
+    d = stats()[layer]
+    def added(y):
+        return sum(v["properties"]["extent_by_year"].get(str(y), 0.0)
+                   - v["properties"]["extent_by_year"].get(str(y - 1), 0.0) for v in d.values())
+    pre = sum(added(y) for y in range(2000, 2008)) / 8
+    post = sum(added(y) for y in range(2012, 2020)) / 8
+    return 100 * post / pre
 
 
 # --- the seam --------------------------------------------------------------
 
 def seam_factor(island: str, which: str = "definition_factor_masked") -> float:
     return next(r[which] for r in seam() if r["island"] == island)
+
+
+#: Islands whose greenhouse-masked 2016 baseline exceeds this many km2 count as
+#: "main" for the seam statement. Below it La Gomera (3 km2) GAINS extent at the
+#: seam, and quoting a "drop" range that silently excludes it is what the viewer did.
+SEAM_MAIN_ISLAND_KM2 = 10.0
+
+
+def seam_drop_range(min_km2: float = SEAM_MAIN_ISLAND_KM2) -> tuple[float, float, int]:
+    """(smallest drop %, largest drop %, number of islands) at the 2015/16 seam.
+
+    From `net_evo_to_tracker_masked` in seam.json: the ratio of the masked 10 m
+    Tracker baseline to the 30 m WSF Evolution extent. A ratio of 0.60 is a 40 %
+    apparent drop with nothing demolished — resolution and definition, not change.
+    """
+    rows = [r for r in seam() if r["trk_e1_nogh"] >= min_km2]
+    drops = [100 * (1 - r["net_evo_to_tracker_masked"]) for r in rows]
+    return min(drops), max(drops), len(rows)
+
+
+def reload() -> None:
+    """Forget cached statistics — for a process that writes them and then reads them."""
+    stats.cache_clear()
+    seam.cache_clear()
 
 
 # --- formatting ------------------------------------------------------------

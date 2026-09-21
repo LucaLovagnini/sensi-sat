@@ -100,8 +100,63 @@ def _slug(island: str) -> str:
     return island.lower().replace(" ", "-")
 
 
+def _fill(template: str, **values) -> str:
+    """Fill a layer description's {placeholders} — and refuse to publish one unfilled.
+
+    Why descriptions are templates. `LayerSpec.description` is read from the module
+    already imported when the build started, so any figure written INTO layers.py
+    lags the build that produced it by one run, forever. That is exactly the drift
+    M4c exists to remove. So the description holds a placeholder, and the number is
+    put in here, at write time, from the very statistics this run just computed.
+
+    A `{name}` that nothing fills is a bug, and publishing it literally is worse than
+    failing: 56 STAC items would each carry the text "{undated_pct}" to a reader.
+    """
+    try:
+        return template.format(**values)
+    except (KeyError, IndexError) as exc:
+        raise ValueError(f"description for {template[:40]!r}… has an unfilled placeholder: {exc}") from exc
+
+
+def _share(props: dict, part: str, whole: str = "footprint_km2") -> float | None:
+    """100 * props[part] / props[whole], or None when either is absent."""
+    if props.get(part) is None or not props.get(whole):
+        return None
+    return 100 * props[part] / props[whole]
+
+
+def _crash_pct(stats: dict | None) -> float | None:
+    """Cadastral footprint added per year 2012-19 as % of 2000-07 — see facts.crash_pct.
+
+    Computed here from the statistics dict rather than by calling facts, so that
+    cataloguing never depends on a cached module state; the dict passed in IS this
+    run's output.
+    """
+    if not stats or "buildings-dated" not in stats:
+        return None
+    series = [v["properties"].get("extent_by_year", {}) for v in stats["buildings-dated"].values()]
+    def added(y: int) -> float:
+        return sum(by.get(str(y), 0.0) - by.get(str(y - 1), 0.0) for by in series)
+    pre = sum(added(y) for y in range(2000, 2008)) / 8
+    post = sum(added(y) for y in range(2012, 2020)) / 8
+    return 100 * post / pre if pre else None
+
+
+def _description_values(spec, props: dict, stats: dict | None) -> dict:
+    """Every value a layer description may reference, computed from this run."""
+    out = {}
+    und = _share(props, "pre-2016, undated")
+    if und is not None:
+        out["undated_pct"] = f"{und:.0f}"
+    crash = _crash_pct(stats)
+    if crash is not None:
+        out["crash_pct"] = f"{crash:.0f}"
+    return out
+
+
 def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
-             companions: dict[str, Path] | None = None) -> pystac.Item:
+             companions: dict[str, Path] | None = None,
+             stats: dict | None = None) -> pystac.Item:
     """One STAC item: a single layer for a single island, plus everything about it.
 
     Asset hrefs are set ABSOLUTE here and made relative by `save()` once every item
@@ -133,7 +188,10 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
         end_datetime=_dt(spec.end),
         properties={
             "title": f"{spec.title} — {island}",
-            "description": spec.description,
+            # Filled from THIS island's numbers, so Gran Canaria's item states Gran
+            # Canaria's undated share rather than an archipelago figure — and from
+            # this run's numbers, never a stale literal.
+            "description": _fill(spec.description, **_description_values(spec, properties, stats)),
             "island": island,
             # Our own vocabulary, kept under one prefix so it is obviously not STAC.
             "sensisat:layer": spec.name,
@@ -223,9 +281,19 @@ def _lineage(spec, properties: dict) -> str:
     return " ".join(parts)
 
 
-def collection_for(spec, items: list[pystac.Item]) -> pystac.Collection:
-    """One collection per layer, spanning every island built for it."""
+def collection_for(spec, items: list[pystac.Item],
+                   stats: dict | None = None) -> pystac.Collection:
+    """One collection per layer, spanning every island built for it.
+
+    Its description is filled with the ARCHIPELAGO figure, summed from the items'
+    own statistics, so collection and items are consistent by construction.
+    """
     bboxes = [item.bbox for item in items]
+    totals: dict[str, float] = {}
+    for item in items:
+        for k, v in (item.properties.get("sensisat:statistics") or {}).items():
+            if isinstance(v, (int, float)):
+                totals[k] = totals.get(k, 0.0) + v
     spatial = pystac.SpatialExtent([[
         min(b[0] for b in bboxes), min(b[1] for b in bboxes),
         max(b[2] for b in bboxes), max(b[3] for b in bboxes),
@@ -234,7 +302,7 @@ def collection_for(spec, items: list[pystac.Item]) -> pystac.Collection:
     collection = pystac.Collection(
         id=spec.name,
         title=spec.title,
-        description=spec.description,
+        description=_fill(spec.description, **_description_values(spec, totals, stats)),
         extent=pystac.Extent(spatial, temporal),
         license=LICENSES.get(spec.sources[0], "other"),
         extra_fields={

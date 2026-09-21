@@ -15,7 +15,8 @@ deliberately frozen. Rewriting one to match a later build would destroy the
 reasoning it exists to support: the 308 km² is why Dynamic World was disqualified,
 and a 2026 re-measurement of it would say nothing about a decision made in 2026-09.
 
-The key is the figure exactly as it appears in the page's source.
+The key is the figure as the reader reads it, with one spelling per unit
+("30 metres" and "30-metre" both resolve to "30 m").
 """
 
 from __future__ import annotations
@@ -34,7 +35,6 @@ HISTORICAL: dict[str, str] = {
     "162 %": "Fuerteventura built-surface growth over the same period (M0)",
 
     # --- M0/M1: the 2015-2016 seam -------------------------------------------
-    "52 %": "upper bound of the apparent extent drop at the seam, 26-52 % (M0, seam record)",
     "115 km²": "Tracker's 2016 baseline with no WSF Evolution year — the history a blend would invent (M0, analysis 11)",
 
     # --- data-evaluation §10: the cadastre's bucketed years ------------------
@@ -49,10 +49,10 @@ HISTORICAL: dict[str, str] = {
     "24.9 %": "Lanzarote, same measure (analysis 19)",
     "19.0 %": "Fuerteventura, same measure (analysis 19)",
     "24.5 %": "share of El Hierro's settlement footprint WSF Evolution can date (M0)",
-    "68 %": "the same for Gran Canaria and Fuerteventura, 66-68 % (M0)",
+    "66–68 %": "the same for Gran Canaria and Fuerteventura (M0)",
 
     # --- M0: real loss, which decided the growth-only encoding ---------------
-    "0.052 %": "built-up loss per year, Copernicus change layer 2018-2021 (M0, analysis 13)",
+    "0.017–0.052 %": "built-up loss per year, Copernicus change layers 2018-2021 and 2021-2024 (M0, analysis 13)",
     "2 %": "share of built pixels a growth-only view misplaces over forty years (M0) "
            "— also, separately, the share of 'empty' 30 m squares holding a building (M3)",
     "0.909 km²": "built-up inside the Tajogaite flow, 2018 (M0, analysis 13)",
@@ -69,7 +69,15 @@ HISTORICAL: dict[str, str] = {
     "28 %": "undated 30 m squares showing no building (M3, second pass)",
     "91 %": "median Copernicus sealing where photographs found a building (M3)",
     "3 %": "the same where they found nothing (M3)",
-    "83 km²": "half-width of the 95 % interval on the error-adjusted area (M3)",
+    "463 ± 83 km²": "error-adjusted area of 30 m squares holding a building, with its 95 % interval (M3, scripts/m3_score.py)",
+    "911": "30 m squares drawn for the second assessment (M3)",
+    "838": "of those, judged with confidence — the usable sample (M3)",
+    "107": "undated squares judged; none in a mapped greenhouse parcel (M3)",
+    "98 times in 100": "user's accuracy of the pre-2015 and not-built classes, 98.1 % and 98.0 %, in words (M3)",
+    "6 to 7 times in 10": "user's accuracy of the 2015-2024 class, 64.1 % ± 9.9, in words (M3)",
+    "7 times in 10": "user's accuracy of the undated class, 70.6 % ± 9.7, in words (M3)",
+    "60 m": "search radius: 10 of 11 missed buildings have no cadastral entry within it (M3, scripts/m3_diagnose.py)",
+    "200 m": "7 of those 11 are further than this from anything mapped (M3, scripts/m3_diagnose.py)",
     "324 km²": "30 m squares the map marks as holding a building (M3, strata)",
     "85 %": "share of the building layer dated before 2005, where no imagery exists (validation §7b)",
 
@@ -90,11 +98,21 @@ HISTORICAL: dict[str, str] = {
     "474,292": "buildings in the 88 Canary municipality feeds (analysis 20)",
     "25,971": "buildings the register dates to 1900 alone (analysis 19)",
     "1,146": "how many times its neighbouring years that is (analysis 19)",
-
-    # --- M0: the lower bound of the measured loss rate -----------------------
-    "0.017": "built-up loss per year, Copernicus change layer 2021-2024 (M0, analysis 13)",
+    "46 years": "1981-2026, the span of the register with no bucket year in it (analysis 19)",
 
     # --- M3: the two confidence intervals quoted in the accuracy table -------
     "2.7": "half-width of the 95 % interval on 'built before 2015' accuracy (M3)",
     "1.2": "the same for 'nothing is built here' (M3)",
+
+    # --- resolutions: a property of each source grid, not a measurement -------
+    "10 m": "pixel size of WSF Tracker, Copernicus and our shared grid (sensisat/grid.py)",
+    "30 m": "WSF Evolution pixel size — and M3's assessment unit, chosen to exceed geolocation error",
+    "92 m": "GHSL's 3 arc-second cell measured at 28°N (sensisat/datasets/ghsl.py)",
+
+    # --- viewer/app.js: structural constants, not measurements ----------------
+    # The colour ramp for the sealed-surface layer runs over a percentage, so its
+    # legend ends are the range of a percentage. Declared so the gate can see they
+    # were looked at, and so nobody later "corrects" them.
+    "1 %": "lower end of the sealed-surface legend — the range of a percentage (viewer)",
+    "100 %": "upper end of the same legend (viewer)",
 }

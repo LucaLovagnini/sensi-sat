@@ -423,8 +423,8 @@ LAYERS: dict[str, LayerSpec] = {
         "settlement-era-a", "Settlement extent to 2015", "extent", "year first built", 10,
         ["WSF Evolution", "WSF Tracker", "Mapa de Cultivos"], _settlement_era_a,
         "Settlement clusters including roads and infrastructure, dated 1985-2015, draped "
-        "from 30 m onto the 10 m footprint. The 43 % that cannot inherit a year is kept as "
-        "an explicit undated class rather than given an invented one.",
+        "from 30 m onto the 10 m footprint. The {undated_pct} % that cannot inherit a "
+        "year is kept as an explicit undated class rather than given an invented one.",
         start="1985-01-01", end="2016-07-01",
     ),
     "settlement-era-b": LayerSpec(
@@ -455,8 +455,8 @@ LAYERS: dict[str, LayerSpec] = {
         "source that measures density consistently across the 2015/2016 seam. "
         "Observed epochs are 1975, 1990 and 2000 (Landsat); the rest are interpolated, "
         "and that interpolation smooths real events away: GHSL puts its LARGEST "
-        "increment in 2015-2020, when the cadastre records construction at 11 % of "
-        "its pre-2008 rate. Sound for the long trend and for density; never use it to "
+        "increment in 2015-2020, when the cadastre records construction at {crash_pct} % "
+        "of its pre-2008 rate. Sound for the long trend and for density; never use it to "
         "date recent growth (data-evaluation.md §12).",
         start="1975-01-01", end="2020-12-31",
     ),

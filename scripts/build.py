@@ -212,9 +212,9 @@ def write_catalog(stats: dict) -> Path:
                           for p in path.parent.glob(f"{path.stem}.*.tif")}
             by_layer.setdefault(name, []).append(
                 catalog.item_for(spec, island, entry.get("properties", {}), path,
-                                 base_dir=PROCESSED, companions=companions))
+                                 base_dir=PROCESSED, companions=companions, stats=stats))
 
-    collections = [catalog.collection_for(layers.LAYERS[name], items)
+    collections = [catalog.collection_for(layers.LAYERS[name], items, stats=stats)
                    for name, items in by_layer.items()]
     path = catalog.save(catalog.build_catalog(collections), PROCESSED)
     print(f"\nwrote {path}")
