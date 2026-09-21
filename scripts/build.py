@@ -294,6 +294,19 @@ def main() -> int:
     print("\n  by gate:  " + " | ".join(
         f"{name} {m}" + (f" (+{s} n/a)" if s else "") for name, (m, s) in sorted(by_gate.items())))
 
+    # The viewer does not read the STAC items. It reads data/processed/index.json,
+    # a flattened runtime index written by scripts/publish.py so a cold page load
+    # costs one request instead of a 64-file STAC walk. That index is a COPY of the
+    # statistics, so a rebuild leaves it stale — and stale is worse than absent
+    # here, because every gate still passes, every STAC item is correct, and the
+    # only symptom is a viewer quietly showing yesterday's numbers. Deleting it is
+    # self-healing: loadCatalog() falls back to the STAC walk, which is slower and
+    # right, until publish.py regenerates the index.
+    index = PROCESSED / "index.json"
+    if index.exists():
+        index.unlink()
+        print("  removed index.json (now stale) — run scripts/publish.py to rebuild it")
+
     print(f"\nPublished {published_mib(records):.1f} MiB to {PROCESSED}")
     return 0 if passed == measured else 2
 

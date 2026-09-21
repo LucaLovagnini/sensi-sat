@@ -69,7 +69,7 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `scripts/build.py` | M2: produce, check and catalogue the seven layers |
 | `scripts/verify_m2.py` | M2's acceptance criteria as an executable check |
 | `scripts/m3_*.py` | M3: `sample` (draw), `label` via viewer, `score` (Olofsson), `diagnose`, `recheck`, `review` |
-| `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/` |
+| `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |
 | `tests/` | 56 pytest tests over small fixture rasters |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
 
@@ -185,7 +185,14 @@ These each cost real time to find. Read before touching the data code.
     puts its **largest increment of the whole series in 2015–2020**, when the
     cadastre records 11 % of the pre-crash rate. Use it for the long trend and for
     density, never for timing after ~2005 (`data-evaluation.md` §12).
-20. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+20. **The viewer reads `data/processed/index.json`, not the STAC items.** It is a
+    flattened runtime index (one request instead of a 64-file STAC walk) written by
+    **`publish.py`, not `build.py`** — so a rebuild leaves it stale while every gate
+    passes and every STAC item on disk is correct, and the only symptom is the
+    viewer quietly showing old numbers. `build.py` now deletes it, because
+    `loadCatalog()` falls back to the STAC walk when it is missing: slower and right
+    beats fast and stale. Run `python scripts/publish.py` after any rebuild.
+21. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point
