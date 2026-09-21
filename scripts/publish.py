@@ -140,9 +140,15 @@ def main() -> int:
     # A stale figure only does harm once it is public, and this is the last moment
     # to stop it. Checked before anything is copied, so a failure costs nothing.
     sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from sync_docs import figure_gate
     from sync_docs import run as sync_documents
     if sync_documents(check=True) != 0:
         print("\n  refusing to assemble dist/ — run `python scripts/sync_docs.py` first")
+        return 3
+    # Then the whole gate: every figure accounted for, no live value typed by hand,
+    # every quantity word carrying its digits. dist/ is what the public reads.
+    if figure_gate() != 0:
+        print("\n  refusing to assemble dist/ while a figure is unaccounted for")
         return 3
 
     print(f"Assembling {DIST}")

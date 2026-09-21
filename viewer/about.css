@@ -62,3 +62,9 @@ footer {
   table { font-size: 13.5px; }
   th, td { padding: 8px 9px; }
 }
+
+/* Section numbers are rendered, not typed. The figure gate reads every digit in the
+   page source, and a heading's "3." was the one thing there that is not a claim;
+   removing the exception is simpler and safer than keeping it narrow. */
+body { counter-reset: section; }
+section > h2::before { counter-increment: section; content: counter(section) ". "; }

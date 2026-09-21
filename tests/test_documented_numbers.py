@@ -129,7 +129,7 @@ def exemption_counts(text: str, *, html: bool) -> dict[str, int]:
         body = rx.sub(" ", body)
     counts["reference"] = len(REFERENCE.findall(body))
     body = REFERENCE.sub(" ", body)
-    exempt_at = {m.start(1) for m in LIST_MARKER_AT_LINE_START.finditer(body)}
+    exempt_at = set() if html else {m.start(1) for m in LIST_MARKER_AT_LINE_START.finditer(body)}
     counts["year"] = sum(1 for m in TOKEN.finditer(body) if YEAR.match(normalise(m.group())))
     counts["list_marker"] = sum(1 for m in TOKEN.finditer(body) if m.start() in exempt_at)
     return counts
@@ -138,7 +138,9 @@ def exemption_counts(text: str, *, html: bool) -> dict[str, int]:
 def figures_in(text: str, *, html: bool) -> set[str]:
     """Tokens a reader sees that are NOT generated and NOT excepted."""
     body = _prose(text, html=html)
-    exempt_at = {m.start(1) for m in LIST_MARKER_AT_LINE_START.finditer(body)}
+    # HTML has no list markers in its source: <ol> numbers itself and the page's
+    # section numbers are CSS counters (about.css). So the exception is Markdown-only.
+    exempt_at = set() if html else {m.start(1) for m in LIST_MARKER_AT_LINE_START.finditer(body)}
     out = set()
     for m in TOKEN.finditer(body):
         tok = normalise(m.group())
@@ -366,6 +368,14 @@ def test_quantity_words_carry_their_digits() -> None:
 ])
 def test_quantity_word_rule_fixtures(text: str, ok: bool) -> None:
     assert (quantity_words_without_digits(text, html=False) == []) is ok, text
+
+
+def test_page_headings_are_numbered_by_css_not_by_hand() -> None:
+    """A typed "3." in a heading is a digit the gate must either except or account
+    for. Rendered by a CSS counter it is neither — it is not in the source at all."""
+    assert not re.search(r"<h2>\s*\d", PAGE.read_text()), "a page heading carries a typed number"
+    css = (ROOT / "viewer" / "about.css").read_text()
+    assert "counter-increment: section" in css and "content: counter(section)" in css
 
 
 def test_no_cog_marker_inside_a_string_literal() -> None:

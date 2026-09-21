@@ -304,12 +304,20 @@ def main() -> int:
     # right, until publish.py regenerates the index.
     # A rebuild is what makes the documents stale, so it is what fixes them. The
     # change then arrives as a reviewable git diff rather than as silent drift.
+    gate_ok = True
     try:
         sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from sync_docs import figure_gate
         from sync_docs import run as sync_documents
         sync_documents(check=False)
-    except Exception as exc:                      # never fail a build over prose
-        print(f"  (could not sync documents: {exc})")
+        # Regenerating fixed what the build changed. What it cannot fix is a number
+        # a human typed since — the gate says so now, while the change is fresh,
+        # rather than at publish time. The layers are already on disk; only the
+        # exit code carries it (CLAUDE.md #11: a skipped check is not a passed one).
+        gate_ok = figure_gate() == 0
+    except Exception as exc:                      # the layers are the deliverable
+        print(f"  (could not sync documents or run the figure gate: {exc})")
+        gate_ok = False
 
     index = PROCESSED / "index.json"
     if index.exists():
@@ -317,7 +325,12 @@ def main() -> int:
         print("  removed index.json (now stale) — run scripts/publish.py to rebuild it")
 
     print(f"\nPublished {published_mib(records):.1f} MiB to {PROCESSED}")
-    return 0 if passed == measured else 2
+    if passed != measured:
+        return 2
+    if not gate_ok:
+        print("  build complete, but the FIGURE GATE FAILED — see above (exit 4)")
+        return 4
+    return 0
 
 if __name__ == "__main__":
     raise SystemExit(main())

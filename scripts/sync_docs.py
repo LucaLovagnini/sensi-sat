@@ -123,6 +123,27 @@ def run(check: bool) -> int:
     return proc.returncode
 
 
+def figure_gate() -> int:
+    """Run the whole figure gate — tests/test_documented_numbers.py — as a subprocess.
+
+    One entry point, so `build.py` and `publish.py` cannot drift from what `pytest`
+    checks: the same file, the same tests, the same exit code. Zero means every figure
+    on every surface is generated, declared or excepted, no live value is typed by
+    hand, and every quantity word carries its digits.
+    """
+    proc = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider",
+                           str(ROOT / "tests" / "test_documented_numbers.py")],
+                          cwd=ROOT, capture_output=True, text=True)
+    if proc.returncode == 0:
+        print("  figure gate: passed")
+    else:
+        tail = "\n".join(proc.stdout.strip().splitlines()[-25:])
+        print("  FAIL: the figure gate — a number somewhere has no accounted source.\n")
+        print(tail)
+        print("\n  Full report: python -m pytest tests/test_documented_numbers.py")
+    return proc.returncode
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
