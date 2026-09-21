@@ -526,6 +526,28 @@ function renderLegend() {
   el('legend').innerHTML = html;
 }
 
+/**
+ * Format an area for display, in the READER's number convention.
+ *
+ * Raw JavaScript prints 2.343 and 7344.65, which is the English convention and
+ * ambiguous everywhere that uses "." to group thousands — Spain and most of the
+ * continent, which is to say much of this map's audience. A Spanish planner reading
+ * "2.343 km²" sees two thousand.
+ *
+ * The locale must be `navigator.languages`, NOT omitted. Measured in Chrome with
+ * navigator.language = "es-ES": `Intl.NumberFormat(undefined)` resolves to en-US,
+ * because the runtime default follows the browser's UI language rather than the
+ * user's content preferences. Passing the preference list explicitly is what
+ * actually honours it.
+ *
+ * Two decimals, always. These are square kilometres of an island, so a third
+ * decimal is 1000 m² of precision nobody is reading. The one consequence worth
+ * knowing: a change smaller than 0.005 km² prints as 0, which only the loss layer
+ * can produce.
+ */
+const area = (n) => n == null || !isFinite(n) ? '—'
+  : new Intl.NumberFormat(navigator.languages, {maximumFractionDigits: 2}).format(n);
+
 function renderReadout(entry) {
   const def = LAYERS[state.layer];
   const s = entry?.stats || {};
@@ -535,7 +557,7 @@ function renderReadout(entry) {
   if (def.kind === 'trend' && s.surface_km2) {
     const now = s.surface_km2[state.year], first = s.surface_km2[def.epochs[0]];
     const growth = first ? Math.round(100 * (now / first - 1)) : null;
-    el('readout').innerHTML = `<div class="big">${now} km²</div>`
+    el('readout').innerHTML = `<div class="big">${area(now)} km²</div>`
       + `<div class="cap">built surface in ${state.year}`
       + (growth == null ? '' : ` · ${growth >= 0 ? '+' : ''}${growth} % since ${def.epochs[0]}`)
       + ` · ${s.observed?.[state.year] ?? ''}</div>`;
@@ -543,7 +565,7 @@ function renderReadout(entry) {
   }
   if (def.kind === 'change' && s.change_km2) {
     const rows = Object.entries(s.change_km2).map(([period, v]) =>
-      `<div class="cap">${period}: <b>+${v.new_cover_km2}</b> km² new, <b>−${v.loss_of_cover_km2}</b> km² lost</div>`).join('');
+      `<div class="cap">${period}: <b>+${area(v.new_cover_km2)}</b> km² new, <b>−${area(v.loss_of_cover_km2)}</b> km² lost</div>`).join('');
     el('readout').innerHTML = `<div class="cap">Built-up change, whole island</div>${rows}`;
     return;
   }
@@ -558,17 +580,17 @@ function renderReadout(entry) {
     const y = Math.min(Math.max(state.year, Math.min(...yrs)), Math.max(...yrs));
     const now = s.extent_by_year[y];
     const undated = s.undated_km2 ?? s['pre-2016, undated'];
-    el('readout').innerHTML = `<div class="big">${now} km²</div>`
+    el('readout').innerHTML = `<div class="big">${area(now)} km²</div>`
       + `<div class="cap">${def.title.toLowerCase()} by ${state.year}, whole island`
-      + (undated ? ` · plus ${undated} km² built but undated` : '') + '</div>';
+      + (undated ? ` · plus ${area(undated)} km² built but undated` : '') + '</div>';
     return;
   }
   if (def.kind === 'epoch' && s.extent_by_epoch) {
     const e = toEpoch(state.year);
     const label = epochLabel(e);
-    el('readout').innerHTML = `<div class="big">${s.extent_by_epoch[e]} km²</div>`
+    el('readout').innerHTML = `<div class="big">${area(s.extent_by_epoch[e])} km²</div>`
       + `<div class="cap">${def.title.toLowerCase()} by ${label}, whole island`
-      + (s.greenhouse_removed_km2 ? ` · ${s.greenhouse_removed_km2} km² of greenhouses removed` : '')
+      + (s.greenhouse_removed_km2 ? ` · ${area(s.greenhouse_removed_km2)} km² of greenhouses removed` : '')
       + '</div>';
     return;
   }
@@ -576,10 +598,10 @@ function renderReadout(entry) {
   const km2 = s.footprint_km2 ?? s.area_km2 ?? s.sealed_km2 ?? null;
   let extra = '';
   if (s['pre-2016, undated'] != null) extra = `${s['dated_share_pct']} % of it carries a year`;
-  else if (s.greenhouse_removed_km2 != null) extra = `${s.greenhouse_removed_km2} km² of greenhouses removed`;
+  else if (s.greenhouse_removed_km2 != null) extra = `${area(s.greenhouse_removed_km2)} km² of greenhouses removed`;
   else if (s.survey_year) extra = `surveyed ${s.survey_year}`;
   el('readout').innerHTML = km2 == null ? ''
-    : `<div class="big">${km2} km²</div><div class="cap">${def.title.toLowerCase()}, whole island${extra ? ' · ' + extra : ''}</div>`;
+    : `<div class="big">${area(km2)} km²</div><div class="cap">${def.title.toLowerCase()}, whole island${extra ? ' · ' + extra : ''}</div>`;
 }
 
 function syncTimeControls() {
