@@ -35,7 +35,7 @@ M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 complete. The site is live but **unannounced** at
 `https://sensisat.ensi-at.workers.dev`. Two milestones remain: **M4c** — figure
 provenance, designed 2026-09-21 and **gating a public repository**
-(`docs/design/figure-provenance.md`) — and **M5**, the per-zone statistics panel,
+(design lives in the plan, `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`, M4c) — and **M5**, the per-zone statistics panel,
 attribution and releases.
 
 M3's result, in `docs/validation.md`, measured on **30 m squares** (see point 16).
@@ -217,7 +217,7 @@ These each cost real time to find. Read before touching the data code.
     digit-based, so a number written as a word escapes them — which would make
     dodging the gate easier than satisfying it. This is the one way the whole
     arrangement could leave the project worse off than before, so it is a writing
-    rule, not a preference (M4c, `docs/design/figure-provenance.md`).
+    rule, not a preference (M4c; design in `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`, M4c).
 24. **Historical measurements must NOT be updated, and must be distinguishable.**
     Most of the ~1,300 numbers in `docs/` record why a decision was taken — the
     figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting
