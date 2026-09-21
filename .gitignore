@@ -20,7 +20,16 @@ service-account*.json
 # Downloaded source rasters and derived data.
 # Regenerable: `python -m sensisat.datasets...` re-fetches from the public URLs
 # recorded in data/raw/manifest.json. Zone polygons are cached here too.
-/data/
+/data/*
+!/data/processed/
+/data/processed/*
+
+# ...except the published statistics, which are 86 KB and are not "derived data"
+# in the sense the rule above means. They ARE the numbers: every figure quoted in
+# docs/ and on the public page comes from here, tests/test_documented_numbers.py
+# checks the documents against them, and a reader of a public repo can verify any
+# claim we make without rebuilding 13 GB of rasters.
+!/data/processed/statistics/
 *.tif
 *.tiff
 *.zarr

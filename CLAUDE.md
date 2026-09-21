@@ -69,6 +69,8 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `scripts/build.py` | M2: produce, check and catalogue the seven layers |
 | `scripts/verify_m2.py` | M2's acceptance criteria as an executable check |
 | `scripts/m3_*.py` | M3: `sample` (draw), `label` via viewer, `score` (Olofsson), `diagnose`, `recheck`, `review` |
+| `scripts/sync_docs.py` | rewrite (or `--check`) every live figure in the documents |
+| `sensisat/facts.py` | the published figures as functions — the single source for prose |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |
 | `tests/` | 56 pytest tests over small fixture rasters |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
@@ -192,7 +194,21 @@ These each cost real time to find. Read before touching the data code.
     viewer quietly showing old numbers. `build.py` now deletes it, because
     `loadCatalog()` falls back to the STAC walk when it is missing: slower and right
     beats fast and stale. Run `python scripts/publish.py` after any rebuild.
-21. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+21. **Numbers in documents are generated, not typed — but only the marked ones.**
+    A figure derived from the current build goes in `sensisat/facts.py` and is
+    written into the document by `cog` through `scripts/sync_docs.py`. `build.py`
+    regenerates them (a rebuild is what makes them stale, so it fixes them and you
+    review the diff), `pytest` checks them, and `publish.py` refuses to assemble
+    `dist/` while any disagrees. **Never hand-type a live figure** — mark it, or it
+    will go stale in silence, which has already happened twice.
+22. **Historical measurements must NOT be updated, and must be distinguishable.**
+    Most of the ~1,300 numbers in `docs/` record why a decision was taken — the
+    figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting
+    them to match a later build destroys the reasoning they exist to support. But a
+    reader cannot tell a frozen measurement from a stale one, so every document
+    carries a generated block (`facts.contract()`) stating which is which, and a
+    historical figure names the analysis script that produced it.
+23. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point

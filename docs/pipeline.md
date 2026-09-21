@@ -1,5 +1,13 @@
 # M2 — the processing pipeline, in plain language
 
+<!--[[[cog cog.outl(f.contract()) ]]]-->
+**About the numbers in this document.** Figures fall into two kinds.
+
+*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.
+
+*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted.
+<!--[[[end]]]-->
+
 **What this milestone produced:** seven map layers covering the eight Canary
 Islands, written to disk as files a web browser can read directly, each one
 checked by automatic tests and described by a machine-readable catalogue.
@@ -305,18 +313,31 @@ those stay in the undated class rather than being resolved by guesswork.
 
 ### Size — the one criterion not met as written
 
-M2's plan asked for the published output to stay in **single-digit MiB**. It is
-**60.2 MiB** (re-measured 2026-09-21). That target was set before the sealing layer
-had been measured, and it is worth being precise about where the bytes went rather
-than quietly widening the goal:
+M2's plan asked for the published output to stay in **single-digit MiB**. The total is
 
+<!--[[[cog cog.out("**" + km2(f.size_published(), 1) + " MiB**") ]]]-->
+**60.2 MiB**
+<!--[[[end]]]-->
+
+That target was set before the sealing layer had been measured, and it is worth
+being precise about where the bytes went rather than quietly widening the goal:
+
+<!--[[[cog
+cog.outl("| | MiB |")
+cog.outl("|---|---|")
+cog.outl(f"| six layers (buildings, both settlement eras, greenhouses, trend, loss) "
+         f"| **{km2(f.size_six_layers(), 1)}** |")
+cog.outl(f"| `density-current` — the sealing map itself | {km2(f.size_mib('density-current'), 1)} |")
+cog.outl(f"| `density-current` — the per-pixel confidence companion | {km2(f.size_confidence(), 1)} |")
+cog.outl(f"| **total, everything under data/processed** | **{km2(f.size_published(), 1)}** |")
+]]]-->
 | | MiB |
 |---|---|
 | six layers (buildings, both settlement eras, greenhouses, trend, loss) | **22.1** |
 | `density-current` — the sealing map itself | 11.8 |
 | `density-current` — the per-pixel confidence companion | 25.5 |
-| STAC, statistics and the M3 sample files | 0.8 |
-| **total** | **60.2** |
+| **total, everything under data/processed** | **60.2** |
+<!--[[[end]]]-->
 
 **It was 54.1 MiB when M2 closed, and the six layers account for the +5.0.** M4
 changed two things in how COGs are written, and both cost bytes on purpose:

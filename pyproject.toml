@@ -35,6 +35,7 @@ zarr = ["xarray>=2024.1", "zarr>=3.0", "fsspec>=2024.1", "s3fs>=2024.1", "aiohtt
 dev = [
     "pytest>=8.0", "ruff>=0.5", "jupyterlab>=4.0", "nbformat>=5.9",
     "fastapi>=0.110", "httpx>=0.27", "stac-validator>=3.3",
+    "cogapp>=3.4",
 ]
 
 [build-system]

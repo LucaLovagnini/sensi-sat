@@ -137,6 +137,14 @@ def main() -> int:
         print("data/processed/ has no catalogue — run scripts/build.py --all first")
         return 1
 
+    # A stale figure only does harm once it is public, and this is the last moment
+    # to stop it. Checked before anything is copied, so a failure costs nothing.
+    sys.path.insert(0, str(Path(__file__).resolve().parent))
+    from sync_docs import run as sync_documents
+    if sync_documents(check=True) != 0:
+        print("\n  refusing to assemble dist/ — run `python scripts/sync_docs.py` first")
+        return 3
+
     print(f"Assembling {DIST}")
     if not args.skip_bundle:
         build_bundle()

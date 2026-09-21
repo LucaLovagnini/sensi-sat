@@ -302,6 +302,15 @@ def main() -> int:
     # only symptom is a viewer quietly showing yesterday's numbers. Deleting it is
     # self-healing: loadCatalog() falls back to the STAC walk, which is slower and
     # right, until publish.py regenerates the index.
+    # A rebuild is what makes the documents stale, so it is what fixes them. The
+    # change then arrives as a reviewable git diff rather than as silent drift.
+    try:
+        sys.path.insert(0, str(Path(__file__).resolve().parent))
+        from sync_docs import run as sync_documents
+        sync_documents(check=False)
+    except Exception as exc:                      # never fail a build over prose
+        print(f"  (could not sync documents: {exc})")
+
     index = PROCESSED / "index.json"
     if index.exists():
         index.unlink()

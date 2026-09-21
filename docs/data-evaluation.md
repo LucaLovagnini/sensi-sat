@@ -1,5 +1,13 @@
 # Milestone 0 — dataset evaluation for the Canary Islands
 
+<!--[[[cog cog.outl(f.contract()) ]]]-->
+**About the numbers in this document.** Figures fall into two kinds.
+
+*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.
+
+*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted.
+<!--[[[end]]]-->
+
 What this is: a measured, reproducible answer to "which open datasets can SensiSat
 trust, and where do they fail?" Nothing here is taken on faith from a dataset's
 documentation; every number was computed locally from the downloaded files.

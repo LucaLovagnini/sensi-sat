@@ -45,8 +45,21 @@
   The 4.7× spread is the definitions, not error.</p>
 
   <p class="takeaway">So a figure from SensiSat is only meaningful with its layer
-  attached. “100.3 km² of building footprint” and “341.5 km² of sealed surface”
-  are both true of the same islands in the same year.</p>
+  attached. This site publishes
+  <!--[[[cog cog.out(km2(area("buildings-dated"))) ]]]-->
+  104.33
+  <!--[[[end]]]-->
+  km² of building footprint and
+  <!--[[[cog cog.out(km2(area("density-current"))) ]]]-->
+  317.91
+  <!--[[[end]]]-->
+  km² of sealed surface — both true of the same islands in the same year.</p>
+
+  <p>Those two differ slightly from the matching rows above, and the reason is us
+  rather than them. The table gives each product’s own published total; these are
+  what our layers actually hold. We rasterise the cadastre onto a 10 m grid instead
+  of measuring its polygons exactly, and we take greenhouses out of the
+  sealed-surface layer and publish them separately (section 7).</p>
 
   <p>A seventh product, Google’s Dynamic World, reported 308 km² for
   <em>Gran Canaria alone</em> — more than double every artificial thing CORINE can
