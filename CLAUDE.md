@@ -76,6 +76,7 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `scripts/verify_m2.py` | M2's acceptance criteria as an executable check |
 | `scripts/m3_*.py` | M3: `sample` (draw), `label` via viewer, `score` (Olofsson), `diagnose`, `recheck`, `review` |
 | `scripts/sync_docs.py` | rewrite (or `--check`) every live figure in the documents |
+| `scripts/plan_review.py` | list the plan's forward-looking sentences and the build figures typed into it — the plan is outside the repo, so nothing else checks it |
 | `sensisat/facts.py` | the published figures as functions — the single source for prose |
 | `sensisat/provenance.py` | where every hand-written figure on the public page came from |
 | `viewer/` | M4: the map. `python viewer/serve.py` then open `/viewer/`. **The page loads `app.bundle.js`** — after editing `app.js`, run `cd viewer && npm run build` |

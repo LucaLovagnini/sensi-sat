@@ -322,27 +322,40 @@ def live_values() -> list[tuple[str, float, str]]:
     return out
 
 
-def hand_typed_live_figures() -> dict[tuple[str, str], list[str]]:
-    """(file, figure) -> facts that produce it, for every live value found in prose
-    outside a cog region and not declared historical in the registry. Values below 1
-    are skipped — at two decimals they collide by coincidence ($0.36/million matched
-    La Graciosa's extent) — and a unit must be attached, so a bare table cell is not
-    seen. Both limits are recorded in the design doc."""
+def live_figures_in(text: str) -> dict[str, list[str]]:
+    """figure -> the facts that currently produce it, for every headline value the
+    build computes that appears typed in `text`, outside a cog region and not
+    declared historical in the registry.
+
+    Values below 1 are skipped — at two decimals they collide by coincidence
+    ($0.36/million matched La Graciosa's extent) — and a unit must be attached, so a
+    bare table cell is not seen. Both limits are recorded in the design doc.
+
+    A function over text rather than over the published files, because the same
+    question is worth asking of a document OUTSIDE the repository: the plan at
+    `~/.claude/plans/` states build figures too and nothing else checks it
+    (`scripts/plan_review.py`).
+    """
     from sensisat.provenance import HISTORICAL
     declared = {re.sub(r"\s?(km²|%|×|MiB)$", "", k) for k in HISTORICAL}
-    hits: dict[tuple[str, str], list[str]] = {}
-    for rel in PROSE_SURFACES:
-        body = strip_generated((ROOT / rel).read_text())
-        for name, v, u in live_values():
-            if v < 1:
+    body = strip_generated(text)
+    hits: dict[str, list[str]] = {}
+    for name, v, u in live_values():
+        if v < 1:
+            continue
+        unit, unit_rx = _UNIT_TEXT[u]
+        for s in {f"{v:,.2f}", f"{v:,.1f}"}:
+            if s in declared:
                 continue
-            unit, unit_rx = _UNIT_TEXT[u]
-            for s in {f"{v:,.2f}", f"{v:,.1f}"}:
-                if s in declared:
-                    continue
-                if re.search(rf"(?<![\d.]){re.escape(s)}{unit_rx}", body):
-                    hits.setdefault((rel, f"{s} {unit}"), []).append(name)
+            if re.search(rf"(?<![\d.]){re.escape(s)}{unit_rx}", body):
+                hits.setdefault(f"{s} {unit}", []).append(name)
     return hits
+
+
+def hand_typed_live_figures() -> dict[tuple[str, str], list[str]]:
+    """(file, figure) -> facts that produce it, over every published prose surface."""
+    return {(rel, fig): names for rel in PROSE_SURFACES
+            for fig, names in live_figures_in((ROOT / rel).read_text()).items()}
 
 
 # ---------------------------------------------------------------------------
