@@ -33,6 +33,16 @@ and this skill is how a human (or you, named as the reviewer) supplies them.
    ```
 4. Commit `docs/figures-review.json` with the change that prompted the review.
 
+## Not to be confused with `scripts/verify_m4c.py`
+
+That script is the milestone's **acceptance** check — 22 criteria proving the
+mechanism itself works (the hook blocks a stale state, one perturbed statistics
+file moves the page, the viewer module and the STAC description together). It
+reads what this skill produced — criterion 21 reports who attested and whether
+the attestation is current — but it is not part of this procedure, and this
+procedure does not run it. Run it when you want the mechanism re-proved; run the
+gate (step 1 above) before a review.
+
 ## What the attestation does and does not do
 
 It hashes the SET of figures — tokens, generated regions, registry keys, section
