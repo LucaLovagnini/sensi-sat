@@ -1,21 +1,17 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "sensisat",
-  "main": "worker/index.js",
   "compatibility_date": "2026-09-18",
   "observability": { "enabled": true },
   "assets": {
-    "directory": "dist",
-    "binding": "ASSETS",
-    // Scoped to the rasters, not `true`.
-    //
-    // The Worker exists only to honour `Range`, which the asset platform ignores,
-    // and only the COGs are ever range-requested. Running it for everything made
-    // every request to the page, the bundle and the stylesheets a Worker
-    // invocation — and Cloudflare bills Worker invocations (100,000/day free)
-    // while "requests to static assets are free and unlimited". Scoping it here
-    // takes the billable path from ~6 requests a visit to ~2, and leaves the shell
-    // on the free path where it belongs.
-    "run_worker_first": ["/data/*.tif", "/data/*/*.tif"]
+    // The SHELL only. The rasters live in R2 (data.sensisat.org) and are never
+    // uploaded here: Workers Assets ignores the `Range` header, and a Cloud-Optimized
+    // GeoTIFF is defined by being read in slices. That mismatch is what worker/index.js
+    // used to paper over, pulling each whole object into memory to return a few
+    // kilobytes -- measured at 1.27 ms of CPU per MiB, which put the largest layers
+    // over the Workers Free 10 ms limit. R2 slices at the storage layer, so the Worker
+    // is gone and there is no script here at all: no "main", no "binding", no
+    // "run_worker_first". Requests to static assets are free and unlimited.
+    "directory": "dist/site"
   }
 }

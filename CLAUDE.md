@@ -99,7 +99,7 @@ a question not indexed here is a question a fresh session will not know to look 
 | `docs/pipeline.md` | M2: the seven layers, the grid, the QA gates, the results | internal |
 | `docs/validation.md` | M3: the accuracy numbers, how they were measured, and §9 why the first attempt was discarded | internal |
 | `docs/viewer.md` | M4: how the map works, why OpenLayers, the WebGL constraints | internal |
-| `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration still pending | internal |
+| `docs/design/scaling.md` | hosting cost, guardrails G1–G7, the R2 migration and the pre-flight that de-risked it | internal |
 | `docs/design/figure-provenance.md` | M4c: how every published number is generated, declared or excepted; the limits; what building it found | internal |
 | `viewer/about-the-data.html` | **the public page** — every figure with its conditions, for a cold reader | **PUBLISHED** |
 

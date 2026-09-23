@@ -105,7 +105,7 @@
    "docs/viewer.md": [
     "measured:arithmetic stated in the text (years × zoom levels) @ 2026-09-20",
     "sensisat/raster.py; measured:M4 experiments on a synthetic island and Tenerife's building layer on 2026-09-20 @ 2026-09-20",
-    "scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20"
+    "scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24"
    ]
   },
   "generated": {
@@ -2209,14 +2209,20 @@
      "7.67 %"
     ],
     "## 6. Deployment": [
+     "0.88 MiB",
+     "1.27",
      "1.5",
-     "137",
+     "10",
+     "100311",
      "200",
      "292",
+     "4.22 MiB",
+     "4.6",
      "6",
-     "60.6 MiB",
      "64.3",
+     "7",
      "70",
+     "8.5 MiB",
      "850"
     ]
    }
@@ -2304,12 +2310,12 @@
    ]
   }
  },
- "fingerprint": "5c9d2ecbc80fc1c367a1e79ea6e22688265a4b35a52f9899a55c64b89a7378b3",
+ "fingerprint": "2536de48e6a2cb7078dd69375ae1236a7f1426b5f56c303487495b28398e1269",
  "judgements": {
-  "declarations_plausible": "81 declarations. Three opened against their sections: m0_cadastre_spike_years.csv (25,971 at 1900, ratio 1145.8) correct; m3_labels_30m_pass2.json (228 entries) correct; concepts.md §5 named the wrong file and was corrected to an external source with no output kept (bc2316c). Analyses 15 and 17 have no surviving script and say so.",
-  "generated_from_right_fact": "All 21 generated regions read against the sentence each lands in (2026-09-21): footprint and sealed surface (headline_km2), the seam range with the five-island assert, La Gomera's 3 km² and +83 %, undated share 37 %, dated share 98.8 % as a share of footprint AREA (the wrong-fact match found and fixed this session), 27.06 km² greenhouse layer beside M0's 72 %, sizes, the M2 table and its 1.7 % paragraph, validation.md's 37 %, viewer.md's Gran Canaria figures, the design doc's blocks, and the citation's data version. Each fact matches its sentence and unit. No generated region changed in the going-public edit to CLAUDE.md (verify_m4b 18/18 replaced the 404 note).",
-  "registry_holds_no_live_claim": "All 63 entries read; none is a claim about the published layers. Six coincide with a live value today (37 %, 11 %, 17 km², 152.9, 4.7, 2.7); every use on the page and README checked to be the historical one."
+  "declarations_plausible": "docs/viewer.md §6 was rewritten and its declaration updated to match: scripts/publish.py (the two-tree split and the 7-file shell), scripts/upload_r2.py (the upload path), measured:curl range pre-flights against the live site 2026-09-20 and R2 2026-09-24, measured:Worker CPU per invocation from wrangler tail and the dashboard 2026-09-23, and external:Cloudflare Workers platform limits for the 10 ms Free CPU figure — which was wrongly filed as measured: at first and corrected, since we read it rather than measured it. Every path named exists.",
+  "generated_from_right_fact": "viewer.md's only generated region is §4's Gran Canaria areas (buildings 35.65, greenhouses 27.06, sealed 109.68 km²); read against its sentence, each fact matches the quantity named and the units are right. §6 introduced no generated figures. Nothing else in the repository changed.",
+  "registry_holds_no_live_claim": "No entries added, removed or reworded. The R2 migration introduced no historical figures: every number in the rewritten §6 is either measured on 2026-09-23/24 or Cloudflare's published platform limit, and all are covered by the section declaration rather than the token registry."
  },
- "reviewed": "2026-09-21",
- "reviewer": "Luca — attested on his instruction by Claude Fable 5.1 (2026-09-21); the judgements are the session's checks"
+ "reviewed": "2026-09-24",
+ "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/viewer.md §6 after the R2 migration; Luca's own first-hand reading of the full listing is still outstanding"
 }

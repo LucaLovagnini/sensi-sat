@@ -26,13 +26,26 @@ import { FACTS } from './facts.generated.js';
 
 
 /**
- * Where the published data sits, relative to this page. Two layouts are valid and
- * both must work without a build-time rewrite: in the repository the viewer lives
- * in viewer/ and the data in data/processed/; in the deployed site the page is at
- * the root and the data directly beneath it. The first candidate that answers is
- * used, so the same file serves local development and production.
+ * Where the published data sits.
+ *
+ * Three layouts are valid and all must work without a build-time rewrite: the
+ * repository (viewer/ beside data/processed/), a local dist/site/ preview, and the
+ * deployed site, whose rasters live in an R2 bucket because Cloudflare's asset
+ * platform ignores the `Range` header and R2 honours it natively.
+ *
+ * The ORDER is chosen by hostname rather than simply trying the remote first, and
+ * that is the whole point of this block: on a developer's machine a freshly rebuilt
+ * layer must win over the published copy. Preferring the remote would quietly show
+ * last week's data while the new build sat unused on disk — the silent-staleness
+ * failure of CLAUDE.md #20 wearing a different hat. In production neither relative
+ * path exists, so putting R2 first there costs nothing and saves two 404s on the
+ * critical path before the map can draw.
  */
-const DATA_CANDIDATES = ['data', '../data/processed'];
+const R2_DATA = 'https://data.sensisat.org';
+const LOCAL_DATA = ['data', '../data/processed'];
+const DATA_CANDIDATES = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
+  ? [...LOCAL_DATA, R2_DATA]
+  : [R2_DATA, ...LOCAL_DATA];
 let DATA = DATA_CANDIDATES[0];
 const YEAR_OFFSET = 1899;      // stored value = year - 1899 (see sensisat/encoding.py)
 const UNDATED = 255;

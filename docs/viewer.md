@@ -128,23 +128,30 @@ deep-linking of state into the URL.
 ---
 
 ## 6. Deployment
-<!-- figures: scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20 -->
+<!-- figures: scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24 -->
 
 Live, unannounced, at **`https://sensisat.ensi-at.workers.dev`** (2026-09-20).
 
 ```bash
 python scripts/build.py --all     # produce the layers
-python scripts/publish.py         # bundle the JS, assemble dist/, check the size budget
-npx wrangler deploy               # deploy (needs `wrangler login` once)
+python scripts/publish.py         # bundle the JS, assemble dist/site and dist/data
+python scripts/upload_r2.py       # dist/data/ -> R2   (only when the layers changed)
+npx wrangler deploy               # dist/site/ -> Workers Assets
 ```
 
-`dist/` also carries `_headers` (from `viewer/_headers`): a Content Security Policy
-and three hardening headers that the static-assets platform applies to every
-response without a Worker invocation — the browser will run scripts only from the
-site itself and load tiles only from the two named providers.
-`dist/` holds the viewer at its root and the published layers under `data/` — 137
-files, 60.6 MiB. The repository is not the website: scripts, docs, raw downloads
-and notebooks never reach the public host.
+**Two trees, because they go to two hosts.** `dist/site/` is the shell — 7 files,
+0.88 MiB — on Workers Assets, where requests to static assets are free and
+unlimited. `dist/data/` is the published layers, served from R2 (§5 carries the current total). They are
+split because the rasters need a host that implements `Range` and the assets platform
+does not, and because Workers Assets offers no way to exclude a directory from upload
+(`.assetsignore` was tried on 2026-09-24 and is not honoured — it uploads the ignore
+file too). The repository is not the website: scripts, docs, raw downloads and
+notebooks reach neither.
+
+`dist/site/_headers` (from `viewer/_headers`) carries a Content Security Policy and
+three hardening headers, applied to every response at no cost. **Its `connect-src`
+must name the R2 origin.** Without it the browser blocks every raster fetch and the
+map stays empty — with no network error any test would catch.
 
 ### The thing that nearly stopped this working
 
@@ -159,19 +166,32 @@ Neither obvious escape worked: classic Pages, which supported ranges, can no
 longer be created for a new project, and R2 has to be enabled in the dashboard
 first.
 
-The fix is `worker/index.js` — a Worker in front of the asset store that does the
-slicing the platform does not, and sets the immutable cache headers on rasters
-while it is there (guardrail G4). It only works with:
+The first fix was `worker/index.js` — a Worker in front of the asset store doing the
+slicing the platform does not, setting immutable cache headers on rasters while it
+was there (guardrail G4). It needed `"run_worker_first"` in `wrangler.jsonc`, without
+which a request matching a static asset is served straight from the asset store and
+the Worker never runs — which is why the first deployment of it changed nothing at
+all. It was verified on the live site for normal, suffix and mid-file ranges, and it
+served the site from 2026-09-20 to 2026-09-24.
 
-```jsonc
-"assets": { "directory": "dist", "binding": "ASSETS", "run_worker_first": true }
-```
+**It was always a workaround, and the measurement says why.** The Worker could not
+ask the asset store for a byte range — that is precisely the thing that does not
+work — so it had to pull each whole object into memory to return a few kilobytes of
+it. Measured 2026-09-23 with `wrangler tail` and the Workers dashboard, that costs
+**≈1.27 ms of CPU per MiB buffered** (a memcpy rate), so the Workers Free limit of
+**10 ms** per request is crossed at about **8.5 MiB**. The published per-island
+layers peak at 4.22 MiB, roughly **4.6 ms**, so the live site was never near the
+limit — but the ceiling was real, and it was low enough to block a larger layer.
 
-Without `run_worker_first`, a request matching a static asset is served straight
-from the asset store and the Worker never runs — which is why the first deployment
-of it changed nothing at all.
-
-Verified on the live site for normal, suffix and mid-file ranges.
+**Removed 2026-09-24.** R2 honours ranges at the storage layer, so the shim has no
+reason to exist. `worker/index.js` is deleted and `wrangler.jsonc` carries no
+`main`, no `binding` and no `run_worker_first`: the deployment has **no script at
+all**. Cloudflare's API states it plainly — a tail request returns *"Cannot tail a
+Worker which only has assets"* `[code: 100311]`. There is no CPU limit to exceed
+because there is no execution. The pre-flight against R2 was run first, on a
+throwaway bucket, for normal, suffix and unsatisfiable ranges, comparing returned
+bytes against the local file; `docs/design/scaling.md` §6 records it and the four
+traps it found.
 
 ### What a visit actually costs, measured in production
 

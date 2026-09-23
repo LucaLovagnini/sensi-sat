@@ -1,7 +1,8 @@
 """Assemble the deployable site into dist/ — everything a static host needs, nothing else.
 
     python scripts/publish.py            # build dist/
-    npx wrangler pages deploy dist       # (you run this, after `wrangler login`)
+    python scripts/upload_r2.py          # dist/data/ -> R2   (only when the data changed)
+    npx wrangler deploy                  # dist/site/ -> Workers Assets  (you run this)
 
 Three things happen here that do not happen in `build.py`, and each exists for a
 reason measured in `docs/design/scaling.md`:
@@ -14,9 +15,14 @@ reason measured in `docs/design/scaling.md`:
    deliverable in its own right, and dropping it would cost interoperability to buy
    speed we can get another way.
 
-2. **A flat, self-contained tree.** The repository is not the website: scripts,
-   docs, raw downloads and notebooks have no business on a public host. dist/ holds
-   the viewer at its root and the published layers under data/.
+2. **Two trees, because they go to two places.** The repository is not the website:
+   scripts, docs, raw downloads and notebooks have no business on a public host.
+   `dist/site/` is the shell (HTML, CSS, one JS bundle) served by Workers Assets;
+   `dist/data/` is the published layers, uploaded to R2. They are split because
+   Workers Assets has no way to exclude a directory from upload — `.assetsignore`
+   was tried and is NOT honoured by this wrangler, it merely uploads the ignore file
+   too — and because the rasters need a host that implements `Range`, which the
+   assets platform does not.
 
 3. **A size budget (guardrail G6).** The build fails if dist/ exceeds a threshold,
    so a future layer cannot quietly multiply what every visitor pays for. The
@@ -38,6 +44,8 @@ from sensisat.config import PROCESSED, ROOT  # noqa: E402
 from sensisat.layers import LAYERS  # noqa: E402
 
 DIST = ROOT / "dist"
+SITE = DIST / "site"      # -> Workers Assets (wrangler.jsonc points here)
+DATA = DIST / "data"      # -> R2 (scripts/upload_r2.py)
 VIEWER = ROOT / "viewer"
 SIZE_BUDGET_MIB = 100.0
 
@@ -98,15 +106,15 @@ def runtime_index() -> dict:
 def copy_tree() -> None:
     if DIST.exists():
         shutil.rmtree(DIST)
-    DIST.mkdir(parents=True)
+    SITE.mkdir(parents=True)
 
     for name in VIEWER_FILES:
         src = VIEWER / name
         if not src.exists():
             raise FileNotFoundError(f"{src} is missing — run `npm run build` in viewer/")
-        shutil.copy2(src, DIST / name)
+        shutil.copy2(src, SITE / name)
 
-    shutil.copytree(PROCESSED, DIST / "data")
+    shutil.copytree(PROCESSED, DATA)
 
 
 def report() -> float:
@@ -169,10 +177,10 @@ def main() -> int:
     # asks for `<data>/index.json` in both, with no build-time path rewriting.
     payload = json.dumps(index, separators=(",", ":"))
     (PROCESSED / "index.json").write_text(payload)
-    (DIST / "data" / "index.json").write_text(payload)
+    (DATA / "index.json").write_text(payload)
     n_islands = sum(len(v["islands"]) for v in index["layers"].values())
     print(f"  index.json: {len(index['layers'])} layers, {n_islands} island entries, "
-          f"{(DIST / 'data' / 'index.json').stat().st_size / 1024:.1f} KiB "
+          f"{(DATA / 'index.json').stat().st_size / 1024:.1f} KiB "
           f"(replaces a 64-request STAC walk)")
 
     total = report()
@@ -180,7 +188,10 @@ def main() -> int:
         print(f"\n  FAIL: {total:.1f} MiB exceeds the {args.budget_mib:.0f} MiB budget (G6)")
         return 2
     print(f"\n  within the {args.budget_mib:.0f} MiB budget (G6)")
-    print("\nDeploy with:  npx wrangler deploy   (a Worker with assets, see wrangler.jsonc)")
+    print("\nDeploy in two steps. They are independent, and the first is skipped unless")
+    print("the layers themselves changed — the rasters are immutable and rarely move:")
+    print("  python scripts/upload_r2.py   # dist/data/  -> R2")
+    print("  npx wrangler deploy           # dist/site/  -> Workers Assets")
     return 0
 
 

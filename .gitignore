@@ -53,3 +53,4 @@ viewer/app.bundle.js
 viewer/ol.css
 /dist/
 .wrangler/
+.r2-manifest.json

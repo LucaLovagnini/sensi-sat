@@ -16,11 +16,15 @@
 #                            a policy that silently broke it would be found in a browser,
 #                            not in a test. 'wasm-unsafe-eval' permits WebAssembly only,
 #                            never JavaScript eval.
+#                            https://data.sensisat.org is the R2 bucket the rasters
+#                            are served from. Without it in connect-src the browser
+#                            blocks every layer fetch and the map stays empty with no
+#                            network error a test would catch.
 #   X-Content-Type-Options   never guess a file's type (a .json served as script, say).
 #   Referrer-Policy          other sites learn only our origin when a visitor follows a link out.
 #   Permissions-Policy       this site never asks for location, camera or microphone.
 /*
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://server.arcgisonline.com https://www.ign.es; connect-src 'self' data: https://server.arcgisonline.com https://www.ign.es; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https://server.arcgisonline.com https://www.ign.es; connect-src 'self' data: https://server.arcgisonline.com https://www.ign.es https://data.sensisat.org; worker-src 'self' blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'none'
   X-Content-Type-Options: nosniff
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: geolocation=(), camera=(), microphone=()
