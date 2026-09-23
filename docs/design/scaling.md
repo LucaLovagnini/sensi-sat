@@ -150,69 +150,107 @@ per-request cost exactly where there currently is none.
 
 ---
 
-## 6. The intended end state: R2, and no Worker at all
-<!-- figures: scripts/publish.py; external:Cloudflare R2 pricing and documentation read 2026-09-20 @ 2026-09-20 -->
+## 6. R2, and no Worker at all — **done 2026-09-24**
+<!-- figures: scripts/publish.py; scripts/upload_r2.py; external:Cloudflare R2 pricing and documentation read 2026-09-20; external:Cloudflare Workers platform limits read 2026-09-23; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; measured:R2 range pre-flight on r2.dev and on data.sensisat.org, 2026-09-24 @ 2026-09-24 -->
 
-Decided 2026-09-20, **deferred until `sensisat.org` is registered**. Recorded here
-because the current deployment is a workaround, and workarounds that are not
-written down become permanent by accident.
+Decided 2026-09-20, deferred until a domain existed, **shipped 2026-09-24**. The
+site now serves its shell from Workers Assets and its rasters from R2, and runs **no
+Worker script at all**. Cloudflare's API is the plainest proof: a tail request
+returns *"Cannot tail a Worker which only has assets"* `[code: 100311]`.
 
-### Why the Worker exists, and why it should not
+### Why the Worker existed, and what it cost
 
-Cloudflare's Workers Assets platform ignores the `Range` header (§4, G1), so
-`worker/index.js` fetches each raster and slices it by hand. It works, it is
-verified, and it is free at our scale. It is also ~90 lines of our code on the
-critical path of every map tile, pulling a whole object into memory to return a
-few kilobytes of it.
+Workers Assets ignores the `Range` header (§4, G1), so `worker/index.js` fetched each
+raster and sliced it by hand. It worked, it was verified, and it was free at our
+scale. It was also a workaround, for a reason worth stating precisely: **the Worker
+could not ask the asset store for a byte range, because that is the exact thing that
+does not work.** So it pulled each whole object into memory to return a few kilobytes
+of it.
 
-**R2 does this properly at the storage layer.** Range requests are fundamental to
-object storage, so an R2-hosted COG needs no shim at all.
+Measured on a throwaway Worker on 2026-09-23, with `wrangler tail` and the Workers
+dashboard, that costs about **1.27 ms of CPU per MiB buffered** — a memcpy rate, not
+a bug to optimise away:
 
-### What it would cost — measured against published limits `[list price 2026-09-20]`
+| asset | size | CPU (median) |
+|---|---|---|
+| `covered-agriculture` | 2.20 MiB | 2 ms |
+| `density-trend` | 4.88 MiB | 5 ms |
+| `settlement-era-a` | 6.98 MiB | 7 ms |
+| `density-current` | 12.43 MiB | 15 ms |
+
+The Workers Free limit is **10 ms of CPU per request**, so the line is crossed at
+about **8.5 MiB**. The published per-island layers peak at 4.22 MiB, roughly 4.6 ms,
+so the live site was never near it — but the ceiling was real, and low enough that a
+single larger layer would have broken the map for everyone. Cloudflare allows an
+isolate "flexibility ... for cases where your Worker **infrequently** runs over" and
+terminates with **Error 1102** when one "starts hitting the limit **consistently**",
+so the failure would have arrived exactly when the site got attention.
+
+**R2 does the slicing at the storage layer**, so the shim has no reason to exist.
+There is no CPU limit to exceed because there is no execution, and the
+invocation cap (100,000/day) no longer applies either.
+
+### What it costs — measured against published limits `[list price 2026-09-20]`
 
 | | R2 free tier | our usage at 10k visitors/month | headroom |
 |---|---|---|---|
-| storage | 10 GB-month | **0.06 GB** (the whole site is 60.6 MiB) | 165× |
-| Class B reads (a GET, including a range request) | 10M/month | ~20,000 | **500×** |
-| Class A writes | 1M/month | ~137 per deploy | irrelevant |
+| storage | 10 GB-month | **0.06 GB** | 165x |
+| Class B reads (a GET, including a range request) | 10M/month | ~20,000 | **500x** |
+| Class A writes | 1M/month | ~140 per data change | irrelevant |
 | egress | — | — | **free, no tier** |
 
 The read allowance runs out at roughly **5 million visits a month**; beyond that
-reads are $0.36/million, so 10M visits would be about **$4**.
+reads are $0.36/million, so 10M visits would be about **$4**. That is *more* headroom
+than the Workers path it replaced, which was free to ~1.5M visits/month.
 
-That is *more* headroom than the present setup, not less. Workers allows 100,000
-requests/day (~3M/month), so today we are free to ~1.5M visits/month; R2 would be
-free to ~5M.
+### The architecture
 
-### The architecture it produces
-
-- `data/` (the COGs, STAC and index) in an R2 bucket on a subdomain — native
-  ranges, free egress, Cloudflare cache in front.
-- the viewer shell (HTML, CSS, the JS bundle) stays on Workers Assets, where
+- **`dist/data/`** — the COGs, STAC and `index.json` — in bucket `sensisat-data` on
+  `data.sensisat.org`. Native ranges, free egress, Cloudflare cache in front.
+- **`dist/site/`** — HTML, CSS, one JS bundle — on Workers Assets, where
   *"requests to static assets are free and unlimited"*.
-- **no Worker.** `worker/index.js`, the `run_worker_first` routing and the billing
-  alert that exists only because of them all go away.
+- **no Worker.** `worker/index.js`, the `run_worker_first` routing and the
+  invocation budget are all gone.
 
-### Why it is blocked
+`publish.py` writes the two trees; `scripts/upload_r2.py` uploads the data one, only
+what changed, by SHA-256. They are separate trees rather than one because **Workers
+Assets has no way to exclude a directory from upload**: `.assetsignore` was tried on
+2026-09-24 and is not honoured by wrangler 4.135 — it merely uploads the ignore file
+as well.
 
-R2 has exactly two ways to be public, and only one is usable. Cloudflare's own
-wording on the first: the `r2.dev` subdomain is *"rate-limited and should only be
-used for development purposes"*, *"intended for non-production traffic"*. The
-second — a custom domain — requires the domain to be **a zone in the same
-Cloudflare account**.
+### The pre-flight, run before the domain was bought
 
-So this waits on `sensisat.org` being registered and its DNS moved to Cloudflare.
+Step 6 below was done *first*, deliberately, on the `r2.dev` dev URL. Cloudflare
+restricts that URL for serving production traffic, not for testing, and this whole
+detour exists because a platform's documented behaviour was trusted once already.
+Verified: a normal range returns `206` with the right `Content-Range` **and bytes
+identical to the local file** (`cmp` — a 206-shaped reply is not the same as a
+correct one); the suffix range `bytes=-500` that geotiff.js uses to find the COG
+footer works; a range past the end returns `416`, not `200` with the whole object.
+All three were re-verified on `data.sensisat.org` after the real upload.
 
-### The steps, when that happens
+### Four traps, every one of which fails silently
 
-1. Register `sensisat.org` (Cloudflare Registrar sells at cost) and add it as a zone.
-2. Enable R2 in the dashboard — a one-time click that also accepts its terms.
-3. `wrangler r2 bucket create sensisat-data`, upload `dist/data/`, attach it to a
-   subdomain such as `data.sensisat.org`, and set a CORS rule allowing the site's
-   origin.
-4. Point `DATA_CANDIDATES` in `viewer/app.js` at that subdomain.
-5. Delete `worker/index.js`, drop `main` and `run_worker_first` from
-   `wrangler.jsonc`, and redeploy.
-6. Re-run the range-request pre-flight against the new origin before trusting it —
-   the whole reason this section exists is that the platform's behaviour was not
-   what its documentation implied.
+1. **`wrangler r2 object put` defaults to a LOCAL simulated bucket** and prints
+   "Upload complete" either way. Pass `--remote`. Eight uploads went into a directory
+   on the laptop before `bucket info` reading `object_count: 0` gave it away — and
+   that field is itself eventually consistent, so verify by fetching an object.
+2. **R2's CORS document is `{"rules": [...]}`**, not S3's top-level array, and the
+   default is *no* CORS: the OPTIONS preflight returns `403` until configured.
+   `content-range` must be listed in `exposeHeaders`. Note that CORS is a browser
+   policy and **never access control** — a client sending no `Origin` still receives
+   every byte.
+3. **The CSP in `viewer/_headers` must name the data origin in `connect-src`**, or
+   the browser blocks every raster fetch and the map stays empty with no network
+   error any test would catch.
+4. **`viewer/app.js` fetches `<data>/statistics/layers.json` with `.catch(() => null)`** —
+   forget to upload it and the statistics disappear silently. The same shape as the
+   stale-`index.json` trap (CLAUDE.md #20).
+
+### What is still open
+
+Putting the **site itself** on `sensisat.org` is a separate change: the canonical URL
+appears in the page's "How to cite" block, in `LICENSE-DATA.md`'s attribution, and in
+`verify_m4b.py`'s live link checks, so it is a deliberate edit with a re-attestation,
+not a DNS switch. The **WAF rate-limiting rule** from the security review is now
+possible too, since it also needed a zone.

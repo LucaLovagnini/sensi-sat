@@ -66,7 +66,7 @@
     "external:Cloudflare / AWS / Netlify list prices read 2026-09-20; measured:arithmetic on §1's per-visit cost @ 2026-09-20",
     "measured:Chrome DevTools network panel on 2026-09-20 @ 2026-09-20",
     "scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20",
-    "scripts/publish.py; external:Cloudflare R2 pricing and documentation read 2026-09-20 @ 2026-09-20"
+    "scripts/publish.py; scripts/upload_r2.py; external:Cloudflare R2 pricing and documentation read 2026-09-20; external:Cloudflare Workers platform limits read 2026-09-23; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; measured:R2 range pre-flight on r2.dev and on data.sensisat.org, 2026-09-24 @ 2026-09-24"
    ],
    "docs/design/seam-harmonization.md": [
     "scripts/analysis_01_totals.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
@@ -1627,22 +1627,39 @@
      "70",
      "850"
     ],
-    "## 6. The intended end state: R2, and no Worker at all": [
+    "## 6. R2, and no Worker at all — **done 2026-09-24**": [
+     "0",
      "0.06",
      "0.36",
      "1",
+     "1.27",
      "1.5",
      "10",
      "100,000",
-     "137",
-     "165×",
+     "100311",
+     "1102",
+     "12.43 MiB",
+     "140",
+     "15",
+     "165",
+     "2",
+     "2.20 MiB",
      "20,000",
-     "3",
+     "200",
+     "206",
      "4",
+     "4.135",
+     "4.22 MiB",
+     "4.6",
+     "4.88 MiB",
+     "403",
+     "416",
      "5",
-     "500×",
-     "60.6 MiB",
-     "90"
+     "500",
+     "6",
+     "6.98 MiB",
+     "7",
+     "8.5 MiB"
     ]
    },
    "docs/design/seam-harmonization.md": {
@@ -2310,12 +2327,12 @@
    ]
   }
  },
- "fingerprint": "2536de48e6a2cb7078dd69375ae1236a7f1426b5f56c303487495b28398e1269",
+ "fingerprint": "f622b67172e76be0caa2d2c4a8d3eba790ed42a32136244ae5af0d849343a41e",
  "judgements": {
-  "declarations_plausible": "docs/viewer.md §6 was rewritten and its declaration updated to match: scripts/publish.py (the two-tree split and the 7-file shell), scripts/upload_r2.py (the upload path), measured:curl range pre-flights against the live site 2026-09-20 and R2 2026-09-24, measured:Worker CPU per invocation from wrangler tail and the dashboard 2026-09-23, and external:Cloudflare Workers platform limits for the 10 ms Free CPU figure — which was wrongly filed as measured: at first and corrected, since we read it rather than measured it. Every path named exists.",
-  "generated_from_right_fact": "viewer.md's only generated region is §4's Gran Canaria areas (buildings 35.65, greenhouses 27.06, sealed 109.68 km²); read against its sentence, each fact matches the quantity named and the units are right. §6 introduced no generated figures. Nothing else in the repository changed.",
-  "registry_holds_no_live_claim": "No entries added, removed or reworded. The R2 migration introduced no historical figures: every number in the rewritten §6 is either measured on 2026-09-23/24 or Cloudflare's published platform limit, and all are covered by the section declaration rather than the token registry."
+  "declarations_plausible": "§6's declaration was rewritten to name a source for each kind of figure it now carries: scripts/publish.py and scripts/upload_r2.py for the two-tree split and the upload path; external:Cloudflare R2 pricing for the free-tier table; external:Cloudflare Workers platform limits for the 10 ms CPU figure; measured:Worker CPU from wrangler tail and the dashboard for the per-asset table; measured:R2 range pre-flight for the 206/416/suffix results. Both named scripts exist; the two external sources are pages read on the stated dates, which is what external: is for.",
+  "generated_from_right_fact": "§6 introduces no generated figures and the rewrite touched no cog region anywhere; the 21 generated regions in the repository are unchanged from the 2026-09-24 review earlier today, where each was read against its sentence for the right fact and the right unit.",
+  "registry_holds_no_live_claim": "No entries added, removed or reworded. Every figure in the rewritten §6 is either measured on 2026-09-23/24 (the per-asset CPU table, the range pre-flight results), Cloudflare's published platform limits and R2 list prices, or arithmetic shown in place — 10 ms divided by 1.27 ms/MiB giving the ~8.5 MiB threshold. None is a live claim about our layers, so none belongs in the token registry."
  },
  "reviewed": "2026-09-24",
- "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/viewer.md §6 after the R2 migration; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/design/scaling.md §6 after the R2 migration shipped; Luca's own first-hand reading of the full listing is still outstanding"
 }
