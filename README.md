@@ -8,7 +8,7 @@ documentation explains its terms rather than assuming them. If a word here is ne
 `docs/concepts.md` defines it with a worked example.
 
 **Every published figure, with the conditions under which it is true, is on the
-public page: [sensisat.ensi-at.workers.dev/about-the-data.html](https://sensisat.ensi-at.workers.dev/about-the-data.html).**
+public page: [sensisat.org/about-the-data.html](https://sensisat.org/about-the-data.html).**
 The numbers below are M0's measurements of the *source* products (2026-09-19), not
 the totals of the layers SensiSat publishes; the page states the difference.
 
@@ -64,7 +64,7 @@ Every other source downloads itself.
 ## Status
 
 M0 (data evaluation), M1 (which sources), M2 (the pipeline), M3 (accuracy assessment
-against aerial photography), M4 (the viewer, live at sensisat.ensi-at.workers.dev),
+against aerial photography), M4 (the viewer, live at sensisat.org),
 M4b (the public page) and M4c (every published number accounted for) are complete.
 Next is M5: a per-zone statistics panel, attribution, releases.
 

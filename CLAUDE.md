@@ -35,7 +35,7 @@ about working here:
 M0 (data evaluation), M1 (source decisions), M2 (processing pipeline), M3
 (accuracy assessment), M4 (viewer) and M4b (the public "about the data" page) are
 complete. The site is live but **unannounced** at
-`https://sensisat.ensi-at.workers.dev`. **M4c** — figure provenance, every published
+`https://sensisat.org`. **M4c** — figure provenance, every published
 number accounted for — was **implemented 2026-09-21** (`docs/design/figure-provenance.md`;
 acceptance `python scripts/verify_m4c.py`). **The repository went public on
 2026-09-21** after the checklist at the end of this file was walked. **M5** — the

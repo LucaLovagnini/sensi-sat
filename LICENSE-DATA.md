@@ -30,7 +30,7 @@ that day.
 Credit SensiSat and the sources. A complete attribution:
 
 > SensiSat — urban expansion in the Canary Islands, 1900–2026, by Luca Lovagnini,
-> CC BY 4.0, https://sensisat.ensi-at.workers.dev. Contains transformed data from:
+> CC BY 4.0, https://sensisat.org. Contains transformed data from:
 > the Dirección General del Catastro (Spain), INSPIRE Buildings, accessed
 > 2026-09-19 — a transformation, not cadastral cartography; the World Settlement
 > Footprint Evolution and WSF 2019 (DLR) and the WSF Tracker (DLR and MindEarth),

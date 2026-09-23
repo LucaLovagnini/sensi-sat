@@ -130,7 +130,7 @@ deep-linking of state into the URL.
 ## 6. Deployment
 <!-- figures: scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24 -->
 
-Live, unannounced, at **`https://sensisat.ensi-at.workers.dev`** (2026-09-20).
+Live, unannounced, at **`https://sensisat.org`** (2026-09-20).
 
 ```bash
 python scripts/build.py --all     # produce the layers

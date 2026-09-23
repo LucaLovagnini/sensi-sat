@@ -87,7 +87,7 @@ Ordered by how much they protect, not by effort.
 
 **G1 — Host where egress is free.** Cloudflare. This is the only guardrail that
 removes the failure mode instead of bounding it: there is no bandwidth meter to run
-away. **Status: DONE — deployed 2026-09-20 to `sensisat.ensi-at.workers.dev`.**
+away. **Status: DONE — deployed 2026-09-20 to `sensisat.org`.**
 
 > **A platform limitation worth knowing before anyone repeats this.** Cloudflare's
 > Workers Assets platform **ignores the `Range` header**: measured on the live
