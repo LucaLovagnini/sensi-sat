@@ -282,7 +282,7 @@
    "size_mib(loss-events)": 1.908,
    "size_mib(settlement-era-a)": 6.601,
    "size_mib(settlement-era-b)": 4.708,
-   "size_published()": 67.845,
+   "size_published()": 67.849,
    "size_six_layers()": 28.785,
    "undated_share()": 36.557
   },
@@ -2333,12 +2333,12 @@
    ]
   }
  },
- "fingerprint": "32c696f05812ee0b653fca7117c720b6afde08962c278dc7d5c99ad22df3c38a",
+ "fingerprint": "6a867ff341048daaf404a87c011d25974de9847082ade6a73fd8d09836a140ba",
  "judgements": {
-  "declarations_plausible": "§7's declaration named only M2-era sources (verify_m2.py, build.py, statistics/layers.json @ 2026-09-19) and would not have accounted for the mosaic figures added today. It now also names sensisat/mosaic.py and a measured: source for the mosaic sizes and the bounding-box share, dated 2026-09-24. Every path named exists.",
-  "generated_from_right_fact": "The changed region is §7's size table. Its four facts now all measure PUBLISHED files: size_mib() was changed to read the layer's archipelago COG rather than summing the per-island file_MiB it is built from, and size_published() to exclude the per-island intermediates. Read against the row labels — 'six layers', 'the sealing map itself', 'the per-pixel confidence companion', 'total published' — each fact matches its sentence, and the table adds up again (28.8 + 12.7 + 25.5 = 67.0, plus 0.8 of STAC and statistics the table does not itemise). It did not add up before this fix, which is how the mismatch was found.",
-  "registry_holds_no_live_claim": "No entries added, removed or reworded. The new hand-typed figures in §7 (54.1 and 60.2 MiB as the earlier totals, the +5.0 attributed to mode overviews and dropping SPARSE_OK, 21.1 % / 78.9 % for the island boxes against the archipelago box, and the 33.9 -> 41.5 MiB layer-file jump) are historical or measured statements covered by the section declaration, not live claims about the current build. The live figures in the section remain generated."
+  "declarations_plausible": "No section declarations touched. C3 changed viewer/app.js and viewer/index.html only; neither is a section-level surface, and app.js's figures continue to come from the generated facts module rather than from prose.",
+  "generated_from_right_fact": "No generated region changed. The only live value that moved is size_published(), 67.845 -> 67.849 MiB — 4 KiB, from index.json growing when C2 added per-island bboxes. Both render as 67.8 at the published precision, so sync_docs rewrote nothing, which is the check that it is a fingerprint change rather than a figure change.",
+  "registry_holds_no_live_claim": "No entries added, removed or reworded. C3 removed prose from viewer/app.js (the four 'whole island' captions and the island control's wiring) and added none carrying digits, so no token-level figure appeared or disappeared."
  },
  "reviewed": "2026-09-24",
- "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/pipeline.md §7 after the archipelago mosaics; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — C3 re-attestation; Luca's own first-hand reading of the full listing is still outstanding"
 }
