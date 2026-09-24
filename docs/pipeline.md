@@ -187,7 +187,7 @@ uses them.
 ---
 
 ## 7. What M2 actually produced
-<!-- figures: scripts/verify_m2.py; scripts/build.py; data/processed/statistics/layers.json @ 2026-09-19 -->
+<!-- figures: scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24 -->
 
 Built with `python scripts/build.py --all`: **56 files, seven layers across eight
 islands, 185/185 measured QA gates passing** (24 further checks did not apply),
@@ -353,7 +353,7 @@ those stay in the undated class rather than being resolved by guesswork.
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is
 
 <!--[[[cog cog.out("**" + km2(f.size_published(), 1) + " MiB**") ]]]-->
-**60.2 MiB**
+**67.8 MiB**
 <!--[[[end]]]-->
 
 That target was set before the sealing layer had been measured, and it is worth
@@ -366,23 +366,36 @@ cog.outl(f"| six layers (buildings, both settlement eras, greenhouses, trend, lo
          f"| **{km2(f.size_six_layers(), 1)}** |")
 cog.outl(f"| `density-current` — the sealing map itself | {km2(f.size_mib('density-current'), 1)} |")
 cog.outl(f"| `density-current` — the per-pixel confidence companion | {km2(f.size_confidence(), 1)} |")
-cog.outl(f"| **total, everything under data/processed** | **{km2(f.size_published(), 1)}** |")
+cog.outl(f"| **total published** | **{km2(f.size_published(), 1)}** |")
 ]]]-->
 | | MiB |
 |---|---|
-| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **22.1** |
-| `density-current` — the sealing map itself | 11.8 |
+| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |
+| `density-current` — the sealing map itself | 12.7 |
 | `density-current` — the per-pixel confidence companion | 25.5 |
-| **total, everything under data/processed** | **60.2** |
+| **total published** | **67.8** |
 <!--[[[end]]]-->
 
-**It was 54.1 MiB when M2 closed, and the six layers account for the +5.0.** M4
-changed two things in how COGs are written, and both cost bytes on purpose:
-overviews moved from `nearest` to `mode`, because nearest made scattered 10 m
-buildings vanish when zoomed out, and `SPARSE_OK` was removed, because geotiff.js
-cannot read zero-length tile offsets so no browser could open the files at all.
-Correctness bought with bytes, in a project whose per-visitor download is what
-actually matters — and that is unchanged, because a COG is read by range request.
+**It was 54.1 MiB when M2 closed and 60.2 MiB when the figure gate shipped.** Two
+separate changes moved it, and both cost bytes on purpose.
+
+M4 changed how COGs are written: overviews moved from `nearest` to `mode`, because
+nearest made scattered 10 m buildings vanish when zoomed out, and `SPARSE_OK` was
+removed, because geotiff.js cannot read zero-length tile offsets so no browser could
+open the files at all. The six layers account for that **+5.0**.
+
+The rest arrived on 2026-09-24, when each layer became **one archipelago-wide COG
+instead of eight per-island ones**, so that the map can show the Canary Islands as
+an archipelago rather than one island at a time. The island bounding boxes cover
+21.1 % of the archipelago's box, so four fifths (78.9 %) of the new grid is ocean;
+DEFLATE squashes ocean to almost nothing but does not erase it, and the measured
+cost is a fifth more bytes on disk (22 %: the layer files go from 33.9 to 41.5 MiB). The per-island files are
+still built — they are what the statistics and the QA gates are computed on — but
+they are no longer published, or the same pixels would ship twice.
+
+Correctness and reach bought with bytes, in a project whose per-visitor download is
+what actually matters — and that is unchanged, because a COG is read by range
+request whatever its extent.
 
 The confidence grid is the single largest object in the project, larger than every
 map layer combined. It is 52 distinct values scattered across tens of millions of

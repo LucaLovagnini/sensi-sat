@@ -117,6 +117,13 @@ class LayerSpec:
     # search needs — not the day we happened to build the file.
     start: str = "1975-01-01"
     end: str = "2026-01-01"
+    # Block size for the archipelago mosaic. 1024 keeps the tile-offset table small
+    # -- a reader fetches it IN FULL before drawing anything, and at 256 the
+    # archipelago grid costs 334 KiB of header against 23 KiB at 1024. The exception
+    # is a many-banded layer: tiles are pixel-interleaved, so reading one band still
+    # decodes the whole tile, and density-trend's ten uint16 epochs would mean a
+    # 20 MB decode to answer a question about one of them. See sensisat/mosaic.py.
+    mosaic_blocksize: int = 1024
     # Can this layer commit a false positive that a negative control would catch?
     # Only for layers a classifier produced. `covered-agriculture` is a
     # rasterised official crop survey, so there is no classifier to be wrong — and
@@ -459,6 +466,10 @@ LAYERS: dict[str, LayerSpec] = {
         "of its pre-2008 rate. Sound for the long trend and for density; never use it to "
         "date recent growth (data-evaluation.md §12).",
         start="1975-01-01", end="2020-12-31",
+        # Ten pixel-interleaved uint16 epochs: a 1024 tile would decode 20 MB to
+        # answer a question about one epoch. The archipelago image is coarse enough
+        # (~92 m) that 256 costs little header anyway.
+        mosaic_blocksize=256,
     ),
     "loss-events": LayerSpec(
         "loss-events", "Built-up gained and lost", "change", "classes", 20,

@@ -89,7 +89,16 @@ def prop_sum(layer: str, key: str, island: str | None = None) -> float:
 # --- sizes, which is what went stale the first time ------------------------
 
 def size_mib(layer: str) -> float:
-    return sum(v.get("file_MiB", 0.0) for v in stats()[layer].values())
+    """What a layer costs to publish: its one archipelago COG.
+
+    Not the sum of the per-island files it is built from. Those are still written
+    and still what the statistics are measured on, but they are not served any more,
+    and a size table that mixed the two would not add up — which is how this was
+    noticed.
+    """
+    from sensisat.catalog import MOSAIC
+    path = PROCESSED / layer / f"{MOSAIC}.tif"
+    return path.stat().st_size / 2**20
 
 
 def size_six_layers() -> float:
@@ -103,8 +112,16 @@ def size_confidence() -> float:
 
 
 def size_published() -> float:
-    """Everything under data/processed, which is what a host would serve."""
-    return sum(f.stat().st_size for f in PROCESSED.rglob("*") if f.is_file()) / 2**20
+    """What a host would actually serve.
+
+    Not simply everything under data/processed: since the archipelago mosaics
+    arrived, that folder also holds the per-island COGs they are built from, which
+    are no longer published. Counting them would overstate the published total by
+    roughly the size of the whole site.
+    """
+    from sensisat.catalog import is_build_intermediate
+    return sum(f.stat().st_size for f in PROCESSED.rglob("*")
+               if f.is_file() and not is_build_intermediate(f.name)) / 2**20
 
 
 # --- shares, which drift faster than totals and are quoted as percentages ---

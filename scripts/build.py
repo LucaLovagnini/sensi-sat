@@ -193,6 +193,41 @@ def write_seam(islands: list[str]) -> None:
     print(f"wrote {SEAM_PATH}")
 
 
+def write_mosaics(records: list[dict]) -> list[Path]:
+    """One archipelago-wide COG per layer touched in this run.
+
+    **Assembled from every island COG on disk, not from this run's records** — the
+    same reason `write_catalog` is, and M2 learned it the hard way: build an artefact
+    from one run's records and a partial rebuild produces something that looks
+    complete and is not. Rebuilding Tenerife alone must still leave a mosaic holding
+    all eight islands.
+
+    Only layers built in this run are rewritten, so touching one layer does not
+    re-encode the other six; with no records (a catalogue-only run) every layer is
+    rebuilt. The overview resampling is read back out of the island COGs rather than
+    restated here — see `mosaic.resampling_of`.
+    """
+    from sensisat.catalog import MOSAIC
+    from sensisat.mosaic import mosaic
+
+    names = sorted({r["layer"] for r in records}) if records else sorted(layers.LAYERS)
+
+    written = []
+    for name in names:
+        folder = PROCESSED / name
+        paths = sorted(p for p in folder.glob("*.tif")
+                       if not p.name.endswith(".confidence.tif") and p.stem != MOSAIC)
+        if not paths:
+            continue
+        t0 = time.time()
+        out = mosaic(paths, folder / f"{MOSAIC}.tif",
+                     blocksize=layers.LAYERS[name].mosaic_blocksize)
+        written.append(out)
+        print(f"  {name:22s} {len(paths)} islands -> {out.name} "
+              f"{out.stat().st_size / 1048576:6.2f} MiB  ({time.time() - t0:.0f}s)")
+    return written
+
+
 def write_catalog(stats: dict) -> Path:
     """Rebuild the catalogue from everything on disk, not just this run's records.
 
@@ -246,6 +281,11 @@ def main() -> int:
         # The catalogue is assembled from disk anyway (CLAUDE.md #15); this is that
         # step alone, for changes to what the catalogue SAYS about unchanged files.
         stats = json.loads((STATS_DIR / "layers.json").read_text())
+        # Mosaics first: every item's asset href names one, so assets-resolve would
+        # fail against a file that does not exist yet. Rebuilt from the island COGs
+        # on disk, which is exactly what a catalogue-only run has to work from.
+        print("Archipelago mosaics:")
+        write_mosaics([])
         catalog_path = write_catalog(stats)
         gates = [qa.stac_valid(catalog_path), qa.assets_resolve(catalog_path)]
         passed, measured, skipped = qa.summarise(gates)
@@ -276,6 +316,10 @@ def main() -> int:
     # run against what was actually written, and a gate that runs before the file
     # exists is a gate that never fails.
     stats = write_statistics(records)
+    # Before the catalogue: every item's asset href points at the mosaic, so the
+    # assets-resolve gate would fail against a file that does not exist yet.
+    print("\nArchipelago mosaics:")
+    write_mosaics(records)
     catalog_path = write_catalog(stats)
 
     grids: dict[str, dict] = {}

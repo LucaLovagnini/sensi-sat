@@ -84,7 +84,7 @@
     "scripts/analysis_03_seam_factors.py; sensisat/encoding.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
     "sensisat/qa.py @ 2026-09-19",
     "sensisat/datasets/cadastre.py @ 2026-09-19",
-    "scripts/verify_m2.py; scripts/build.py; data/processed/statistics/layers.json @ 2026-09-19"
+    "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24"
    ],
    "docs/validation.md": [
     "scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -140,11 +140,11 @@
     ],
     [
      "cog.out(\"**\" + km2(f.size_published(), 1) + \" MiB**\")",
-     "**60.2 MiB**"
+     "**67.8 MiB**"
     ],
     [
-     "cog.outl(\"| | MiB |\")\ncog.outl(\"|---|---|\")\ncog.outl(f\"| six layers (buildings, both settlement eras, greenhouses, trend, loss) \"\n         f\"| **{km2(f.size_six_layers(), 1)}** |\")\ncog.outl(f\"| `density-current` — the sealing map itself | {km2(f.size_mib('density-current'), 1)} |\")\ncog.outl(f\"| `density-current` — the per-pixel confidence companion | {km2(f.size_confidence(), 1)} |\")\ncog.outl(f\"| **total, everything under data/processed** | **{km2(f.size_published(), 1)}** |\")",
-     "| | MiB |\n|---|---|\n| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **22.1** |\n| `density-current` — the sealing map itself | 11.8 |\n| `density-current` — the per-pixel confidence companion | 25.5 |\n| **total, everything under data/processed** | **60.2** |"
+     "cog.outl(\"| | MiB |\")\ncog.outl(\"|---|---|\")\ncog.outl(f\"| six layers (buildings, both settlement eras, greenhouses, trend, loss) \"\n         f\"| **{km2(f.size_six_layers(), 1)}** |\")\ncog.outl(f\"| `density-current` — the sealing map itself | {km2(f.size_mib('density-current'), 1)} |\")\ncog.outl(f\"| `density-current` — the per-pixel confidence companion | {km2(f.size_confidence(), 1)} |\")\ncog.outl(f\"| **total published** | **{km2(f.size_published(), 1)}** |\")",
+     "| | MiB |\n|---|---|\n| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |\n| `density-current` — the sealing map itself | 12.7 |\n| `density-current` — the per-pixel confidence companion | 25.5 |\n| **total published** | **67.8** |"
     ]
    ],
    "docs/validation.md": [
@@ -275,15 +275,15 @@
    "growth_pct(era-a, Gran Canaria, 1995, 2015)": 5.207,
    "sealed_vs_built_ratio()": 2.08,
    "size_confidence()": 25.538,
-   "size_mib(buildings-dated)": 5.572,
-   "size_mib(covered-agriculture)": 0.965,
-   "size_mib(density-current)": 11.825,
-   "size_mib(density-trend)": 5.693,
-   "size_mib(loss-events)": 1.337,
-   "size_mib(settlement-era-a)": 4.666,
-   "size_mib(settlement-era-b)": 3.823,
-   "size_published()": 60.22,
-   "size_six_layers()": 22.056,
+   "size_mib(buildings-dated)": 7.53,
+   "size_mib(covered-agriculture)": 1.808,
+   "size_mib(density-current)": 12.719,
+   "size_mib(density-trend)": 6.231,
+   "size_mib(loss-events)": 1.908,
+   "size_mib(settlement-era-a)": 6.601,
+   "size_mib(settlement-era-b)": 4.708,
+   "size_published()": 67.845,
+   "size_six_layers()": 28.785,
    "undated_share()": 36.557
   },
   "registry": [
@@ -1895,6 +1895,8 @@
      "2",
      "2.1–2.6",
      "21",
+     "21.1 %",
+     "22 %",
      "24",
      "24.5 %",
      "240",
@@ -1904,11 +1906,13 @@
      "3.6 MiB",
      "30 m",
      "32",
+     "33.9",
      "35",
      "39.5",
      "4.3",
+     "41.5 MiB",
      "474,292",
-     "5.0.",
+     "5.0",
      "50.7",
      "51",
      "52",
@@ -1918,9 +1922,11 @@
      "56",
      "591 km²",
      "6.26 MiB",
+     "60.2 MiB",
      "63.3",
      "66–68 %",
      "7",
+     "78.9 %",
      "8",
      "8.04 MiB",
      "81.0",
@@ -2327,12 +2333,12 @@
    ]
   }
  },
- "fingerprint": "f622b67172e76be0caa2d2c4a8d3eba790ed42a32136244ae5af0d849343a41e",
+ "fingerprint": "32c696f05812ee0b653fca7117c720b6afde08962c278dc7d5c99ad22df3c38a",
  "judgements": {
-  "declarations_plausible": "§6's declaration was rewritten to name a source for each kind of figure it now carries: scripts/publish.py and scripts/upload_r2.py for the two-tree split and the upload path; external:Cloudflare R2 pricing for the free-tier table; external:Cloudflare Workers platform limits for the 10 ms CPU figure; measured:Worker CPU from wrangler tail and the dashboard for the per-asset table; measured:R2 range pre-flight for the 206/416/suffix results. Both named scripts exist; the two external sources are pages read on the stated dates, which is what external: is for.",
-  "generated_from_right_fact": "§6 introduces no generated figures and the rewrite touched no cog region anywhere; the 21 generated regions in the repository are unchanged from the 2026-09-24 review earlier today, where each was read against its sentence for the right fact and the right unit.",
-  "registry_holds_no_live_claim": "No entries added, removed or reworded. Every figure in the rewritten §6 is either measured on 2026-09-23/24 (the per-asset CPU table, the range pre-flight results), Cloudflare's published platform limits and R2 list prices, or arithmetic shown in place — 10 ms divided by 1.27 ms/MiB giving the ~8.5 MiB threshold. None is a live claim about our layers, so none belongs in the token registry."
+  "declarations_plausible": "§7's declaration named only M2-era sources (verify_m2.py, build.py, statistics/layers.json @ 2026-09-19) and would not have accounted for the mosaic figures added today. It now also names sensisat/mosaic.py and a measured: source for the mosaic sizes and the bounding-box share, dated 2026-09-24. Every path named exists.",
+  "generated_from_right_fact": "The changed region is §7's size table. Its four facts now all measure PUBLISHED files: size_mib() was changed to read the layer's archipelago COG rather than summing the per-island file_MiB it is built from, and size_published() to exclude the per-island intermediates. Read against the row labels — 'six layers', 'the sealing map itself', 'the per-pixel confidence companion', 'total published' — each fact matches its sentence, and the table adds up again (28.8 + 12.7 + 25.5 = 67.0, plus 0.8 of STAC and statistics the table does not itemise). It did not add up before this fix, which is how the mismatch was found.",
+  "registry_holds_no_live_claim": "No entries added, removed or reworded. The new hand-typed figures in §7 (54.1 and 60.2 MiB as the earlier totals, the +5.0 attributed to mode overviews and dropping SPARSE_OK, 21.1 % / 78.9 % for the island boxes against the archipelago box, and the 33.9 -> 41.5 MiB layer-file jump) are historical or measured statements covered by the section declaration, not live claims about the current build. The live figures in the section remain generated."
  },
  "reviewed": "2026-09-24",
- "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/design/scaling.md §6 after the R2 migration shipped; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — scoped re-review of docs/pipeline.md §7 after the archipelago mosaics; Luca's own first-hand reading of the full listing is still outstanding"
 }

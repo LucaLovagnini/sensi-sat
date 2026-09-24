@@ -94,8 +94,23 @@ def archipelago_grid(transforms: list[Affine], shapes: list[tuple[int, int]]
     return transform, (height, width), offsets
 
 
+def resampling_of(path: Path) -> Resampling:
+    """How a COG's overviews were built, read back from the COG itself.
+
+    GDAL's COG driver records `OVERVIEW_RESAMPLING` in the file, so the mosaic can
+    inherit the choice instead of restating it. That matters because the choice is a
+    correctness constraint, not a preference: categorical layers use MODE so that
+    zooming out cannot invent a year nothing was built in, and the continuous ones
+    use AVERAGE. Restating it in a LayerSpec would create two places to be right,
+    and this reads what was ACTUALLY used rather than what was intended.
+    """
+    with rasterio.open(path) as src:
+        name = src.tags().get("OVERVIEW_RESAMPLING", "NEAREST")
+    return Resampling[name.lower()]
+
+
 def mosaic(paths: list[Path], out: Path, *, blocksize: int,
-           resampling: Resampling, compress: str = "deflate",
+           resampling: Resampling | None = None, compress: str = "deflate",
            predictor: int = 2) -> Path:
     """Write one archipelago COG from a layer's per-island COGs.
 
@@ -107,6 +122,8 @@ def mosaic(paths: list[Path], out: Path, *, blocksize: int,
     from rio_cogeo.cogeo import cog_translate
 
     paths = [Path(p) for p in paths]
+    if resampling is None:
+        resampling = resampling_of(paths[0])
     metas, transforms, shapes = [], [], []
     for p in paths:
         with rasterio.open(p) as src:

@@ -21,9 +21,17 @@ The last is a community extension that pystac does not implement, so its fields
 are written directly with its schema declared in `stac_extensions`.
 
 Catalogue shape: one root catalogue, one collection per layer, one item per island
-within it, one COG asset per item. Islands rather than one archipelago-wide file
-because the grid is 1.4 gigapixels across the whole box, almost all of it ocean,
-and because per-island files make the viewer fetch only what is on screen.
+within it — and, since 2026-09-24, ONE archipelago-wide COG that every island's item
+points at.
+
+The items stay per-island because that is the useful unit for a catalogue: an
+island's item carries its own bbox, its own statistics and its own description
+(Gran Canaria's undated share is not the archipelago's). What changed is the asset
+they name. The earlier split into one file per island was justified here partly as
+"per-island files make the viewer fetch only what is on screen", and that reasoning
+was wrong: a COG is read in slices whatever its extent, which is what a COG IS.
+Measured, the same view costs the same bytes either way. The real cost of a wide
+grid is the tile-offset table, which block size controls (sensisat/mosaic.py).
 """
 
 from __future__ import annotations
@@ -103,8 +111,36 @@ UNITS = {
 }
 
 
+#: The one file per layer that every island's item points at. Items keep their own
+#: bbox, geometry and description — what changes is that they name a slice of a
+#: shared raster rather than a file of their own. A reader asking "what covers Gran
+#: Canaria" still gets Gran Canaria's item, its extent and its statistics; fetching
+#: the asset gets the archipelago, and the item's bbox says which part is that
+#: island's. The viewer needs one file because OpenLayers cannot composite several
+#: GeoTIFF sources into one layer, and nothing is lost: a COG is read in slices
+#: whatever its extent.
+MOSAIC = "archipelago"
+
+
+def is_build_intermediate(name: str) -> bool:
+    """Is this file built but not published?
+
+    The per-island COGs are still produced, still gated and still what the
+    statistics are computed from — but every STAC item names the archipelago mosaic
+    and the viewer reads that one file, so shipping them too would publish the same
+    pixels twice and put `dist/` over its size budget.
+
+    One definition, because two would drift: `publish.py` uses it to decide what to
+    copy and `facts.size_published()` uses it to decide what to count, and a figure
+    describing "what a host would serve" must be measured over exactly what is
+    served.
+    """
+    return (name.endswith(".tif") and name != f"{MOSAIC}.tif"
+            and not name.endswith(".confidence.tif"))
+
+
 def _asset_href(layer: str, island: str) -> str:
-    return f"{layer}/{_slug(island)}.tif"
+    return f"{layer}/{MOSAIC}.tif"
 
 
 def _slug(island: str) -> str:

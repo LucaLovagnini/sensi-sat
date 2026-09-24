@@ -65,42 +65,102 @@ def build_bundle() -> None:
                    capture_output=True)
 
 
-def runtime_index() -> dict:
-    """One file describing every published layer and island (guardrail G2).
+def archipelago_stats(per_island: dict) -> dict:
+    """Totals for all eight islands, summed from the published per-island figures.
 
-    Deliberately small and flat: the viewer needs to know what exists, where the
-    file is, and the per-island headline figures. Everything richer — provenance,
-    lineage, licences, band descriptions — stays in the STAC items, which ship
-    alongside for anyone using proper tooling.
+    **Only extensive quantities are summed**, and percentages are deliberately left
+    out rather than averaged. A share of one island is not a share of the
+    archipelago, and a footprint-weighted mean of eight shares lands 0.01 off the
+    figure `facts.py` publishes — which is precisely the kind of quiet disagreement
+    the M4c gate exists to prevent. The viewport-scoped panel computes those properly
+    from `stats.zonal()` zones; until then the page says nothing rather than
+    something nearly right.
     """
+    out: dict = {}
+    keys = {k for v in per_island.values() for k in v.get("stats", {})}
+    for key in sorted(keys):
+        if key.endswith("_pct") or "share" in key:
+            continue
+        values = [v["stats"][key] for v in per_island.values() if key in v.get("stats", {})]
+        first = values[0]
+        if isinstance(first, bool) or not isinstance(first, (int, float, dict)):
+            out[key] = first                      # labels are the same on every island
+        elif isinstance(first, dict):
+            acc: dict = {}
+            for v in values:
+                for k2, v2 in v.items():
+                    if isinstance(v2, (int, float)) and not isinstance(v2, bool):
+                        acc[k2] = round(acc.get(k2, 0) + v2, 6)
+                    else:
+                        acc.setdefault(k2, v2)
+            out[key] = acc
+        else:
+            out[key] = round(sum(values), 6)
+    return out
+
+
+def runtime_index() -> dict:
+    """One file describing every published layer (guardrail G2).
+
+    **One asset per layer, not one per island.** The viewer draws the whole
+    archipelago from a single COG, because OpenLayers cannot composite several
+    GeoTIFF sources into one layer — multiple `sources` become BANDS of one image.
+    Per-island entries stay, carrying each island's bbox and published statistics:
+    they are what a zone panel sums, and what the STAC items describe.
+
+    Deliberately small and flat. Everything richer — provenance, lineage, licences,
+    band descriptions — stays in the STAC items, which ship alongside.
+    """
+    from sensisat.catalog import MOSAIC
+    from sensisat.config import ISLAND_BBOX
+
     stats_path = PROCESSED / "statistics" / "layers.json"
     stats = json.loads(stats_path.read_text()) if stats_path.exists() else {}
 
     layers: dict[str, dict] = {}
     for name, spec in LAYERS.items():
+        asset = PROCESSED / name / f"{MOSAIC}.tif"
+        if not asset.exists():
+            continue
         islands = {}
-        for tif in sorted((PROCESSED / name).glob("*.tif")):
-            if ".confidence." in tif.name or tif.stem.count(".") :
-                continue                     # companions are fetched on demand
-            island = next((i for i in stats.get(name, {})
-                           if i.lower().replace(" ", "-") == tif.stem), None)
-            entry = stats.get(name, {}).get(island, {}) if island else {}
-            islands[island or tif.stem] = {
-                # Relative to index.json itself, not to the site root. The viewer
-                # lives at a different depth in the repo than in the deployed site,
-                # so a root-relative path would resolve correctly in only one of them.
-                "asset": f"{name}/{tif.name}",
-                "bytes": tif.stat().st_size,
+        for island, entry in sorted(stats.get(name, {}).items()):
+            if island not in ISLAND_BBOX:
+                continue
+            islands[island] = {
+                "bbox": list(ISLAND_BBOX[island]),
                 "stats": entry.get("properties", {}),
                 "headline_km2": entry.get("headline_km2"),
             }
-        if islands:
-            layers[name] = {
-                "title": spec.title, "measure": spec.measure, "encoding": spec.encoding,
-                "resolution_m": spec.resolution_m, "sources": spec.sources,
-                "start": spec.start, "end": spec.end, "islands": islands,
-            }
+        headline = [v["headline_km2"] for v in islands.values() if v["headline_km2"] is not None]
+        layers[name] = {
+            "title": spec.title, "measure": spec.measure, "encoding": spec.encoding,
+            "resolution_m": spec.resolution_m, "sources": spec.sources,
+            "start": spec.start, "end": spec.end,
+            # Relative to index.json itself, not to the site root: the viewer sits at
+            # a different depth in the repo than in the deployed site, so a
+            # root-relative path would resolve correctly in only one of them.
+            "asset": f"{name}/{MOSAIC}.tif",
+            "bytes": asset.stat().st_size,
+            "stats": archipelago_stats(islands),
+            "headline_km2": round(sum(headline), 4) if headline else None,
+            "islands": islands,
+        }
     return {"generated": "sensisat", "stac": "catalog.json", "layers": layers}
+
+
+def _build_intermediates(directory: str, names: list[str]) -> set[str]:
+    """The per-island COGs, which are no longer published.
+
+    They are still built, still gated and still the thing statistics are computed
+    from — but every STAC item now names the archipelago mosaic, and the viewer
+    reads that one file. Shipping both would put dist/ at roughly 101 MiB against
+    the 100 MiB budget (G6), to publish the same pixels twice.
+
+    The confidence companions stay: they are per-island by nature, they are separate
+    STAC assets, and nothing fetches them until asked.
+    """
+    from sensisat.catalog import is_build_intermediate
+    return {n for n in names if is_build_intermediate(n)}
 
 
 def copy_tree() -> None:
@@ -114,7 +174,7 @@ def copy_tree() -> None:
             raise FileNotFoundError(f"{src} is missing — run `npm run build` in viewer/")
         shutil.copy2(src, SITE / name)
 
-    shutil.copytree(PROCESSED, DATA)
+    shutil.copytree(PROCESSED, DATA, ignore=_build_intermediates)
 
 
 def report() -> float:
