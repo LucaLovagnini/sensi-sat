@@ -57,8 +57,10 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 
-def put(path: Path, bucket: str) -> tuple[Path, bool, str]:
+def put(path: Path, bucket: str, prefix: str = "") -> tuple[Path, bool, str]:
     key = path.relative_to(DATA).as_posix()
+    if prefix:
+        key = f"{prefix.strip('/')}/{key}"
     ctype = CONTENT_TYPES.get(path.suffix, "application/octet-stream")
     cmd = ["npx", "wrangler", "r2", "object", "put", f"{bucket}/{key}",
            f"--file={path}", f"--content-type={ctype}", "--remote"]
@@ -71,7 +73,10 @@ def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--bucket", default=BUCKET)
+    ap.add_argument("--prefix", default="", help="upload under a key prefix, e.g. v2")
     ap.add_argument("--force", action="store_true", help="re-upload every object")
+    ap.add_argument("--allow-index", action="store_true",
+                    help="permit overwriting index.json (see SHARED below)")
     ap.add_argument("--jobs", type=int, default=4)
     args = ap.parse_args()
 
@@ -81,6 +86,26 @@ def main() -> int:
 
     known = {} if args.force else json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
     files = sorted(f for f in DATA.rglob("*") if f.is_file())
+
+    # SHARED: index.json is the one object BOTH the deployed viewer and any preview
+    # read, and its shape is a contract between them. The rasters are additive -- a
+    # new file cannot disturb an old one -- but overwriting index.json with a shape
+    # the deployed bundle does not understand takes the live map down while the page
+    # still returns 200 and nothing errors server-side. That happened on 2026-09-24.
+    # So it is refused unless asked for by name, or written under a prefix where the
+    # deployed viewer will not look.
+    if not args.prefix and not args.allow_index:
+        shared = [f for f in files if f.name == "index.json" and f.parent == DATA]
+        for f in shared:
+            key = f.relative_to(DATA).as_posix()
+            if known.get(key) != digest(f):
+                print(f"REFUSING to overwrite {key}: the deployed viewer reads it, and a "
+                      f"shape it does not understand breaks the live map silently.\n"
+                      f"  --allow-index   if the viewer that reads it is being deployed too\n"
+                      f"  --prefix v2     to publish alongside it instead")
+                return 3
+    if args.prefix:
+        print(f"uploading under prefix {args.prefix!r} — production keys untouched")
     todo, now = [], {}
     for f in files:
         key = f.relative_to(DATA).as_posix()
@@ -96,7 +121,7 @@ def main() -> int:
 
     failed = []
     with concurrent.futures.ThreadPoolExecutor(max_workers=args.jobs) as pool:
-        for i, (path, ok, msg) in enumerate(pool.map(lambda f: put(f, args.bucket), todo), 1):
+        for i, (path, ok, msg) in enumerate(pool.map(lambda f: put(f, args.bucket, args.prefix), todo), 1):
             key = path.relative_to(DATA).as_posix()
             print(f"  [{i:3d}/{len(todo)}] {'ok  ' if ok else 'FAIL'} {key}"
                   + ("" if ok else f"  — {msg}"))
@@ -104,7 +129,8 @@ def main() -> int:
                 failed.append(key)
                 now.pop(key, None)          # never record an object that did not land
 
-    MANIFEST.write_text(json.dumps(now, indent=1, sort_keys=True))
+    if not args.prefix:
+        MANIFEST.write_text(json.dumps(now, indent=1, sort_keys=True))
     if failed:
         print(f"\n  {len(failed)} failed; re-run to retry only those.")
         return 2

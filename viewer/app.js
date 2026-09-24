@@ -41,7 +41,12 @@ import { FACTS } from './facts.generated.js';
  * path exists, so putting R2 first there costs nothing and saves two 404s on the
  * critical path before the map can draw.
  */
-const R2_DATA = 'https://data.sensisat.org';
+// BRANCH ONLY, for the A/B preview. The deployed viewer reads the bucket root, and
+// its index.json has one asset per ISLAND; this branch's has one per LAYER, and the
+// two shapes cannot share a file. Publishing this one under v2/ lets both run at once
+// -- production untouched, preview alongside. At cutover: move v2/index.json to the
+// root (with its "../" asset paths flattened) and point this back at the root.
+const R2_DATA = 'https://data.sensisat.org/v2';
 const LOCAL_DATA = ['data', '../data/processed'];
 const DATA_CANDIDATES = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
   ? [...LOCAL_DATA, R2_DATA]
