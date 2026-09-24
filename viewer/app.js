@@ -108,7 +108,7 @@ const LAYERS = {
 const el = (id) => document.getElementById(id);
 const status = (msg, bad) => { const s = el('status'); s.textContent = msg; s.classList.toggle('error', !!bad); };
 
-const state = { catalog: null, stats: null, island: null, layer: 'buildings-dated', mode: 'state', year: 2020, basemap: 'light', playing: null };
+const state = { catalog: null, stats: null, layer: 'buildings-dated', mode: 'state', year: 2020, basemap: 'light', playing: null };
 
 /* ---------------------------------------------------------------- catalogue */
 async function json(url) {
@@ -143,15 +143,17 @@ async function loadCatalog() {
   if (index) {
     const out = {};
     for (const [id, layer] of Object.entries(index.layers)) {
-      const islands = {};
-      for (const [island, entry] of Object.entries(layer.islands)) {
-        islands[island] = {
-          asset: resolve(indexUrl, entry.asset),
-          stats: entry.stats || {},
-          bbox: null,
-        };
-      }
-      out[id] = {title: layer.title, islands};
+      // One asset per layer: the map draws the whole archipelago from a single COG,
+      // because OpenLayers cannot composite several GeoTIFF sources into one layer
+      // (multiple `sources` become BANDS of one image, asserted to share an origin).
+      // The per-island entries stay, carrying each island's bbox and published
+      // figures — they are what a viewport-scoped readout will sum.
+      out[id] = {
+        title: layer.title,
+        asset: resolve(indexUrl, layer.asset),
+        stats: layer.stats || {},
+        islands: layer.islands || {},
+      };
     }
     return out;
   }
@@ -175,16 +177,19 @@ async function loadCatalogFromStac() {
     const colUrl = resolve(rootUrl, link.href);
     const col = await json(colUrl);
     const islands = {};
+    let asset = null;
     for (const itemLink of col.links.filter((l) => l.rel === 'item')) {
       const itemUrl = resolve(colUrl, itemLink.href);
       const item = await json(itemUrl);
+      // Every item now names the same archipelago asset, so the walk collapses to
+      // one URL — taking it from whichever item we see first is correct, not a guess.
+      asset = resolve(itemUrl, item.assets.data.href);
       islands[item.properties.island] = {
-        asset: resolve(itemUrl, item.assets.data.href),
         stats: item.properties['sensisat:statistics'] || {},
         bbox: item.bbox,
       };
     }
-    out[col.id] = {title: col.title, islands};
+    out[col.id] = {title: col.title, asset, stats: {}, islands};
   }
   return out;
 }
@@ -259,8 +264,7 @@ const toEpoch = (y) => Math.max(1, Math.min(20, Math.round((y - 2016) / 0.5)));
 
 /** The epoch's published name, e.g. 2016-07. Falls back to the raw number. */
 function epochLabel(e) {
-  const entry = state.catalog?.[state.layer]?.islands?.[state.island];
-  return entry?.stats?.epoch_labels?.[e] ?? e;
+  return state.catalog?.[state.layer]?.stats?.epoch_labels?.[e] ?? e;
 }
 
 /** Numeric style variables. Changing these re-renders on the GPU and fetches nothing. */
@@ -446,8 +450,8 @@ const map = new Map({
 let dataLayer = null;
 
 async function showLayer() {
-  const entry = state.catalog[state.layer]?.islands?.[state.island];
-  if (!entry) { status(`no ${state.layer} for ${state.island}`, true); return; }
+  const entry = state.catalog[state.layer];
+  if (!entry?.asset) { status(`no data published for ${state.layer}`, true); return; }
   status('loading raster…');
 
   const def = LAYERS[state.layer];
@@ -469,13 +473,13 @@ async function showLayer() {
   try {
     const view = await source.getView();
     map.getView().fit(entry.bbox ?? view.extent, {padding: [30, 30, 30, 30], duration: 350});
-    status(`${def.title} — ${state.island}`);
+    status(`${def.title} — Canary Islands`);
   } catch (err) {
     console.error(err);
     status(`could not read the raster: ${err.message}`, true);
   }
   renderLegend();
-  renderReadout(entry);
+  renderReadout(scope());
 }
 
 function restyle() {
@@ -483,7 +487,7 @@ function restyle() {
   const def = LAYERS[state.layer];
   if (def.kind === 'trend') { showLayer(); return; }   // a different band, so a new read
   dataLayer.updateStyleVariables(variables());
-  renderReadout(state.catalog[state.layer].islands[state.island]);
+  renderReadout(scope());
 }
 
 /* ------------------------------------------------------------------ panel */
@@ -567,6 +571,20 @@ function renderLegend() {
 const area = (n) => n == null || !isFinite(n) ? '—'
   : new Intl.NumberFormat(navigator.languages, {maximumFractionDigits: 2}).format(n);
 
+/**
+ * What the readout is describing.
+ *
+ * C3 shows the archipelago, because the map now does. The next step is for this to
+ * follow the view — and the reason it is a function returning `{label, stats}` rather
+ * than a bare object is that swapping the SCOPE is then the only change needed, with
+ * every caption below untouched.
+ */
+function scope() {
+  const layer = state.catalog?.[state.layer];
+  return {label: 'all eight islands', stats: layer?.stats || {}};
+}
+
+
 function renderReadout(entry) {
   const def = LAYERS[state.layer];
   const s = entry?.stats || {};
@@ -585,7 +603,7 @@ function renderReadout(entry) {
   if (def.kind === 'change' && s.change_km2) {
     const rows = Object.entries(s.change_km2).map(([period, v]) =>
       `<div class="cap">${period}: <b>+${area(v.new_cover_km2)}</b> km² new, <b>−${area(v.loss_of_cover_km2)}</b> km² lost</div>`).join('');
-    el('readout').innerHTML = `<div class="cap">Built-up change, whole island</div>${rows}`;
+    el('readout').innerHTML = `<div class="cap">Built-up change, ${entry.label}</div>${rows}`;
     return;
   }
 
@@ -600,7 +618,7 @@ function renderReadout(entry) {
     const now = s.extent_by_year[y];
     const undated = s.undated_km2 ?? s['pre-2016, undated'];
     el('readout').innerHTML = `<div class="big">${area(now)} km²</div>`
-      + `<div class="cap">${def.title.toLowerCase()} by ${state.year}, whole island`
+      + `<div class="cap">${def.title.toLowerCase()} by ${state.year}, ${entry.label}`
       + (undated ? ` · plus ${area(undated)} km² built but undated` : '') + '</div>';
     return;
   }
@@ -608,7 +626,7 @@ function renderReadout(entry) {
     const e = toEpoch(state.year);
     const label = epochLabel(e);
     el('readout').innerHTML = `<div class="big">${area(s.extent_by_epoch[e])} km²</div>`
-      + `<div class="cap">${def.title.toLowerCase()} by ${label}, whole island`
+      + `<div class="cap">${def.title.toLowerCase()} by ${label}, ${entry.label}`
       + (s.greenhouse_removed_km2 ? ` · ${area(s.greenhouse_removed_km2)} km² of greenhouses removed` : '')
       + '</div>';
     return;
@@ -620,7 +638,7 @@ function renderReadout(entry) {
   else if (s.greenhouse_removed_km2 != null) extra = `${area(s.greenhouse_removed_km2)} km² of greenhouses removed`;
   else if (s.survey_year) extra = `surveyed ${s.survey_year}`;
   el('readout').innerHTML = km2 == null ? ''
-    : `<div class="big">${area(km2)} km²</div><div class="cap">${def.title.toLowerCase()}, whole island${extra ? ' · ' + extra : ''}</div>`;
+    : `<div class="big">${area(km2)} km²</div><div class="cap">${def.title.toLowerCase()}, ${entry.label}${extra ? ' · ' + extra : ''}</div>`;
 }
 
 function syncTimeControls() {
@@ -672,12 +690,7 @@ function setLayer(name) {
 
 function init(catalog, stats) {
   state.catalog = catalog; state.stats = stats;
-  const islandSel = el('island'), layerSel = el('layer');
-
-  const islands = Object.keys(catalog['buildings-dated']?.islands || {}).sort();
-  islandSel.innerHTML = islands.map((i) => `<option>${i}</option>`).join('');
-  state.island = islands.includes('Gran Canaria') ? 'Gran Canaria' : islands[0];
-  islandSel.value = state.island;
+  const layerSel = el('layer');
 
   layerSel.innerHTML = Object.entries(LAYERS)
     .filter(([id]) => catalog[id])
@@ -699,7 +712,6 @@ function init(catalog, stats) {
     };
   });
 
-  islandSel.onchange = () => { state.island = islandSel.value; showLayer(); };
   layerSel.onchange = () => setLayer(layerSel.value);
 
   // Scoped to #viewmodes, NOT to `.modes button`. The basemap switcher reuses the
