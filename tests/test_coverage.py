@@ -214,3 +214,73 @@ def test_the_coverage_grid_does_not_inflate_where_overviews_do(tmp_path):
     retained = float(((data[:kept, :kept] > 0) * row_areas_m2((kept, 1), t)).sum())
     assert grid.sum() == pytest.approx(retained, rel=1e-12)
     assert retained < float(((data > 0) * row_areas_m2(data.shape, t)).sum())
+
+
+# ------------------------------- the companion must survive being read zoomed out
+
+def _coverage_like(size=512, seed=5):
+    """A grid shaped like a real coverage companion: mostly empty, a scatter of cells
+    holding square metres. Values fit uint16 because a cell of ~1 ha holds at most
+    about 10,000 m2."""
+    rng = np.random.default_rng(seed)
+    a = np.zeros((size, size), np.uint16)
+    idx = rng.choice(size * size, int(size * size * 0.2), replace=False)
+    a.flat[idx] = rng.integers(1, 10_000, idx.size, dtype=np.uint16)
+    return a
+
+
+def _total_at_each_level(path):
+    """Total implied by each stored overview: the mean of a level times how many
+    full-resolution pixels each of its pixels stands for."""
+    with rasterio.open(path) as src:
+        full = float(src.read(1).astype(np.float64).sum())
+        levels = src.overviews(1)
+    out = []
+    for i, factor in enumerate(levels):
+        with rasterio.open(path, OVERVIEW_LEVEL=i) as src:
+            out.append((factor, float(src.read(1).astype(np.float64).sum()) * factor * factor))
+    return full, out
+
+
+def test_nodata_must_be_unset_or_the_companion_inflates_like_the_layer_it_fixes(tmp_path):
+    """The single most important detail in the whole design.
+
+    GDAL excludes nodata from an aggregation. If 0 meant nodata on a grid whose zeros
+    are *real measurements* — ground with nothing built on it — the empty cells would
+    drop out of the average, every overview would read as the mean of only the
+    non-empty cells, and this grid would overstate exactly like the `mode` overviews
+    it exists to replace.
+    """
+    t = grid_transform()
+    data = _coverage_like()
+
+    good = write_cog(tmp_path / "unset.tif", data, t, "EPSG:4326",
+                     nodata=None, resampling=Resampling.average)
+    full, levels = _total_at_each_level(good)
+    assert levels, "fixture needs overviews to make the point"
+    for factor, implied in levels:
+        assert implied == pytest.approx(full, rel=0.01), (
+            f"level {factor}x implies {implied:,.0f} against {full:,.0f} at full "
+            "resolution — averaging is no longer summable")
+
+    bad = write_cog(tmp_path / "zero.tif", data, t, "EPSG:4326",
+                    nodata=0, resampling=Resampling.average)
+    _, bad_levels = _total_at_each_level(bad)
+    worst = max(implied / full for _, implied in bad_levels)
+    assert worst > 1.5, (
+        f"with nodata=0 the empty cells are no longer excluded from the average "
+        f"({worst:.2f}x) — if GDAL changed this, the reason for nodata=None has gone")
+
+
+def test_average_overview_rounding_does_not_run_away_with_depth(tmp_path):
+    """Each level rounds to uint16, and rounding at one level feeds the next. The
+    question is whether that drifts or stays put. Pinned so a dtype change is noticed.
+    """
+    t = grid_transform()
+    path = write_cog(tmp_path / "c.tif", _coverage_like(size=1024), t, "EPSG:4326",
+                     nodata=None, resampling=Resampling.average)
+    full, levels = _total_at_each_level(path)
+    assert len(levels) >= 2, "need depth for the question to mean anything"
+    drifts = [abs(implied - full) / full for _, implied in levels]
+    assert max(drifts) < 0.005, f"drift by level: {[round(d, 5) for d in drifts]}"
+    assert drifts[-1] < drifts[0] * 20, "error compounds sharply with depth"
