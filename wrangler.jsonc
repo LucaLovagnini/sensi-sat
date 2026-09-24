@@ -11,6 +11,14 @@
   // two different hostnames is a citation nobody can check. Changed 2026-09-24, while
   // the site was still unannounced and no citation of the old URL could exist yet.
   "workers_dev": false,
+
+  // Preview URLs survive "workers_dev": false only if asked for explicitly -- wrangler
+  // warns about this on deploy and then disables them. They are the `wrangler versions
+  // upload` path: a real deployment on real Cloudflare infrastructure, with real limits,
+  // at a URL that is NOT production. That is how the R2 architecture was proved before
+  // it replaced anything, and `wrangler dev` cannot substitute for it because it does
+  // not enforce the platform limits that were the whole question.
+  "preview_urls": true,
   "routes": [
     { "pattern": "sensisat.org", "custom_domain": true },
     { "pattern": "www.sensisat.org", "custom_domain": true }
