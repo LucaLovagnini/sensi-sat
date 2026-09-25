@@ -231,6 +231,38 @@ def generated_regions(text: str) -> list[list[str]]:
 PAGE = ROOT / "viewer" / "about-the-data.html"
 APP_JS = ROOT / "viewer" / "app.js"
 README = ROOT / "README.md"
+
+
+def viewer_js_sources() -> list[Path]:
+    """The hand-written JavaScript whose strings a reader can see.
+
+    Derived from app.js by following its relative imports rather than listed, so a
+    module added later is covered the day it is added. This matters: C4 moved the
+    readout's captions into `count.js`, and while the surface was the single file
+    `viewer/app.js` those strings reached readers with nothing checking them —
+    exactly the silence CLAUDE.md #22 exists to prevent.
+
+    `facts.generated.js` is excluded because it IS the generated figures: it is
+    written from `facts.py` by sync_docs, and every value in it is accounted for as
+    a generated figure already.
+    """
+    seen: set[Path] = set()
+    order: list[Path] = []
+    queue = [APP_JS]
+    while queue:
+        path = queue.pop(0)
+        if path in seen or not path.exists():
+            continue
+        seen.add(path)
+        order.append(path)
+        for m in re.finditer(r"""from\s+['"](\.[^'"]+\.js)['"]""", path.read_text()):
+            queue.append((path.parent / m.group(1)).resolve())
+    return [p for p in order if p.name != "facts.generated.js"]
+
+
+def viewer_js_surfaces() -> dict[str, str]:
+    """{repository-relative path: source text} for those modules."""
+    return {str(p.relative_to(ROOT)): p.read_text() for p in viewer_js_sources()}
 PROSE_SURFACES = [
     "viewer/about-the-data.html", "README.md", "CLAUDE.md",
     *sorted(str(p.relative_to(ROOT)) for p in (ROOT / "docs").rglob("*.md")),
@@ -246,21 +278,23 @@ def read(rel: str, texts: dict[str, str] | None = None) -> str:
 
 
 def token_level_figures() -> dict[str, set[str]]:
-    js = APP_JS.read_text()
-    return {
+    out = {
         "viewer/about-the-data.html": figures_in(PAGE.read_text(), html=True),
-        "viewer/app.js": {t for s in js_user_facing_strings(js) for t in figures_in(s, html=False)},
         "README.md": figures_in(README.read_text(), html=False),
     }
+    for rel, js in viewer_js_surfaces().items():
+        out[rel] = {t for s in js_user_facing_strings(js) for t in figures_in(s, html=False)}
+    return out
 
 
 def current_exemptions() -> dict[str, dict[str, int]]:
-    js_strings = "\n".join(js_user_facing_strings(APP_JS.read_text()))
-    return {
+    out = {
         "viewer/about-the-data.html": exemption_counts(PAGE.read_text(), html=True),
-        "viewer/app.js": exemption_counts(js_strings, html=False),
         "README.md": exemption_counts(README.read_text(), html=False),
     }
+    for rel, js in viewer_js_surfaces().items():
+        out[rel] = exemption_counts("\n".join(js_user_facing_strings(js)), html=False)
+    return out
 
 
 #: `<!-- figures: <source>[; <source>…] @ <YYYY-MM-DD> -->` — a source is a repository
@@ -395,13 +429,17 @@ def figure_set(texts: dict[str, str] | None = None) -> dict:
     registry key. Every declaration. Every live value the build currently gives.
     """
     from .provenance import HISTORICAL
-    page, app, readme = (read(r, texts) for r in ("viewer/about-the-data.html", "viewer/app.js", "README.md"))
+    page, readme = (read(r, texts) for r in ("viewer/about-the-data.html", "README.md"))
+    tokens = {
+        "viewer/about-the-data.html": sorted(figures_in(page, html=True)),
+        "README.md": sorted(figures_in(readme, html=False)),
+    }
+    # Every hand-written viewer module, not just app.js — see viewer_js_sources().
+    for rel in viewer_js_surfaces():
+        js = read(rel, texts)
+        tokens[rel] = sorted({t for s in js_user_facing_strings(js) for t in figures_in(s, html=False)})
     out: dict = {
-        "tokens": {
-            "viewer/about-the-data.html": sorted(figures_in(page, html=True)),
-            "viewer/app.js": sorted({t for s in js_user_facing_strings(app) for t in figures_in(s, html=False)}),
-            "README.md": sorted(figures_in(readme, html=False)),
-        },
+        "tokens": dict(sorted(tokens.items())),
         "sections": {}, "generated": {}, "declarations": {},
         "registry": sorted(HISTORICAL),
     }

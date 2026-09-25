@@ -1,0 +1,35 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+
+  // The A/B preview: the same shell as production, at a URL that is not production.
+  //
+  // This file exists because `npx wrangler deploy --name sensisat-preview` against
+  // wrangler.jsonc is DANGEROUS. That config carries `routes` for sensisat.org and
+  // www.sensisat.org as custom domains, and a custom domain belongs to exactly one
+  // Worker — so deploying the preview under its own name while inheriting those
+  // routes would point the canonical hostname at the preview, which is precisely the
+  // production outage this preview was created to avoid. The `--name` flag overrides
+  // the name and nothing else.
+  //
+  // So the preview gets its own config, where the difference is visible rather than
+  // remembered: a different name, no routes at all, and workers.dev turned back ON
+  // because a preview with no route and no subdomain has no address.
+  //
+  //   npx wrangler deploy -c wrangler.preview.jsonc
+  //   -> https://sensisat-preview.ensi-at.workers.dev
+  //
+  // The preview reads `v2/index.json` from the same R2 bucket (see R2_DATA in
+  // viewer/app.js), whose asset paths point back up to the root objects so the
+  // mosaics are not duplicated. At cutover this file and that prefix both go.
+  "name": "sensisat-preview",
+  "compatibility_date": "2026-09-18",
+  "observability": { "enabled": true },
+
+  "workers_dev": true,
+  "preview_urls": true,
+
+  "assets": {
+    // Identical to production: the shell only, rasters served from R2.
+    "directory": "dist/site"
+  }
+}

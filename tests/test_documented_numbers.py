@@ -46,6 +46,7 @@ from sensisat.figures import (  # noqa: E402
     js_user_facing_strings,
     quantity_words_without_digits,
     token_level_figures,
+    viewer_js_surfaces,
 )
 
 needs_build = pytest.mark.skipif(
@@ -146,8 +147,11 @@ def test_quantity_words_carry_their_digits() -> None:
     for rel in PROSE_SURFACES:
         hits = quantity_words_without_digits((ROOT / rel).read_text(), html=rel.endswith(".html"))
         problems += [f"  {rel} {h}" for h in hits]
-    for s in js_user_facing_strings(APP_JS.read_text()):
-        problems += [f"  viewer/app.js {h}" for h in quantity_words_without_digits(s, html=False)]
+    # Every hand-written viewer module. It was app.js alone until C4 moved the
+    # readout's captions into count.js, where nothing was looking at them.
+    for rel, js in viewer_js_surfaces().items():
+        for s in js_user_facing_strings(js):
+            problems += [f"  {rel} {h}" for h in quantity_words_without_digits(s, html=False)]
     assert not problems, (
         "a quantity word with no figure beside it:\n" + "\n".join(problems)
         + "\n\nWrite the digits next to the word — \"a quarter to a third (24–33 %)\" — or "

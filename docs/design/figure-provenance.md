@@ -78,7 +78,8 @@ n_gen = sum(len(v) for v in fs["generated"].values())
 cog.outl("| surface | unit of accounting | today |")
 cog.outl("|---|---|---|")
 cog.outl(f"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |")
-cog.outl(f"| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok['viewer/app.js'])} declared tokens |")
+for _rel in sorted(k for k in tok if k.startswith("viewer/") and k.endswith(".js")):
+    cog.outl(f"| `{_rel}` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok[_rel])} declared tokens |")
 cog.outl(f"| `README.md` | every token | {len(tok['README.md'])} declared tokens |")
 cog.outl(f"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |")
 cog.outl(f"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |")
@@ -90,6 +91,7 @@ cog.outl(f"| `docs/figures/data/` | a script that names the file, or the manifes
 |---|---|---|
 | `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |
 | `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |
+| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |
 | `README.md` | every token | 9 declared tokens |
 | `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |
 | `docs/**/*.md` and `CLAUDE.md` | the section | 79 sections carrying figures, 81 declarations |
