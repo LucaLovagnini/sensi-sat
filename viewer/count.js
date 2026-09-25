@@ -274,6 +274,44 @@ export function statsFromHistogram(hist, {kind, years = [], epochs = []}) {
 const round6 = (n) => Math.round(n * 1e6) / 1e6;
 
 /* ---------------------------------------------------------- the far regime */
+/**
+ * Series that are CUMULATIVE — a running total, not a per-period amount.
+ *
+ * The distinction decides what a missing entry means, and getting it wrong produces
+ * a number that falls when it can only rise. A published per-island series ends at
+ * that island's last recorded construction: Fuerteventura and La Gomera stop at
+ * 2025, La Graciosa at 2023. Summing the islands at 2026 while skipping the ones
+ * with no 2026 entry dropped them entirely, and the archipelago read 93.87 km² at
+ * 2026 against 102.96 at 2025 — Fuerteventura's 7.622 and La Gomera's 1.522, gone.
+ *
+ * In a cumulative series a missing year means "nothing new was recorded", so the
+ * island's last known total is carried forward. In a per-period series — the gains
+ * and losses of `change_km2` — a missing period really is zero.
+ */
+export const CUMULATIVE_SERIES = new Set(['extent_by_year', 'extent_by_epoch', 'surface_km2']);
+
+/**
+ * Sum cumulative series across islands, carrying each one's last known value
+ * forward. Before an island's first entry it contributes nothing; after its last it
+ * goes on contributing that last total, because the buildings are still standing.
+ */
+function sumCumulative(series) {
+  const keys = [...new Set(series.flatMap((o) => Object.keys(o)))]
+    .sort((a, b) => Number(a) - Number(b));
+  const carried = series.map(() => 0);
+  const out = {};
+  for (const k of keys) {
+    let total = 0;
+    series.forEach((o, i) => {
+      const v = o[k];
+      if (typeof v === 'number') carried[i] = v;
+      total += carried[i];
+    });
+    out[k] = round6(total);
+  }
+  return out;
+}
+
 /** Do two bounding boxes `[w, s, e, n]` share any ground at all? */
 export function intersects(a, b) {
   return a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3];
@@ -311,6 +349,7 @@ export function sumStats(entries) {
     if (typeof first === 'number') {
       out[key] = round6(values.reduce((a, b) => a + b, 0));
     } else if (first && typeof first === 'object' && !Array.isArray(first)) {
+      if (CUMULATIVE_SERIES.has(key)) { out[key] = sumCumulative(values); continue; }
       const acc = {};
       for (const v of values) {
         for (const [k2, v2] of Object.entries(v)) {

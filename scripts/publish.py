@@ -67,6 +67,38 @@ def build_bundle() -> None:
                    capture_output=True)
 
 
+#: Series that are CUMULATIVE — a running total, not a per-period amount. The
+#: distinction decides what a MISSING entry means, and getting it wrong produces a
+#: number that falls when it can only rise. Mirrored in `viewer/count.js`; the two
+#: are checked against each other by `tests/test_publish.py`.
+CUMULATIVE_SERIES = {"extent_by_year", "extent_by_epoch", "surface_km2"}
+
+
+def _sum_cumulative(series: list[dict]) -> dict:
+    """Sum running totals across islands, carrying each one's last value forward.
+
+    A published per-island series ends at that island's last recorded construction:
+    Fuerteventura and La Gomera stop at 2025, La Graciosa at 2023. Adding only the
+    islands that HAVE a 2026 entry dropped the others, and the archipelago read
+    93.87 km2 at 2026 against 102.96 at 2025.
+
+    Before an island's first entry it contributes nothing; after its last it goes on
+    contributing that last total, because the buildings are still standing.
+    """
+    keys = sorted({k for o in series for k in o}, key=float)
+    carried = [0.0] * len(series)
+    out: dict = {}
+    for k in keys:
+        total = 0.0
+        for i, o in enumerate(series):
+            v = o.get(k)
+            if isinstance(v, (int, float)) and not isinstance(v, bool):
+                carried[i] = float(v)
+            total += carried[i]
+        out[k] = round(total, 6)
+    return out
+
+
 def archipelago_stats(per_island: dict) -> dict:
     """Totals for all eight islands, summed from the published per-island figures.
 
@@ -87,6 +119,8 @@ def archipelago_stats(per_island: dict) -> dict:
         first = values[0]
         if isinstance(first, bool) or not isinstance(first, (int, float, dict)):
             out[key] = first                      # labels are the same on every island
+        elif isinstance(first, dict) and key in CUMULATIVE_SERIES:
+            out[key] = _sum_cumulative(values)
         elif isinstance(first, dict):
             acc: dict = {}
             for v in values:

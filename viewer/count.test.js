@@ -338,3 +338,53 @@ test('an empty series is 0, not NaN — open sea is in this mode too', () => {
 test('the result is never negative, however the arithmetic rounds', () => {
   assert.ok(addedSince({1990: 0.1 + 0.2, 2026: 0.3}, 1990) >= 0);
 });
+
+/* ------------------------------------------- summing series of unequal length */
+
+test('a running total carries forward when an island stops recording', () => {
+  // A published per-island series ends at that island's last recorded
+  // construction: Fuerteventura and La Gomera stop at 2025, La Graciosa at 2023.
+  // Adding only the islands that HAVE a 2026 entry dropped the rest, and the
+  // archipelago read 93.87 km² at 2026 against 102.96 at 2025.
+  const out = sumStats([
+    {extent_by_year: {2024: 1, 2025: 2, 2026: 3}},
+    {extent_by_year: {2024: 10, 2025: 20}},
+    {extent_by_year: {2024: 100}},
+  ]);
+  assert.deepEqual(out.extent_by_year, {2024: 111, 2025: 122, 2026: 123});
+});
+
+test('a summed running total can never decrease', () => {
+  // The invariant that catches this class of bug without anyone having to notice
+  // that the series are of different lengths.
+  const out = sumStats([
+    {extent_by_year: {1900: 1, 2026: 9}},
+    {extent_by_year: {1900: 5, 2010: 40}},
+    {extent_by_year: {1950: 2}},
+  ]).extent_by_year;
+  const years = Object.keys(out).map(Number).sort((a, b) => a - b);
+  for (let i = 1; i < years.length; i++) {
+    assert.ok(out[years[i]] >= out[years[i - 1]],
+              `${years[i - 1]} -> ${years[i]}: ${out[years[i - 1]]} -> ${out[years[i]]}`);
+  }
+});
+
+test('an island contributes nothing before its series begins', () => {
+  // Carrying forward must not run backwards: an island with no entry until 1950
+  // had no recorded buildings in 1900, which is not the same as "unknown".
+  const out = sumStats([{extent_by_year: {1900: 5, 1950: 5}},
+                        {extent_by_year: {1950: 2}}]).extent_by_year;
+  close(out['1900'], 5);
+  close(out['1950'], 7);
+});
+
+test('a per-period series is NOT carried forward', () => {
+  // change_km2 holds what happened DURING each period. Carrying it forward would
+  // invent a repeat of the previous period's construction.
+  const out = sumStats([
+    {change_km2: {'2018-2021': {new_cover_km2: 1}}},
+    {change_km2: {'2021-2024': {new_cover_km2: 2}}},
+  ]);
+  assert.deepEqual(out.change_km2,
+                   {'2018-2021': {new_cover_km2: 1}, '2021-2024': {new_cover_km2: 2}});
+});
