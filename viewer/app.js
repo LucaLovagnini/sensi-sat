@@ -458,6 +458,13 @@ async function showLayer() {
   const entry = state.catalog[state.layer];
   if (!entry?.asset) { status(`no data published for ${state.layer}`, true); return; }
   status('loading raster…');
+  // Before the raster: the figures come from index.json, which is already in memory,
+  // so they never needed to wait for it. Leaving them alone until the COG resolved
+  // meant the PREVIOUS layer's number sat under the new layer's name for about a
+  // second — a figure from one layer displayed beside another, which is the kind of
+  // stale-number problem this project spends most of its gates preventing.
+  renderLegend();
+  renderReadout(scope());
 
   const def = LAYERS[state.layer];
   const bandIndex = def.kind === 'trend' ? def.epochs.indexOf(state.year) + 1 : 1;
