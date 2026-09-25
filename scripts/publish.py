@@ -38,6 +38,8 @@ import subprocess
 import sys
 from pathlib import Path
 
+import numpy as np
+
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 
 from sensisat.config import PROCESSED, ROOT  # noqa: E402
@@ -99,6 +101,55 @@ def archipelago_stats(per_island: dict) -> dict:
     return out
 
 
+def pixel_area_table(step_deg: float = 0.1) -> dict:
+    """Ground area of one pixel at each latitude, as data the viewer looks up.
+
+    A "10 m" pixel is 8.983e-05 degrees on both axes, which at 28 degN is 9.98 m
+    north-south but only 8.83 m east-west — about 88 m2, not 100. Counting pixels
+    and multiplying by a nominal size overstates area by ~12 % (CLAUDE.md #2).
+
+    The viewer needs that correction to turn a pixel count into square kilometres,
+    and the one thing it must NOT do is work the number out for itself: that would
+    put a second definition of ground area in the project, in a language where
+    nothing checks it, and the wrong answer looks entirely plausible. So the values
+    come from `raster.row_areas_m2` — the same function every published figure is
+    computed with — and ship in index.json.
+
+    Sampling every 0.1 degrees is enough because the quantity follows cos(latitude)
+    and so is smooth: across the archipelago's 27.5–29.6 degN span it moves about
+    2 %, and linear interpolation between samples this close is accurate to roughly
+    one part in three million. Twenty-two numbers.
+    """
+    import math
+
+    from rasterio.transform import Affine
+
+    from sensisat.config import CANARIES_BBOX
+    from sensisat.grid import PIXEL_DEG
+    from sensisat.raster import row_areas_m2
+
+    west, south, _, north = CANARIES_BBOX
+    lat0 = math.floor(south / step_deg) * step_deg
+    lat1 = math.ceil(north / step_deg) * step_deg
+
+    # One row per real pixel across the whole span, so the values are the ones the
+    # build itself would use, then sampled. The array is ~23,000 floats.
+    top = lat1 + PIXEL_DEG          # so the first row CENTRE sits above lat1
+    height = int(math.ceil((top - lat0) / PIXEL_DEG)) + 1
+    transform = Affine(PIXEL_DEG, 0.0, west, 0.0, -PIXEL_DEG, top)
+    native = row_areas_m2((height, 1), transform)[:, 0]
+    centres = top - PIXEL_DEG * (np.arange(height) + 0.5)
+
+    n = int(round((lat1 - lat0) / step_deg)) + 1
+    values = []
+    for i in range(n):
+        lat = lat0 + i * step_deg
+        # The nearest row centre is at most half a pixel (4.5e-05 deg) away, which
+        # moves the area by about one part in ten million.
+        values.append(round(float(native[int(np.abs(centres - lat).argmin())]), 6))
+    return {"lat0": round(lat0, 6), "step": step_deg, "values": values}
+
+
 def runtime_index() -> dict:
     """One file describing every published layer (guardrail G2).
 
@@ -145,7 +196,8 @@ def runtime_index() -> dict:
             "headline_km2": round(sum(headline), 4) if headline else None,
             "islands": islands,
         }
-    return {"generated": "sensisat", "stac": "catalog.json", "layers": layers}
+    return {"generated": "sensisat", "stac": "catalog.json",
+            "pixel_area_m2": pixel_area_table(), "layers": layers}
 
 
 def _build_intermediates(directory: str, names: list[str]) -> set[str]:

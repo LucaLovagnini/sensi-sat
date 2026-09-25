@@ -101,7 +101,7 @@ def test_the_viewer_unit_tests_run_as_part_of_this_suite():
             "`npm run build`) and run again."
         )
     result = subprocess.run(
-        [node, "--test", "--test-reporter=tap", "count.test.js"],
+        [node, "--test", "--test-reporter=tap"],
         cwd=ROOT / "viewer", capture_output=True, text=True,
     )
     assert result.returncode == 0, (
@@ -109,3 +109,70 @@ def test_the_viewer_unit_tests_run_as_part_of_this_suite():
         + "\n".join(line for line in result.stdout.splitlines()
                     if line.startswith(("not ok", "  ---", "    ")))[:4000]
     )
+
+
+def test_the_shipped_pixel_area_table_agrees_with_the_function_it_came_from():
+    """The viewer's ground areas must be the build's ground areas, to the last digit.
+
+    This is the cross-language half of CLAUDE.md #2. The table is generated from
+    `raster.row_areas_m2` and interpolated in JavaScript, and those are two different
+    pieces of code in two different languages — so the check runs the real JS
+    lookup over the real shipped table and compares it against the real Python
+    function at the same latitudes.
+
+    What it would catch: a viewer that assumes a "10 m" pixel is 100 m2 lands ~13 %
+    high, which is a wrong number that looks entirely reasonable on a map.
+    """
+    import json
+    import sys
+
+    import numpy as np
+    from rasterio.transform import Affine
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from publish import pixel_area_table
+
+    from sensisat.raster import row_areas_m2
+
+    table = pixel_area_table()
+    # Latitudes deliberately off the sample points, including both ends and beyond
+    # them, because the edges are where an interpolation is wrong.
+    lats = [27.5, 27.53, 27.87, 28.0, 28.049, 28.5, 29.111, 29.6]
+
+    script = (
+        "import {pixelAreaM2} from './count.js';"
+        f"const t = {json.dumps(table)};"
+        f"const lats = {json.dumps(lats)};"
+        "console.log(JSON.stringify(lats.map((l) => pixelAreaM2(t, l))));"
+    )
+    result = subprocess.run(
+        [shutil.which("node") or "node", "--input-type=module", "-e", script],
+        cwd=ROOT / "viewer", capture_output=True, text=True,
+    )
+    assert result.returncode == 0, result.stderr
+    from_js = json.loads(result.stdout)
+
+    for lat, js in zip(lats, from_js, strict=True):
+        # A one-row raster whose single row CENTRE sits exactly on `lat`.
+        transform = Affine(PIXEL_DEG, 0.0, 0.0, 0.0, -PIXEL_DEG, lat + PIXEL_DEG / 2)
+        truth = float(row_areas_m2((1, 1), transform)[0, 0])
+        assert np.isclose(js, truth, rtol=1e-5), (
+            f"at {lat} degN the viewer would use {js:.4f} m2 and the build uses "
+            f"{truth:.4f} m2"
+        )
+
+
+def test_the_table_is_small_enough_to_ship_on_every_page_load():
+    """It rides in index.json, which is on the critical path (guardrail G2).
+
+    The whole reason a 0.1-degree step is enough is that the quantity is smooth; if
+    someone later "improves" accuracy by sampling finely, this says what it costs.
+    """
+    import json
+    import sys
+
+    sys.path.insert(0, str(ROOT / "scripts"))
+    from publish import pixel_area_table
+
+    payload = json.dumps(pixel_area_table(), separators=(",", ":"))
+    assert len(payload) < 2048, f"the pixel-area table is {len(payload)} bytes"
