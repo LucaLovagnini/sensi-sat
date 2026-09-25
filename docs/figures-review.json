@@ -3,7 +3,7 @@
   "declarations": 83,
   "generated_regions": 22,
   "registry_entries": 63,
-  "sections_with_figures": 81,
+  "sections_with_figures": 80,
   "token_level_figures": 74
  },
  "figures": {
@@ -124,7 +124,7 @@
     ],
     [
      "import sensisat.figures as g\nfs = g.figure_set()\ntok = fs[\"tokens\"]\nn_sections = sum(len(v) for v in fs[\"sections\"].values())\nn_decl = sum(len(v) for v in fs[\"declarations\"].values())\nn_gen = sum(len(v) for v in fs[\"generated\"].values())\ncog.outl(\"| surface | unit of accounting | today |\")\ncog.outl(\"|---|---|---|\")\ncog.outl(f\"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |\")\nfor _rel in sorted(k for k in tok if k.startswith(\"viewer/\") and k.endswith(\".js\")):\n    cog.outl(f\"| `{_rel}` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok[_rel])} declared tokens |\")\ncog.outl(f\"| `README.md` | every token | {len(tok['README.md'])} declared tokens |\")\ncog.outl(f\"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\")\ncog.outl(f\"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |\")\ncog.outl(f\"| generated regions, all prose | `cog` from `facts.py` | {n_gen} |\")\ncog.outl(f\"| `sensisat/provenance.HISTORICAL` | the registry | {len(fs['registry'])} entries |\")\ncog.outl(f\"| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |\")",
-     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 81 sections carrying figures, 83 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 22 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
+     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 80 sections carrying figures, 83 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 22 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
     ]
    ],
    "docs/pipeline.md": [
@@ -2242,45 +2242,43 @@
      "0.1",
      "0.477047 km²",
      "0.477048,",
-     "0.5",
+     "1,013",
+     "1,048,576",
+     "1,317,818",
      "10 m",
      "100",
      "101.7×",
+     "1024",
+     "1024 ×",
      "12",
+     "12.6",
      "127 years",
      "16",
-     "176",
      "2",
      "2 %",
-     "20",
-     "200",
+     "2,500",
+     "21,085,093",
      "22",
-     "226 ×",
      "23.9×",
+     "25",
      "250",
      "28",
+     "280",
      "3",
-     "3,025",
-     "3,452",
-     "302,500",
+     "3.2",
      "32×",
-     "4,840,000",
-     "43,560,000",
-     "45,379",
-     "46,000.",
-     "5",
-     "534",
-     "581",
-     "60",
-     "8",
+     "35",
+     "4",
+     "50.6",
+     "533",
+     "6",
+     "601",
+     "616,",
      "8.83 m",
-     "81",
-     "82",
+     "82,364",
+     "878",
      "88 m²",
      "9.98 m"
-    ],
-    "## 6. Not done": [
-     "2"
     ],
     "## 7. Deployment": [
      "0.88 MiB",
@@ -2385,12 +2383,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "56df5ff2784c6507c5dd08992a1c8c143d4d2c552573291a8781371427cebe7f",
+ "fingerprint": "c2442c729534750ca49ab2d44fb020e0ef54365ffb5f39c261eacea2ef90191a",
  "judgements": {
-  "declarations_plausible": "One section changed: CLAUDE.md 'Things that are easy to get wrong here' gained item 25 (an import must not shadow a JavaScript built-in) and the former item 25 renumbered to 26. The new item states no figures — the only numerals in it are the list markers, which the exemption rules already classify as such — so the section's declared sources are unchanged and still cover everything it states. Verified the section body against its declaration rather than assuming: nothing measured was added.",
-  "generated_from_right_fact": "Unchanged since the attestation made minutes earlier in this session; no generated region was touched by this edit.",
-  "registry_holds_no_live_claim": "Unchanged, 63 entries. The edit registers no measurement."
+  "declarations_plausible": "docs/viewer.md section 5 was rewritten and its figures changed, so its declaration was re-read against the new text. It states: the block measurements (3.2 km / 82,364 px / 4 blocks, 12.6 km / 1,317,818 px / 6 blocks, 50.6 km / 21,085,093 px / 35 blocks, and the ~280 / ~2,500 ms timings), the worker-pool comparison (533 and 601 ms against 616, 878 and 1,013 ms), NEAR_MAX_BLOCKS = 12 and the ~25 km it corresponds to, the 1024 tile size, and the rasterio parity pair. All are covered by the section's existing sources - viewer/count.js owns the constant and the tile reasoning, and the measured: labels cover browser timings taken on the published mosaic today. Section 6 no longer states a crossover figure but keeps its viewer/count.js declaration, which is still correct for what it says.",
+  "generated_from_right_fact": "No generated region added or changed. The inflation table's first row still generates area('buildings-dated') and still reads 104.33 km2 against a row labelled 'full resolution - the published figure'. Re-checked that the size regions are unmoved.",
+  "registry_holds_no_live_claim": "Unchanged, 63 entries. Nothing frozen was added."
  },
  "reviewed": "2026-09-25",
- "reviewer": "Claude Opus 5 (session) — CLAUDE.md item 25; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — block budget, basemap limits, worker pool; Luca's own first-hand reading of the full listing is still outstanding"
 }

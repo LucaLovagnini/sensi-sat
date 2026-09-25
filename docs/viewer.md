@@ -152,8 +152,8 @@ scattered El Hierro. `tests/test_coverage.py` pins both.
 
 ### Two regimes, and no new published data
 
-**Near** — below a 2 km view, the raster is read at full resolution for the window
-on screen and counted. This is not a second implementation of the build's
+**Near** — while the view is small enough, the raster is read at full resolution for
+the window on screen and counted. This is not a second implementation of the build's
 arithmetic: it reads the same bytes and applies the same rule. Checked in a browser
 against `rasterio` on the identical integer-pixel window over HTTP — 0.477047 km²
 against 0.477048, the difference being the viewer's own rounding.
@@ -168,23 +168,41 @@ the whole island, which is more ground than the screen shows whenever the island
 runs off the edge, so claiming "in view" there would be false and unfalsifiable at
 a glance.
 
-**The crossover is a pixel budget, not a width**, because decode time follows the
-pixels read: a 2 km × 8 km window holds four times the pixels of a 2 km square one.
-A 2 km square view at 28°N is 226 × 200 = 45,379 pixels, and the budget is 46,000.
-Measured cold (cache-busted, so missing the browser cache and the edge) and warm:
+### The budget is in blocks, which is what the cost is actually paid in
 
-| view | pixels | cold | warm |
+The first version of this threshold counted the pixels in the view, and that
+describes the wrong thing. A COG stores its pixels in fixed square tiles — ours are
+1024 × 1024 — and a reader cannot fetch less than a whole one. The floor for **any**
+count, however small the view, is therefore 1,048,576 pixels.
+
+Measured on the published `buildings-dated` mosaic:
+
+| view | window | blocks | time |
 |---|---|---|---|
-| ~0.5 km | 3,025 | 82 ms | 2 ms |
-| ~5 km | 302,500 | 176 ms | 12 ms |
-| ~20 km | 4,840,000 | 581 ms | 81 ms |
-| ~60 km, whole island | 43,560,000 | **3,452 ms** (median of six) | 534 ms |
+| 3.2 km | 82,364 px | 4 | ~280 ms |
+| 12.6 km | 1,317,818 px | 6 | ~280 ms |
+| 50.6 km | 21,085,093 px | 35 | ~2,500 ms |
 
-So 2 km sits far inside what the browser can afford; 20 km was still usable. The
-headroom is deliberate. The real cost of the near path is not time but that the
-number means something different on each side of the line, and a conservative
-crossover keeps the narrow-but-checkable regime where a reader can hold the figure
-against the screen.
+The middle two rows differ sixteenfold in pixels and cost the same. So the budget is
+`NEAR_MAX_BLOCKS = 12`, roughly a 25 km view — most of an island, which is the range
+over which a reader expects the number to follow the map. Beyond it the published
+island totals are instant and exact, and counting would buy nothing but seconds of
+waiting.
+
+**This was set by testing, not by argument.** A first attempt used a 2 km threshold,
+and in use the number then sat unchanged on an island total across a tenfold zoom
+range, which reads as a broken panel rather than a design.
+
+### Decoding runs on workers
+
+Even a modest window inflates more than a million pixels, and a 25 km view inflates
+tens of millions, so `readRasters` is given a `geotiff.js` worker pool. Measured on a
+25 km view over Tenerife: **533 and 601 ms with the pool, against 616, 878 and
+1,013 ms without**. The pool survives bundling because geotiff.js embeds its worker
+source and builds it from a Blob — which is not obvious, and is why the numbers are
+recorded. It is constructed lazily inside a `try`, because worker creation is the
+kind of thing a bundler or a strict CSP can break, and a slower readout beats one
+that throws.
 
 ### The slider still fetches nothing
 
@@ -233,9 +251,9 @@ built-in.
 
 **A per-zone panel beyond what the view implies** — statistics for a named
 municipality or protected area (M5) — and deep-linking of view state into the URL.
-Sub-2 km views are exact and above that the answer is whole islands; the band in
-between, where a view holds most of one island, is where a reader is most likely to
-want something finer than an island and there is nothing to give them. The options
+Views up to about most of an island are counted exactly; above that the answer is
+whole islands, and a reader looking at two islands at once has no way to ask about
+the ground between them. The options
 were measured and are recorded in the plan: a coverage grid (retired — it cannot
 carry per-year at acceptable size) and a sparse per-cell table, which does not need
 a database to be useful because what makes it small is sparsity, not query

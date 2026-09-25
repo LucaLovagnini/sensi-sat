@@ -94,7 +94,7 @@ cog.outl(f"| `docs/figures/data/` | a script that names the file, or the manifes
 | `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |
 | `README.md` | every token | 9 declared tokens |
 | `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |
-| `docs/**/*.md` and `CLAUDE.md` | the section | 81 sections carrying figures, 83 declarations |
+| `docs/**/*.md` and `CLAUDE.md` | the section | 80 sections carrying figures, 83 declarations |
 | generated regions, all prose | `cog` from `facts.py` | 22 |
 | `sensisat/provenance.HISTORICAL` | the registry | 63 entries |
 | `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |

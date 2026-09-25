@@ -16,8 +16,8 @@ import assert from 'node:assert/strict';
 import {readFileSync} from 'node:fs';
 
 import {
-  YEAR_OFFSET, UNDATED, NEAR_MAX_PIXELS, FAR_ONLY_KINDS,
-  regimeFor, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
+  YEAR_OFFSET, UNDATED, NEAR_MAX_BLOCKS, FAR_ONLY_KINDS,
+  regimeFor, blocksTouched, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
   intersects, islandsInView, sumStats, describe, emptyStats, addedSince,
 } from './count.js';
 
@@ -28,13 +28,38 @@ const close = (a, b, eps = 1e-9) =>
 
 test('a view the near path can afford is answered the near way', () => {
   assert.equal(regimeFor('year', 1), 'near');
-  assert.equal(regimeFor('year', NEAR_MAX_PIXELS), 'near');
+  assert.equal(regimeFor('year', NEAR_MAX_BLOCKS), 'near');
 });
 
-test('one pixel over the budget switches regime, so the choice cannot drift', () => {
+test('one block over the budget switches regime, so the choice cannot drift', () => {
   // The failure: a silent switch to the wrong method. The boundary is the whole
   // point of the constant, so it is asserted rather than assumed.
-  assert.equal(regimeFor('year', NEAR_MAX_PIXELS + 1), 'far');
+  assert.equal(regimeFor('year', NEAR_MAX_BLOCKS + 1), 'far');
+});
+
+test('the cost is counted in BLOCKS, because that is what a COG is read in', () => {
+  // The first version of this budget counted window pixels, which describes the
+  // wrong thing: a COG stores fixed tiles and a reader cannot fetch less than one.
+  // Measured on the published mosaic, a 3.2 km view (82,364 px, 4 blocks) and a
+  // 12.6 km view (1,317,818 px, 6 blocks) cost the same ~280 ms.
+  const tile = {width: 1024, height: 1024};
+  assert.equal(blocksTouched({left: 0, top: 0, right: 10, bottom: 10}, tile), 1);
+  assert.equal(blocksTouched({left: 0, top: 0, right: 1024, bottom: 1024}, tile), 1);
+});
+
+test('a window straddling a boundary costs both blocks, however narrow it is', () => {
+  // Ten pixels either side of a block edge is two reads of 1,048,576 pixels each.
+  const tile = {width: 1024, height: 1024};
+  assert.equal(blocksTouched({left: 1019, top: 0, right: 1029, bottom: 10}, tile), 2);
+  assert.equal(blocksTouched({left: 1019, top: 1019, right: 1029, bottom: 1029}, tile), 4);
+});
+
+test('block counting follows the file\'s own tile size, not an assumed one', () => {
+  // density-trend is written at 256 because it is 10-band pixel-interleaved, so a
+  // 1024 tile would inflate 20 MB to read one epoch.
+  const win = {left: 0, top: 0, right: 1024, bottom: 1024};
+  assert.equal(blocksTouched(win, {width: 1024, height: 1024}), 1);
+  assert.equal(blocksTouched(win, {width: 256, height: 256}), 16);
 });
 
 test('the layers with no near path never take it, however small the view', () => {

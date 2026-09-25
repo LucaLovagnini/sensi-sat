@@ -1,20 +1,4 @@
 {
-  "README.md": {
-    "generated": 0,
-    "doi": 0,
-    "url": 0,
-    "entity": 0,
-    "css": 0,
-    "interpolation": 0,
-    "licence": 1,
-    "issue": 0,
-    "regulation": 0,
-    "version": 0,
-    "comment": 0,
-    "reference": 1,
-    "year": 5,
-    "list_marker": 0
-  },
   "viewer/about-the-data.html": {
     "generated": 10,
     "superscript": 2,
@@ -32,13 +16,29 @@
     "year": 53,
     "list_marker": 0
   },
+  "README.md": {
+    "generated": 0,
+    "doi": 0,
+    "url": 0,
+    "entity": 0,
+    "css": 0,
+    "interpolation": 0,
+    "licence": 1,
+    "issue": 0,
+    "regulation": 0,
+    "version": 0,
+    "comment": 0,
+    "reference": 1,
+    "year": 5,
+    "list_marker": 0
+  },
   "viewer/app.js": {
     "generated": 0,
     "doi": 0,
     "url": 1,
     "entity": 3,
     "css": 10,
-    "interpolation": 9,
+    "interpolation": 12,
     "licence": 0,
     "issue": 0,
     "regulation": 0,

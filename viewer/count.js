@@ -71,41 +71,39 @@ export const NOT_BUILT = 0;
 
 /* ------------------------------------------------------------ the crossover */
 /**
- * How much the near path is allowed to read, in pixels.
+ * How much the near path is allowed to read, in BLOCKS.
  *
- * **The decision is "2 km" (Luca, 2026-09-25)** — below a 2 km view the readout
- * measures the ground on screen; above it, whole islands. This constant is that
- * decision expressed in the unit that actually governs the cost:
+ * A Cloud-Optimized GeoTIFF is stored in fixed square tiles, and a reader cannot
+ * fetch less than a whole one: our archipelago mosaics use 1024 x 1024, so the
+ * smallest possible read is 1,048,576 pixels no matter how small the view. That is
+ * why the first attempt at this constant — a budget in window pixels — described
+ * the wrong thing entirely. Measured on the published mosaic: a 3.2 km view (82,364
+ * pixels, 4 blocks) and a 12.6 km view (1,317,818 pixels, 6 blocks) cost the SAME
+ * ~280 ms, while the pixel counts differ sixteenfold. A 50 km view is 35 blocks and
+ * ~2.5 s.
  *
- *     a pixel at 28 degN            9.983 m N-S x 8.830 m E-W
- *     a 2 km square view            226 x 200 px  =  45,379 px
- *     budget, rounded up            46,000 px
+ * So the budget is blocks, the unit the cost is actually paid in. At 1024 and the
+ * 10 m grid, 12 blocks is roughly a 25 km view — most of an island — which is the
+ * range where a reader wants a number that follows the map. Beyond it the published
+ * island totals answer instantly and exactly, and counting would buy nothing but
+ * seconds of waiting.
  *
- * It is a PIXEL budget rather than a width in kilometres because decode time is
- * proportional to the pixels read, not to how wide the view is: a 2 km x 8 km
- * window holds four times the pixels of a 2 km square one and costs four times as
- * much. Bounding the thing that actually costs money means a tall window is
- * correctly refused and a wide flat one is correctly allowed.
- *
- * What it rests on. Decode was measured on real files over real HTTP, cold (cache-
- * busted, so missing the browser cache AND the edge) and warm:
- *
- *     ~0.5 km     3,025 px        82 ms cold      2 ms warm
- *     ~2 km      45,379 px        (between these two)
- *     ~5 km     302,500 px       176 ms cold     12 ms warm
- *     ~20 km  4,840,000 px       581 ms cold     81 ms warm
- *     ~60 km 43,560,000 px     3,452 ms cold    534 ms warm   <- median of six
- *
- * So 2 km is far inside what the browser can afford; the ceiling measured 20 km as
- * still usable. The gap between the two is deliberate headroom, not an oversight:
- * the cost of the near path is not only time, it is that the number means something
- * different on each side of this line, and a conservative crossover keeps the
- * honest-but-narrow regime where a reader can actually check it against the screen.
- *
- * `tests/test_viewer_count.py` ties this number to the published grid, so it cannot
- * drift away from the 2 km it is supposed to mean, and to the analysis script.
+ * This is NOT a latency cliff, because the readout no longer waits for it: the far
+ * answer is shown immediately and the counted one replaces it when it arrives.
  */
-export const NEAR_MAX_PIXELS = 46_000;
+export const NEAR_MAX_BLOCKS = 12;
+
+/**
+ * How many stored blocks a pixel window touches — what the read will actually cost.
+ *
+ * Exact rather than estimated: a 100-pixel window straddling a block boundary costs
+ * two blocks, and one that does not costs one.
+ */
+export function blocksTouched({left, top, right, bottom}, {width, height}) {
+  const across = Math.floor((right - 1) / width) - Math.floor(left / width) + 1;
+  const down = Math.floor((bottom - 1) / height) - Math.floor(top / height) + 1;
+  return Math.max(1, across) * Math.max(1, down);
+}
 
 /**
  * Layers whose near path is not implemented, and which therefore always report the
@@ -122,12 +120,11 @@ export const FAR_ONLY_KINDS = new Set(['trend', 'change']);
 /**
  * Which regime answers this view.
  *
- * `pixels` is what the near path would have to decode — the view window in
- * full-resolution pixels, already clipped to the raster.
+ * `blocks` is what the near path would have to decode, from `blocksTouched()`.
  */
-export function regimeFor(kind, pixels) {
+export function regimeFor(kind, blocks) {
   if (FAR_ONLY_KINDS.has(kind)) return 'far';
-  return pixels <= NEAR_MAX_PIXELS ? 'near' : 'far';
+  return blocks <= NEAR_MAX_BLOCKS ? 'near' : 'far';
 }
 
 /* ------------------------------------------------------------- ground area */

@@ -33,9 +33,10 @@ import subprocess
 
 import pytest
 
-from sensisat.config import EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG, ROOT
+from sensisat.config import EARTH_EQUATORIAL_M_PER_DEG, ROOT
 from sensisat.encoding import UNDATED, YEAR_OFFSET
 from sensisat.grid import PIXEL_DEG
+from sensisat.layers import LAYERS
 
 COUNT_JS = ROOT / "viewer" / "count.js"
 
@@ -64,24 +65,40 @@ def test_the_year_encoding_is_the_same_number_in_both_languages():
     assert _const("UNDATED") == UNDATED
 
 
-def test_the_crossover_really_is_the_two_kilometre_view_it_claims_to_be():
-    """The budget is in pixels; the decision was in kilometres. They must agree.
+def test_the_crossover_is_a_block_budget_that_matches_the_published_tiling():
+    """The budget is in blocks, and the blocks are the ones the build writes.
 
-    A pixel is 8.983e-05 degrees on both axes, which at 28 degN is 9.98 m north-south
-    and 8.83 m east-west (CLAUDE.md #2 — never assume 10). A 2 km square view is
-    therefore about 226 x 200 = 45,379 pixels. If someone later retunes the budget
-    for speed without revisiting the decision, this is what notices.
+    A Cloud-Optimized GeoTIFF stores fixed square tiles and a reader cannot fetch
+    less than one, so the cost of a count is paid per block, not per pixel on screen.
+    Measured on the published mosaic: a 3.2 km view (82,364 px, 4 blocks) and a
+    12.6 km view (1,317,818 px, 6 blocks) both took about 280 ms.
+
+    This pins the budget to a view width, so it cannot quietly stop meaning what the
+    design decided. If `mosaic_blocksize` is ever changed, the same number of blocks
+    covers a different amount of ground, and that is exactly what should fail here.
     """
-    ns_m = PIXEL_DEG * EARTH_MERIDIONAL_M_PER_DEG
-    ew_m = PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(CROSSOVER_LAT))
-    expected = (CROSSOVER_KM * 1000 / ew_m) * (CROSSOVER_KM * 1000 / ns_m)
+    budget = _const("NEAR_MAX_BLOCKS")
+    block = LAYERS["buildings-dated"].mosaic_blocksize
+    assert block == 1024, "the measurements behind NEAR_MAX_BLOCKS assume 1024"
 
-    budget = _const("NEAR_MAX_PIXELS")
-    ratio = budget / expected
-    assert 1.0 <= ratio <= 1.05, (
-        f"NEAR_MAX_PIXELS is {budget:,}, which is {math.sqrt(ratio) * CROSSOVER_KM:.2f} km "
-        f"square at {CROSSOVER_LAT} degN, not the {CROSSOVER_KM} km the design decided on"
+    ew_m = PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(CROSSOVER_LAT))
+    # A square view of `budget` blocks, in the worst case where none is shared.
+    side_km = math.sqrt(budget) * block * ew_m / 1000
+    assert 15 <= side_km <= 35, (
+        f"{budget} blocks of {block} px is about a {side_km:.1f} km view at "
+        f"{CROSSOVER_LAT} degN, which is not the 'most of an island' the design chose"
     )
+
+
+def test_every_layer_with_a_near_path_is_tiled_small_enough_to_count():
+    """A layer written in huge blocks could never be counted at any useful zoom.
+
+    density-trend is deliberately 256 (10-band pixel-interleaved, so a 1024 tile
+    would inflate 20 MB to read one epoch) and is far-only anyway. The rest must stay
+    at a size where a handful of blocks covers a real view.
+    """
+    for name, spec in LAYERS.items():
+        assert spec.mosaic_blocksize <= 1024, f"{name} is tiled too coarsely to count"
 
 
 def test_the_viewer_unit_tests_run_as_part_of_this_suite():
