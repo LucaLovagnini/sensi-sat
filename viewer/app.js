@@ -56,12 +56,21 @@ import { FACTS } from './facts.generated.js';
  * path exists, so putting R2 first there costs nothing and saves two 404s on the
  * critical path before the map can draw.
  */
-// BRANCH ONLY, for the A/B preview. The deployed viewer reads the bucket root, and
-// its index.json has one asset per ISLAND; this branch's has one per LAYER, and the
-// two shapes cannot share a file. Publishing this one under v2/ lets both run at once
-// -- production untouched, preview alongside. At cutover: move v2/index.json to the
-// root (with its "../" asset paths flattened) and point this back at the root.
-const R2_DATA = 'https://data.sensisat.org/v2';
+// The bucket root, for every deployment. There is deliberately no branch-only
+// variant of this any more.
+//
+// It was 'https://data.sensisat.org/v2' while this viewer ran beside production,
+// because index.json sits at ONE well-known URL that both viewers fetch and the two
+// read different shapes from it — the deployed one wants `islands[island].asset`,
+// this one wants `layers[id].asset`. A prefix kept them apart, at the cost of a flag
+// day: whichever side moved second would break, silently, with the page still
+// answering 200 and the layers simply never drawing. That failure happened once
+// already (2026-09-24) and a constant marked branch-only is a poor defence against
+// it happening again on merge day.
+//
+// publish.py now emits BOTH shapes into the one file (see runtime_index), so it
+// satisfies either viewer and the two can be deployed in any order, or weeks apart.
+const R2_DATA = 'https://data.sensisat.org';
 const LOCAL_DATA = ['data', '../data/processed'];
 const DATA_CANDIDATES = /^(localhost|127\.0\.0\.1|\[::1\])$/.test(location.hostname)
   ? [...LOCAL_DATA, R2_DATA]

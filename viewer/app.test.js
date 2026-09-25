@@ -78,3 +78,17 @@ test('the readout counts full resolution, never an overview', () => {
   assert.ok(/getImage\(0\)/.test(CODE),
             'the counting path must open image 0, the full-resolution one');
 });
+
+test('the published data root carries no branch-only prefix', () => {
+  // A constant marked BRANCH ONLY is a note, not a defence. This one pointed at a
+  // `v2/` prefix while the archipelago viewer ran beside production, and merging it
+  // would have pointed the live site at a path only the preview had. publish.py now
+  // emits both index shapes into the one file at the root, so there is nothing to
+  // remember on merge day — and nothing here to get wrong.
+  const m = CODE.match(/const R2_DATA = '([^']+)'/);
+  assert.ok(m, 'R2_DATA is not declared');
+  const url = new URL(m[1]);
+  assert.equal(url.pathname.replace(/\/$/, ''), '',
+               `R2_DATA points at "${url.pathname}", not the bucket root`);
+  assert.ok(!/BRANCH ONLY/i.test(SRC), 'app.js still carries a BRANCH ONLY marker');
+});

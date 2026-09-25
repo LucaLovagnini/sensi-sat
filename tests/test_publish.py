@@ -112,3 +112,58 @@ def test_every_published_running_total_rises():
                     problems.append(f"  {name}.{series}: {before} -> {after}")
                     break
     assert not problems, "a published running total decreases:\n" + "\n".join(problems)
+
+
+def test_the_index_serves_both_viewers_so_there_is_no_flag_day():
+    """index.json sits at ONE URL that every viewer fetches, whatever its vintage.
+
+    The deployed viewer reads `layers[id].islands[island].asset`; the archipelago
+    viewer reads `layers[id].asset`. A file carrying only one of those breaks
+    whichever side is deployed second, and breaks it SILENTLY — the page still
+    answers 200 and the layers simply never draw. That happened on 2026-09-24, and
+    the mitigation at the time was a `v2/` prefix plus a constant in app.js marked
+    BRANCH ONLY, which is a note rather than a defence.
+
+    Emitting both shapes means the data and the bundle can be deployed in either
+    order, or weeks apart. Verified in a browser: `main`'s bundle drives all seven
+    layers and all eight islands off this file, and so does the new one.
+
+    This is the EXPAND of expand-migrate-contract. The per-island keys go once
+    production is verified on the archipelago viewer and the old objects are pruned;
+    deleting this test is how that decision gets made deliberately.
+    """
+    from publish import runtime_index
+
+    from sensisat.layers import LAYERS
+    index = runtime_index()
+    assert index["shape"] == "both"
+
+    missing = []
+    for name in LAYERS:
+        layer = index["layers"].get(name)
+        if layer is None:
+            continue                      # not built in this checkout
+        if not layer.get("asset"):
+            missing.append(f"  {name}: no layer-level asset (archipelago viewer)")
+        for island, entry in layer["islands"].items():
+            if not entry.get("asset"):
+                missing.append(f"  {name}/{island}: no per-island asset (deployed viewer)")
+    assert not missing, "index.json would break a viewer:\n" + "\n".join(missing)
+
+
+def test_the_per_island_href_is_the_slug_the_catalogue_writes():
+    """"Gran Canaria" is stored as gran-canaria.tif, and one rule must decide that.
+
+    A second naming rule here would resolve for the islands whose name happens to
+    match and 404 for the rest — which is how this was first written, and it gave
+    three of eight.
+    """
+    from publish import runtime_index
+
+    from sensisat.catalog import _slug
+    layer = runtime_index()["layers"].get("buildings-dated")
+    if layer is None:
+        pytest.skip("buildings-dated is not built in this checkout")
+    for island, entry in layer["islands"].items():
+        assert entry["asset"].endswith(f"/{_slug(island)}.tif"), (
+            f"{island} -> {entry['asset']}")

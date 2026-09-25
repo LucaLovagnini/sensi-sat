@@ -353,7 +353,7 @@ those stay in the undated class rather than being resolved by guesswork.
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is
 
 <!--[[[cog cog.out("**" + km2(f.size_published(), 1) + " MiB**") ]]]-->
-**67.8 MiB**
+**67.9 MiB**
 <!--[[[end]]]-->
 
 That target was set before the sealing layer had been measured, and it is worth
@@ -373,7 +373,7 @@ cog.outl(f"| **total published** | **{km2(f.size_published(), 1)}** |")
 | six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |
 | `density-current` — the sealing map itself | 12.7 |
 | `density-current` — the per-pixel confidence companion | 25.5 |
-| **total published** | **67.8** |
+| **total published** | **67.9** |
 <!--[[[end]]]-->
 
 **It was 54.1 MiB when M2 closed and 60.2 MiB when the figure gate shipped.** Two

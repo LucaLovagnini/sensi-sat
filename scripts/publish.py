@@ -196,7 +196,7 @@ def runtime_index() -> dict:
     Deliberately small and flat. Everything richer — provenance, lineage, licences,
     band descriptions — stays in the STAC items, which ship alongside.
     """
-    from sensisat.catalog import MOSAIC
+    from sensisat.catalog import MOSAIC, _slug
     from sensisat.config import ISLAND_BBOX
 
     stats_path = PROCESSED / "statistics" / "layers.json"
@@ -211,11 +211,31 @@ def runtime_index() -> dict:
         for island, entry in sorted(stats.get(name, {}).items()):
             if island not in ISLAND_BBOX:
                 continue
-            islands[island] = {
+            island_entry = {
                 "bbox": list(ISLAND_BBOX[island]),
                 "stats": entry.get("properties", {}),
                 "headline_km2": entry.get("headline_km2"),
             }
+            # COMPATIBILITY, and the reason there is no flag day.
+            #
+            # The deployed viewer reads `islands[island].asset`; this one reads
+            # `layers[id].asset`. index.json sits at ONE well-known URL that both
+            # fetch, so a change of shape breaks whichever side moves second — and
+            # it breaks it SILENTLY, with the page still returning 200 and the
+            # layers simply never drawing. That is what happened on 2026-09-24.
+            #
+            # Emitting both keys means the file satisfies both viewers at once, so
+            # the data and the bundle can be deployed in either order, or weeks
+            # apart. Drop this once production is verified on the archipelago
+            # viewer and the per-island objects are pruned — expand, migrate,
+            # contract, and this is the expand.
+            # The filename is the island's slug, the same one catalog.py writes —
+            # "Gran Canaria" is stored as gran-canaria.tif. Deriving it any other
+            # way here would be a second naming rule waiting to disagree.
+            per_island = PROCESSED / name / f"{_slug(island)}.tif"
+            if per_island.exists():
+                island_entry["asset"] = f"{name}/{_slug(island)}.tif"
+            islands[island] = island_entry
         headline = [v["headline_km2"] for v in islands.values() if v["headline_km2"] is not None]
         layers[name] = {
             "title": spec.title, "measure": spec.measure, "encoding": spec.encoding,
@@ -230,7 +250,12 @@ def runtime_index() -> dict:
             "headline_km2": round(sum(headline), 4) if headline else None,
             "islands": islands,
         }
-    return {"generated": "sensisat", "stac": "catalog.json",
+    return {"generated": "sensisat",
+            # Names what a consumer should expect to find. "both" means this file
+            # carries the per-layer archipelago asset AND the per-island assets the
+            # older viewer reads, so either can be served from it.
+            "shape": "both",
+            "stac": "catalog.json",
             "pixel_area_m2": pixel_area_table(), "layers": layers}
 
 

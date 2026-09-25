@@ -142,11 +142,11 @@
     ],
     [
      "cog.out(\"**\" + km2(f.size_published(), 1) + \" MiB**\")",
-     "**67.8 MiB**"
+     "**67.9 MiB**"
     ],
     [
      "cog.outl(\"| | MiB |\")\ncog.outl(\"|---|---|\")\ncog.outl(f\"| six layers (buildings, both settlement eras, greenhouses, trend, loss) \"\n         f\"| **{km2(f.size_six_layers(), 1)}** |\")\ncog.outl(f\"| `density-current` — the sealing map itself | {km2(f.size_mib('density-current'), 1)} |\")\ncog.outl(f\"| `density-current` — the per-pixel confidence companion | {km2(f.size_confidence(), 1)} |\")\ncog.outl(f\"| **total published** | **{km2(f.size_published(), 1)}** |\")",
-     "| | MiB |\n|---|---|\n| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |\n| `density-current` — the sealing map itself | 12.7 |\n| `density-current` — the per-pixel confidence companion | 25.5 |\n| **total published** | **67.8** |"
+     "| | MiB |\n|---|---|\n| six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |\n| `density-current` — the sealing map itself | 12.7 |\n| `density-current` — the per-pixel confidence companion | 25.5 |\n| **total published** | **67.9** |"
     ]
    ],
    "docs/validation.md": [
@@ -288,7 +288,7 @@
    "size_mib(loss-events)": 1.908,
    "size_mib(settlement-era-a)": 6.601,
    "size_mib(settlement-era-b)": 4.708,
-   "size_published()": 67.85,
+   "size_published()": 67.852,
    "size_six_layers()": 28.785,
    "undated_share()": 36.557
   },
@@ -2388,12 +2388,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "6515206b609da46e287b3bd65c658aeef537e879e98d7c32b1cef8a42df154c1",
+ "fingerprint": "bd8098d4e87120caede5debb0ea2079bebd3571421585a552ec32cf5874101e4",
  "judgements": {
-  "declarations_plausible": "docs/viewer.md section 5 gained a paragraph and changed one figure: NEAR_MAX_BLOCKS is 8 rather than 12, and the section now also states the alignment arithmetic (2.8 x 1.95 blocks spanning, 3 x 2 = 6 aligned against 4 x 3 = 12 straddling). Both are owned by viewer/count.js, which the section already declares, and the block measurements it rests on are covered by the existing measured: label. No other section touched.",
-  "generated_from_right_fact": "No generated region added or changed.",
+  "declarations_plausible": "No section declaration changed. One exemption did, and it is the right direction: viewer/app.js's url exemption falls from 1 to 0 because R2_DATA no longer contains a v2 prefix, so the digit that was exempted as URL structure is simply gone. Commit 37c1210 predicted exactly this when it introduced the prefix ('reverts with the URL at cutover').",
+  "generated_from_right_fact": "One live value moved and two printed figures with it: index.json gained the per-island asset hrefs (56 of them, ~2.4 KB), so size_published() crossed a rounding boundary and docs/pipeline.md now reads 67.9 MiB rather than 67.8, in both the sentence and the size table's total row. Checked the sentence still says something true — it is about the published output exceeding M2's single-digit-MiB target, which 67.9 does exactly as 67.8 did — and that the table still adds up: 28.8 + 12.7 + 25.5 = 67.0 against a 67.9 total, the remainder being the STAC and index JSON, which is the part that grew. No other generated region changed.",
   "registry_holds_no_live_claim": "Unchanged, 63 entries."
  },
  "reviewed": "2026-09-25",
- "reviewer": "Claude Opus 5 (session) — alignment-independent regime; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — dual-shape index, no flag day; Luca's own first-hand reading of the full listing is still outstanding"
 }
