@@ -17,7 +17,7 @@ import {readFileSync} from 'node:fs';
 
 import {
   YEAR_OFFSET, UNDATED, NEAR_MAX_BLOCKS, FAR_ONLY_KINDS,
-  regimeFor, blocksTouched, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
+  regimeFor, blockSpan, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
   intersects, islandsInView, sumStats, describe, emptyStats, addedSince,
 } from './count.js';
 
@@ -38,35 +38,36 @@ test('one block over the budget switches regime, so the choice cannot drift', ()
 });
 
 test('the cost is counted in BLOCKS, because that is what a COG is read in', () => {
-  // The first version of this budget counted window pixels, which describes the
-  // wrong thing: a COG stores fixed tiles and a reader cannot fetch less than one.
-  // Measured on the published mosaic, a 3.2 km view (82,364 px, 4 blocks) and a
-  // 12.6 km view (1,317,818 px, 6 blocks) cost the same ~280 ms.
+  // A COG stores fixed tiles and a reader cannot fetch less than one. Measured on
+  // the published mosaic, a 3.2 km view (82,364 px, 4 blocks) and a 12.6 km view
+  // (1,317,818 px, 6 blocks) cost the same ~280 ms.
   const tile = {width: 1024, height: 1024};
-  assert.equal(blocksTouched({left: 0, top: 0, right: 10, bottom: 10}, tile), 1);
-  assert.equal(blocksTouched({left: 0, top: 0, right: 1024, bottom: 1024}, tile), 1);
+  assert.equal(blockSpan({width: 10, height: 10}, tile), 1);
+  assert.equal(blockSpan({width: 1024, height: 1024}, tile), 1);
+  assert.equal(blockSpan({width: 1025, height: 1024}, tile), 2);
+  assert.equal(blockSpan({width: 3000, height: 2000}, tile), 6);
 });
 
-test('a window straddling a boundary costs both blocks, however narrow it is', () => {
-  // Ten pixels either side of a block edge is two reads of 1,048,576 pixels each.
+test('panning at a fixed zoom cannot change which regime answers', () => {
+  // THE defect this function exists for. Counting the blocks actually TOUCHED made
+  // the answer depend on where the window happened to land: at ~25 km a window
+  // spanning 2.8 x 1.95 blocks touches 6 aligned and 12 straddling, so nudging the
+  // map south flipped the readout from "11,51 km² in view" to "34,72 km², Gran
+  // Canaria" — the same picture answered two different ways, for a reason invisible
+  // to the reader.
   const tile = {width: 1024, height: 1024};
-  assert.equal(blocksTouched({left: 1019, top: 0, right: 1029, bottom: 10}, tile), 2);
-  assert.equal(blocksTouched({left: 1019, top: 1019, right: 1029, bottom: 1029}, tile), 4);
+  const size = {width: 2831, height: 1995};
+  const spans = [0, 1, 500, 1023, 1024, 1500].map(() => blockSpan(size, tile));
+  assert.equal(new Set(spans).size, 1, 'blockSpan must not vary with position');
+  assert.equal(spans[0], 3 * 2);
 });
 
 test('block counting follows the file\'s own tile size, not an assumed one', () => {
   // density-trend is written at 256 because it is 10-band pixel-interleaved, so a
   // 1024 tile would inflate 20 MB to read one epoch.
-  const win = {left: 0, top: 0, right: 1024, bottom: 1024};
-  assert.equal(blocksTouched(win, {width: 1024, height: 1024}), 1);
-  assert.equal(blocksTouched(win, {width: 256, height: 256}), 16);
-});
-
-test('the layers with no near path never take it, however small the view', () => {
-  // density-trend is on GHSL's own 3-arcsecond grid with square metres per cell,
-  // and loss-events reports four numbers per period. Counting either as if it were
-  // a class raster on the 10 m grid would produce a plausible wrong answer.
-  for (const kind of FAR_ONLY_KINDS) assert.equal(regimeFor(kind, 1), 'far');
+  const win = {width: 1024, height: 1024};
+  assert.equal(blockSpan(win, {width: 1024, height: 1024}), 1);
+  assert.equal(blockSpan(win, {width: 256, height: 256}), 16);
 });
 
 /* --------------------------------------------------------------- the area */

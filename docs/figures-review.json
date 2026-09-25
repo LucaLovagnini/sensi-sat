@@ -2245,6 +2245,7 @@
      "1,013",
      "1,048,576",
      "1,317,818",
+     "1.95",
      "10 m",
      "100",
      "101.7×",
@@ -2257,6 +2258,7 @@
      "2",
      "2 %",
      "2,500",
+     "2.8 ×",
      "21,085,093",
      "22",
      "23.9×",
@@ -2265,15 +2267,18 @@
      "28",
      "280",
      "3",
+     "3 ×",
      "3.2",
      "32×",
      "35",
      "4",
+     "4 ×",
      "50.6",
      "533",
      "6",
      "601",
      "616,",
+     "8",
      "8.83 m",
      "82,364",
      "878",
@@ -2383,12 +2388,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "c2442c729534750ca49ab2d44fb020e0ef54365ffb5f39c261eacea2ef90191a",
+ "fingerprint": "6515206b609da46e287b3bd65c658aeef537e879e98d7c32b1cef8a42df154c1",
  "judgements": {
-  "declarations_plausible": "docs/viewer.md section 5 was rewritten and its figures changed, so its declaration was re-read against the new text. It states: the block measurements (3.2 km / 82,364 px / 4 blocks, 12.6 km / 1,317,818 px / 6 blocks, 50.6 km / 21,085,093 px / 35 blocks, and the ~280 / ~2,500 ms timings), the worker-pool comparison (533 and 601 ms against 616, 878 and 1,013 ms), NEAR_MAX_BLOCKS = 12 and the ~25 km it corresponds to, the 1024 tile size, and the rasterio parity pair. All are covered by the section's existing sources - viewer/count.js owns the constant and the tile reasoning, and the measured: labels cover browser timings taken on the published mosaic today. Section 6 no longer states a crossover figure but keeps its viewer/count.js declaration, which is still correct for what it says.",
-  "generated_from_right_fact": "No generated region added or changed. The inflation table's first row still generates area('buildings-dated') and still reads 104.33 km2 against a row labelled 'full resolution - the published figure'. Re-checked that the size regions are unmoved.",
-  "registry_holds_no_live_claim": "Unchanged, 63 entries. Nothing frozen was added."
+  "declarations_plausible": "docs/viewer.md section 5 gained a paragraph and changed one figure: NEAR_MAX_BLOCKS is 8 rather than 12, and the section now also states the alignment arithmetic (2.8 x 1.95 blocks spanning, 3 x 2 = 6 aligned against 4 x 3 = 12 straddling). Both are owned by viewer/count.js, which the section already declares, and the block measurements it rests on are covered by the existing measured: label. No other section touched.",
+  "generated_from_right_fact": "No generated region added or changed.",
+  "registry_holds_no_live_claim": "Unchanged, 63 entries."
  },
  "reviewed": "2026-09-25",
- "reviewer": "Claude Opus 5 (session) — block budget, basemap limits, worker pool; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — alignment-independent regime; Luca's own first-hand reading of the full listing is still outstanding"
 }

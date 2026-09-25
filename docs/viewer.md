@@ -184,14 +184,26 @@ Measured on the published `buildings-dated` mosaic:
 | 50.6 km | 21,085,093 px | 35 | ~2,500 ms |
 
 The middle two rows differ sixteenfold in pixels and cost the same. So the budget is
-`NEAR_MAX_BLOCKS = 12`, roughly a 25 km view — most of an island, which is the range
+`NEAR_MAX_BLOCKS = 8`, roughly a 25 km view — most of an island, which is the range
 over which a reader expects the number to follow the map. Beyond it the published
 island totals are instant and exact, and counting would buy nothing but seconds of
 waiting.
 
-**This was set by testing, not by argument.** A first attempt used a 2 km threshold,
-and in use the number then sat unchanged on an island total across a tenfold zoom
-range, which reads as a broken panel rather than a design.
+**The budget is measured against the window's SIZE in blocks, never its alignment**,
+and that distinction is the whole of a defect worth recording. Counting the blocks a
+read actually touches is the honest estimate of its cost — a window straddling a
+boundary really does cost more. Using that to choose the regime made the answer
+depend on where the view happened to land: at about 25 km a window spans roughly
+2.8 × 1.95 blocks, which touches 3 × 2 = 6 aligned and 4 × 3 = 12 straddling, so
+nudging the map a few hundred metres at a fixed zoom flipped the readout between
+counting the view and reporting the whole of Gran Canaria. The same picture, answered
+two different ways, for a reason invisible to the reader. `blockSpan()` uses
+`ceil(width / tile)`, which cannot change while the zoom holds still; the real read
+may touch one extra row and column, and the budget is set knowing it.
+
+**Both numbers were set by testing, not by argument.** A first attempt used a 2 km
+threshold, and in use the number then sat unchanged on an island total across a
+tenfold zoom range, which reads as a broken panel rather than a design.
 
 ### Decoding runs on workers
 

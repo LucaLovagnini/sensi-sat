@@ -83,27 +83,44 @@ export const NOT_BUILT = 0;
  * ~2.5 s.
  *
  * So the budget is blocks, the unit the cost is actually paid in. At 1024 and the
- * 10 m grid, 12 blocks is roughly a 25 km view — most of an island — which is the
+ * 10 m grid, 8 blocks is roughly a 30 km view — most of an island — which is the
  * range where a reader wants a number that follows the map. Beyond it the published
  * island totals answer instantly and exactly, and counting would buy nothing but
  * seconds of waiting.
  *
+ * The budget is measured against `blockSpan()`, which ignores alignment, so the
+ * worst real read is about one extra row and column of blocks — near 15 rather than
+ * 8, or roughly 1.1 s. That slack is the price of a regime that does not change
+ * when you pan.
+ *
  * This is NOT a latency cliff, because the readout no longer waits for it: the far
  * answer is shown immediately and the counted one replaces it when it arrives.
  */
-export const NEAR_MAX_BLOCKS = 12;
+export const NEAR_MAX_BLOCKS = 8;
 
 /**
- * How many stored blocks a pixel window touches — what the read will actually cost.
+ * The size of a window in blocks — what decides the regime.
  *
- * Exact rather than estimated: a 100-pixel window straddling a block boundary costs
- * two blocks, and one that does not costs one.
+ * **Deliberately independent of where the window sits.** A read that straddles a
+ * block boundary genuinely costs more than one that does not, so the honest
+ * estimate of cost would count the blocks actually touched. Using that to CHOOSE
+ * the regime was a mistake, and a visible one: at about 25 km a window spans
+ * roughly 2.8 x 1.95 blocks, which touches 3 x 2 = 6 when it happens to line up and
+ * 4 x 3 = 12 when it does not. Panning a few hundred metres at a fixed zoom crossed
+ * the budget, and the readout flipped between counting the view and reporting the
+ * whole of Gran Canaria — the same picture answered two different ways depending on
+ * nothing the reader can see.
+ *
+ * So the decision uses `ceil(width / tile)` — the number of blocks a window of this
+ * SIZE spans — which cannot change while the zoom holds still. The true read may
+ * touch one more row and column than this; the budget is set knowing that, and a
+ * stable answer is worth more than a tight cost estimate.
  */
-export function blocksTouched({left, top, right, bottom}, {width, height}) {
-  const across = Math.floor((right - 1) / width) - Math.floor(left / width) + 1;
-  const down = Math.floor((bottom - 1) / height) - Math.floor(top / height) + 1;
-  return Math.max(1, across) * Math.max(1, down);
+export function blockSpan({width, height}, tile) {
+  return Math.max(1, Math.ceil(width / tile.width))
+       * Math.max(1, Math.ceil(height / tile.height));
 }
+
 
 /**
  * Layers whose near path is not implemented, and which therefore always report the
@@ -120,7 +137,7 @@ export const FAR_ONLY_KINDS = new Set(['trend', 'change']);
 /**
  * Which regime answers this view.
  *
- * `blocks` is what the near path would have to decode, from `blocksTouched()`.
+ * `blocks` is the window's size in blocks, from `blockSpan()`.
  */
 export function regimeFor(kind, blocks) {
   if (FAR_ONLY_KINDS.has(kind)) return 'far';
