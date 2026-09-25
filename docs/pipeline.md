@@ -286,6 +286,10 @@ it claims.
 # Left column: this build. Right column: M0's own measurement of the same quantity,
 # typed here from docs/figures/data/m0_totals.csv, m0_imd_2024.csv and
 # m0_undated_vs_crops.csv — historical by design, so a rebuild moves only the left.
+# Two layers have no comparable M0 total, so their right cell is "—" and what used
+# to sit there (our own Gran Canaria greenhouse figure, our own unmasked era-b
+# total) has moved left, where it belongs. A generated number in a column headed
+# "independent M0 figure" reads as corroboration and is not.
 bd = area_by("buildings-dated", 2020)
 dc, dc_all = area("density-current"), f.prop_sum("density-current", "sealed_km2_including_greenhouses")
 eb, eb_all = area("settlement-era-b"), area("settlement-era-b") + f.prop_sum("settlement-era-b", "greenhouse_removed_km2")
@@ -296,10 +300,12 @@ rows = [
     ("density-current", f"{km2(dc, 1)} km² masked / {km2(dc_all, 1)} incl. greenhouses", "341.5 km² sealed"),
     ("settlement-era-a", f"{km2(area('settlement-era-a'), 1)} km² (2016 baseline, masked)",
      "per-island extents reproduce M0 **exactly**"),
-    ("settlement-era-b", f"{km2(eb, 1)} km² (masked)",
-     f"{km2(eb_all, 1)} km² unmasked — the {km2(eb_all - eb, 1)} km² gap is the greenhouses"),
-    ("covered-agriculture", f"{km2(area('covered-agriculture'), 1)} km²",
-     f"{km2(area('covered-agriculture', 'Gran Canaria'), 1)} km² on Gran Canaria alone"),
+    ("settlement-era-b",
+     f"{km2(eb, 1)} km² masked / {km2(eb_all, 1)} unmasked — the "
+     f"{km2(eb_all - eb, 1)} km² gap is the greenhouses", "—"),
+    ("covered-agriculture",
+     f"{km2(area('covered-agriculture'), 1)} km² "
+     f"({km2(area('covered-agriculture', 'Gran Canaria'), 1)} on Gran Canaria alone)", "—"),
     ("loss-events", f"{km2(area('loss-events'), 1)} km² of change-layer built-up", "—"),
 ]
 cog.outl("| layer | archipelago | independent M0 figure |")
@@ -313,8 +319,8 @@ for name, ours, m0 in rows:
 | `density-trend` | **152.87 km²** (2020) | 152.9 km² — differs by 0.03 km² |
 | `density-current` | 317.9 km² masked / 338.8 incl. greenhouses | 341.5 km² sealed |
 | `settlement-era-a` | 239.1 km² (2016 baseline, masked) | per-island extents reproduce M0 **exactly** |
-| `settlement-era-b` | 262.5 km² (masked) | 305.2 km² unmasked — the 42.8 km² gap is the greenhouses |
-| `covered-agriculture` | 63.3 km² | 27.1 km² on Gran Canaria alone |
+| `settlement-era-b` | 262.5 km² masked / 305.2 unmasked — the 42.8 km² gap is the greenhouses | — |
+| `covered-agriculture` | 63.3 km² (27.1 on Gran Canaria alone) | — |
 | `loss-events` | 167.2 km² of change-layer built-up | — |
 <!--[[[end]]]-->
 

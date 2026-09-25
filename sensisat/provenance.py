@@ -40,7 +40,13 @@ HISTORICAL: dict[str, str] = {
     # --- data-evaluation §10: the cadastre's bucketed years ------------------
     "33.8 %": "share of dated buildings on the ten round-year buckets (analysis 19)",
     "44.8 %": "share falling in 1981-2026, which contains no bucket at all (analysis 19)",
-    "37 %": "pre-1981 buildings carrying a genuine year rather than a bucket (analysis 19)",
+    # Two meanings, registered the way "2 %" is: the token is one, the measurements
+    # are not, and a reader tracing provenance must land on the right one.
+    "37 %": "pre-1981 buildings carrying a genuine year rather than a bucket (analysis 19) "
+            "— also, separately, the settlement layer's undated share as it stood on "
+            "2026-09-21, quoted in figure-provenance as the value the page's typed 43 % "
+            "was corrected to; that one coincides with undated_share() and is a record "
+            "of the defect, not a live claim",
     "50.3 %": "La Gomera, share of cadastral dates in a bucket year (analysis 19)",
     "45.5 %": "La Palma, same measure (analysis 19)",
     "43.2 %": "El Hierro, same measure (analysis 19)",

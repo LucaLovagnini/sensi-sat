@@ -21,7 +21,7 @@ Every number a reader sees is a **copy** of something the pipeline computed, and
 copy goes stale in silence: nothing on disk is wrong, no QA gate applies, and the
 only symptom is a document asserting last week's measurement. On 2026-09-21 the
 public page, the viewer and all 56 STAC items said the settlement layer was
-**43 %** undated when the layer we publish holds **37 %** — an M0 measurement of the
+**43 %** undated when the layer we publish held **37 %** — an M0 measurement of the
 raw product, quoted for our masked, land-clipped layer. Three other viewer figures
 were wrong the same way (a 2.2× ratio that our layers give as 2.1×, a 9 % growth
 that our series gives as 5 %, a seam range true only for the five main islands
