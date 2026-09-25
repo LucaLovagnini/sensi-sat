@@ -18,7 +18,7 @@ import {readFileSync} from 'node:fs';
 import {
   YEAR_OFFSET, UNDATED, NEAR_MAX_PIXELS, FAR_ONLY_KINDS,
   regimeFor, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
-  intersects, islandsInView, sumStats, describe, emptyStats,
+  intersects, islandsInView, sumStats, describe, emptyStats, addedSince,
 } from './count.js';
 
 const close = (a, b, eps = 1e-9) =>
@@ -281,4 +281,34 @@ test('the caption says what was counted, and the two regimes say different thing
   assert.equal(describe('far', ['A', 'B', 'C'], 8), 'A, B and C');
   assert.equal(describe('far', ['A', 'B', 'C', 'D'], 8), '4 islands');
   assert.equal(describe('far', Array(8).fill('x'), 8), 'all eight islands');
+});
+
+/* ------------------------------------------------------- added since a year */
+
+test('"added since" subtracts two cumulative totals, identically in both regimes', () => {
+  // The map in this mode draws only what appeared after the chosen year. A readout
+  // still showing the running total describes a different picture from the one on
+  // screen — which is the whole thing this panel exists to stop.
+  const series = {1900: 1, 1950: 4, 1990: 9, 2026: 10};
+  close(addedSince(series, 1900), 9);
+  close(addedSince(series, 1950), 6);
+  close(addedSince(series, 1990), 1);
+  close(addedSince(series, 2026), 0);
+});
+
+test('a year outside the published range clamps rather than returning nothing', () => {
+  // The slider's range and the series' range are set independently; era-a runs
+  // 1985-2015 while its slider offers more.
+  const series = {1900: 1, 2026: 10};
+  close(addedSince(series, 1800), 9);
+  close(addedSince(series, 2500), 0);
+});
+
+test('an empty series is 0, not NaN — open sea is in this mode too', () => {
+  close(addedSince({}, 1990), 0);
+  close(addedSince(undefined, 1990), 0);
+});
+
+test('the result is never negative, however the arithmetic rounds', () => {
+  assert.ok(addedSince({1990: 0.1 + 0.2, 2026: 0.3}, 1990) >= 0);
 });

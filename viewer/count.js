@@ -318,6 +318,27 @@ export function sumStats(entries) {
   return out;
 }
 
+/**
+ * How much appeared after a given year or epoch.
+ *
+ * "Added since X" is the difference of two cumulative totals, and it has to be done
+ * the same way wherever the series came from — a counted window or a sum of published
+ * islands. It lives here rather than in the render function so `node --test` can
+ * check the arithmetic, which is the same reason `stats.zonal()` is one function.
+ *
+ * **Undated ground is absent from these series and must stay absent.** A pixel with
+ * no year cannot be placed in a period, which is also why the map refuses to draw it
+ * in this mode. Clamped at zero because the series is cumulative and monotonic, so a
+ * negative result can only be floating-point noise.
+ */
+export function addedSince(series, from) {
+  const keys = Object.keys(series || {}).map(Number).sort((a, b) => a - b);
+  if (!keys.length) return 0;
+  const clamp = (v) => Math.min(Math.max(v, keys[0]), keys[keys.length - 1]);
+  const total = series[String(keys[keys.length - 1])];
+  return Math.max(0, round6(total - series[String(clamp(from))]));
+}
+
 /* ---------------------------------------------------------------- captions */
 /**
  * What the number covers, in words a reader can check against the screen.
