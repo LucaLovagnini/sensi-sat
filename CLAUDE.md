@@ -246,7 +246,14 @@ These each cost real time to find. Read before touching the data code.
     a live claim, or whether a declared source fits: that is `/verify-figures`,
     attested in `docs/figures-review.json`, which `publish.py` and the pre-push
     hook require to be current.
-25. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
+25. **Never let an import shadow a JavaScript built-in.** `viewer/app.js` had
+    `import Map from 'ol/Map.js'` for months. The first `new Map()` anyone wrote in
+    that file — a cache for the readout — silently constructed an OpenLayers map, so
+    every counted view failed at `.has()` and fell back to island sums with no error
+    a user could see. Minified it reads `yE.has is not a function`, nowhere near the
+    import. It is `OLMap` now, and `viewer/app.test.js` refuses any import bound to a
+    built-in's name.
+26. **`rasterio.windows.from_bounds` returns a fractional window** whose transform
     is offset from the array `read()` actually returns. Distances computed that way
     carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that
     matter. Take the window in integer pixels around `src.index(lon, lat)`; a point
