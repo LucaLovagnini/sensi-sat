@@ -115,19 +115,135 @@ cog.outl(f"{km2(area('buildings-dated', 'Gran Canaria'))} km² of buildings on G
 35.65 km² of buildings on Gran Canaria, 27.06 km² of greenhouses, 109.68 km² sealed.
 <!--[[[end]]]-->
 
-## 5. Not done
+## 5. The readout follows the map
+<!-- figures: viewer/count.js; scripts/publish.py; sensisat/raster.py; measured:browser decode timings and a slider sweep in Chrome against the published layers on 2026-09-25; measured:browser-versus-rasterio parity on identical windows over HTTP on 2026-09-25; measured:overview inflation read off the published buildings-dated mosaic at 8x and 32x, and per island, on 2026-09-25 — pinned in tests/test_coverage.py; tests/test_coverage.py @ 2026-09-25 -->
 
-**Publishing.** The plan's M4 is "publish + viewer"; this is the viewer. The output
-is already exactly what a static host would serve, so deployment is an upload plus
-a decision about where — Cloudflare R2 or S3 + CloudFront — and that decision has
-not been taken.
+The number beside the map describes **what is on screen at that moment** —
+the archipelago, an island, a city, a neighbourhood — and updates as you pan and
+zoom. Over open sea it reads `0 km²`, which is an answer rather than a blank.
 
-Also absent: a per-zone statistics panel beyond the island total (M5), and any
-deep-linking of state into the URL.
+### Why it cannot simply count the pixels the map is drawing
+
+A Cloud-Optimized GeoTIFF ships pre-made coarse copies of itself, called
+**overviews**, so a zoomed-out map need not read every pixel. Ours are built with
+`mode` resampling and `nodata` excluded, which means a coarse pixel reads "built"
+if **any** of the pixels beneath it is built. That is the right rule for drawing —
+otherwise villages vanish as you zoom out (§3, CLAUDE.md #13) — and it is
+catastrophic for counting, because counting then assumes every one of those
+children is full. On `buildings-dated`:
+
+<!--[[[cog
+cog.outl("| what the browser holds | implied built area |")
+cog.outl("|---|---|")
+cog.outl(f"| full resolution | **{km2(area('buildings-dated'))} km²** ← the published figure |")
+cog.outl("| zoomed out 8× | 1,026.7 km² |")
+cog.outl("| zoomed out 32× | **3,310.3 km²** |")
+]]]-->
+| what the browser holds | implied built area |
+|---|---|
+| full resolution | **104.33 km²** ← the published figure |
+| zoomed out 8× | 1,026.7 km² |
+| zoomed out 32× | **3,310.3 km²** |
+<!--[[[end]]]-->
+
+No correction factor exists, because the error depends on how clustered the
+buildings are: at 32× it is 23.9× on dense Gran Canaria against 101.7× on
+scattered El Hierro. `tests/test_coverage.py` pins both.
+
+### Two regimes, and no new published data
+
+**Near** — below a 2 km view, the raster is read at full resolution for the window
+on screen and counted. This is not a second implementation of the build's
+arithmetic: it reads the same bytes and applies the same rule. Checked in a browser
+against `rasterio` on the identical integer-pixel window over HTTP — 0.477047 km²
+against 0.477048, the difference being the viewer's own rounding.
+
+**Far** — above it, the published `extent_by_year` of every island the view touches
+is summed. Free, instant and exact, because those figures are already in
+`index.json`.
+
+The caption says which: `in view` near, the island names far. That distinction is
+the honest cost of the design, not decoration — an island's published total covers
+the whole island, which is more ground than the screen shows whenever the island
+runs off the edge, so claiming "in view" there would be false and unfalsifiable at
+a glance.
+
+**The crossover is a pixel budget, not a width**, because decode time follows the
+pixels read: a 2 km × 8 km window holds four times the pixels of a 2 km square one.
+A 2 km square view at 28°N is 226 × 200 = 45,379 pixels, and the budget is 46,000.
+Measured cold (cache-busted, so missing the browser cache and the edge) and warm:
+
+| view | pixels | cold | warm |
+|---|---|---|---|
+| ~0.5 km | 3,025 | 82 ms | 2 ms |
+| ~5 km | 302,500 | 176 ms | 12 ms |
+| ~20 km | 4,840,000 | 581 ms | 81 ms |
+| ~60 km, whole island | 43,560,000 | **3,452 ms** (median of six) | 534 ms |
+
+So 2 km sits far inside what the browser can afford; 20 km was still usable. The
+headroom is deliberate. The real cost of the near path is not time but that the
+number means something different on each side of the line, and a conservative
+crossover keeps the narrow-but-checkable regime where a reader can hold the figure
+against the screen.
+
+### The slider still fetches nothing
+
+§1 is about the map; the same has to be true of the number, or the slider would
+start a decode per year. It is, by construction: one pass accumulates the ground
+area held by **every** stored value, and because the rasters encode the year a
+pixel was first built, the running total of those bins *is* `extent_by_year` for
+every year at once. Measured in Chrome with `fetch` and `XMLHttpRequest.open` both
+instrumented, a sweep of all 127 years took 16 ms and issued **zero** requests.
+
+### Ground areas ship as data
+
+Turning a pixel count into square kilometres needs the true ground area of a pixel,
+which varies with latitude: a "10 m" pixel is 9.98 m north-south but 8.83 m
+east-west at 28°N, about 88 m² rather than 100 (CLAUDE.md #2). The viewer must not
+work that out for itself — that would be a second definition of ground area, in a
+language where nothing checks it, and the wrong answer looks entirely plausible.
+
+`publish.py` writes 22 values into `index.json` (250 bytes), generated by
+`raster.row_areas_m2`, the same function every published figure comes from; the
+viewer interpolates between them. Sampling every 0.1° is enough because the
+quantity follows `cos(latitude)` and moves only about 2 % across the archipelago.
+`tests/test_viewer_count.py` runs the real JavaScript lookup over the real table
+and compares it against the Python function at eight latitudes.
+
+### What is deliberately not counted
+
+`density-trend` and `loss-events` always report the far way and say so rather than
+guessing. The first is on GHSL's native 3-arcsecond grid with values in square
+metres per cell, so summing it needs that grid's own cell accounting; the second
+reports gain and loss per period across separate bands, which is four numbers
+rather than one.
+
+### A defect only a browser could find
+
+`import Map from 'ol/Map.js'` shadows the JavaScript built-in `Map` for the whole
+module. The readout's file cache was the first `new Map()` this file had ever
+contained, so it silently constructed an OpenLayers map, and every counted view
+failed at `.has()` and fell back to island sums. Minified, it read
+`yE.has is not a function`, nowhere near the import that caused it. The import is
+now `OLMap`, and `viewer/app.test.js` refuses any import bound to the name of a
+built-in.
+
+## 6. Not done
+<!-- figures: viewer/count.js @ 2026-09-25 -->
+
+**A per-zone panel beyond what the view implies** — statistics for a named
+municipality or protected area (M5) — and deep-linking of view state into the URL.
+Sub-2 km views are exact and above that the answer is whole islands; the band in
+between, where a view holds most of one island, is where a reader is most likely to
+want something finer than an island and there is nothing to give them. The options
+were measured and are recorded in the plan: a coverage grid (retired — it cannot
+carry per-year at acceptable size) and a sparse per-cell table, which does not need
+a database to be useful because what makes it small is sparsity, not query
+execution.
 
 ---
 
-## 6. Deployment
+## 7. Deployment
 <!-- figures: scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24 -->
 
 Live, unannounced, at **`https://sensisat.org`** (2026-09-20).

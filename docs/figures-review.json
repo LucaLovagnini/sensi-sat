@@ -1,9 +1,9 @@
 {
  "counts": {
-  "declarations": 81,
-  "generated_regions": 21,
+  "declarations": 83,
+  "generated_regions": 22,
   "registry_entries": 63,
-  "sections_with_figures": 79,
+  "sections_with_figures": 81,
   "token_level_figures": 74
  },
  "figures": {
@@ -105,6 +105,8 @@
    "docs/viewer.md": [
     "measured:arithmetic stated in the text (years × zoom levels) @ 2026-09-20",
     "sensisat/raster.py; measured:M4 experiments on a synthetic island and Tenerife's building layer on 2026-09-20 @ 2026-09-20",
+    "viewer/count.js; scripts/publish.py; sensisat/raster.py; measured:browser decode timings and a slider sweep in Chrome against the published layers on 2026-09-25; measured:browser-versus-rasterio parity on identical windows over HTTP on 2026-09-25; measured:overview inflation read off the published buildings-dated mosaic at 8x and 32x, and per island, on 2026-09-25 — pinned in tests/test_coverage.py; tests/test_coverage.py @ 2026-09-25",
+    "viewer/count.js @ 2026-09-25",
     "scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24"
    ]
   },
@@ -122,7 +124,7 @@
     ],
     [
      "import sensisat.figures as g\nfs = g.figure_set()\ntok = fs[\"tokens\"]\nn_sections = sum(len(v) for v in fs[\"sections\"].values())\nn_decl = sum(len(v) for v in fs[\"declarations\"].values())\nn_gen = sum(len(v) for v in fs[\"generated\"].values())\ncog.outl(\"| surface | unit of accounting | today |\")\ncog.outl(\"|---|---|---|\")\ncog.outl(f\"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |\")\nfor _rel in sorted(k for k in tok if k.startswith(\"viewer/\") and k.endswith(\".js\")):\n    cog.outl(f\"| `{_rel}` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok[_rel])} declared tokens |\")\ncog.outl(f\"| `README.md` | every token | {len(tok['README.md'])} declared tokens |\")\ncog.outl(f\"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\")\ncog.outl(f\"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |\")\ncog.outl(f\"| generated regions, all prose | `cog` from `facts.py` | {n_gen} |\")\ncog.outl(f\"| `sensisat/provenance.HISTORICAL` | the registry | {len(fs['registry'])} entries |\")\ncog.outl(f\"| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |\")",
-     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 79 sections carrying figures, 81 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 21 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
+     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 81 sections carrying figures, 83 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 22 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
     ]
    ],
    "docs/pipeline.md": [
@@ -161,6 +163,10 @@
     [
      "cog.outl(f\"{km2(area('buildings-dated', 'Gran Canaria'))} km² of buildings on Gran Canaria, \"\n         f\"{km2(area('covered-agriculture', 'Gran Canaria'))} km² of greenhouses, \"\n         f\"{km2(area('density-current', 'Gran Canaria'))} km² sealed.\")",
      "35.65 km² of buildings on Gran Canaria, 27.06 km² of greenhouses, 109.68 km² sealed."
+    ],
+    [
+     "cog.outl(\"| what the browser holds | implied built area |\")\ncog.outl(\"|---|---|\")\ncog.outl(f\"| full resolution | **{km2(area('buildings-dated'))} km²** ← the published figure |\")\ncog.outl(\"| zoomed out 8× | 1,026.7 km² |\")\ncog.outl(\"| zoomed out 32× | **3,310.3 km²** |\")",
+     "| what the browser holds | implied built area |\n|---|---|\n| full resolution | **104.33 km²** ← the published figure |\n| zoomed out 8× | 1,026.7 km² |\n| zoomed out 32× | **3,310.3 km²** |"
     ]
    ],
    "viewer/about-the-data.html": [
@@ -2231,7 +2237,52 @@
      "5 %",
      "7.67 %"
     ],
-    "## 6. Deployment": [
+    "## 5. The readout follows the map": [
+     "0 km²",
+     "0.1",
+     "0.477047 km²",
+     "0.477048,",
+     "0.5",
+     "10 m",
+     "100",
+     "101.7×",
+     "12",
+     "127 years",
+     "16",
+     "176",
+     "2",
+     "2 %",
+     "20",
+     "200",
+     "22",
+     "226 ×",
+     "23.9×",
+     "250",
+     "28",
+     "3",
+     "3,025",
+     "3,452",
+     "302,500",
+     "32×",
+     "4,840,000",
+     "43,560,000",
+     "45,379",
+     "46,000.",
+     "5",
+     "534",
+     "581",
+     "60",
+     "8",
+     "8.83 m",
+     "81",
+     "82",
+     "88 m²",
+     "9.98 m"
+    ],
+    "## 6. Not done": [
+     "2"
+    ],
+    "## 7. Deployment": [
      "0.88 MiB",
      "1.27",
      "1.5",
@@ -2334,12 +2385,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "9f491df55aa3196c3c7a05b336de74e00602aa8b662b77f5ee2c0ece14303916",
+ "fingerprint": "b1b5e2613433d37f24aeb777dc25fdb202def63ff1e247a748ec28f29db3e302",
  "judgements": {
-  "declarations_plausible": "No section declaration changed. One surface was ADDED to the gate rather than declared: viewer/count.js now carries strings a reader sees (the readout's captions), and the accounting surface was the single file viewer/app.js, so those strings reached readers unchecked. figures.viewer_js_sources() now derives the surface by following app.js's relative imports, so a module added later is covered the day it is added. count.js contributes 0 declared tokens and 5 interpolation exemptions, all of them ${...} in thrown error messages or the island captions, none a measurement; the baseline fixture and the quantity-word lint were extended to match, and the figure-provenance table now generates one row per viewer module.",
-  "generated_from_right_fact": "Re-read the size regions, the only live values this change touched: index.json grew 250 bytes for the pixel-area table, so size_published() moved from 67.8496 to 67.8499 MiB — below the one-decimal rounding, which is why every document is byte-identical. Checked the fact matches the sentence in both places (docs/pipeline.md 'the total is 67.8 MiB' uses size_published; the table row uses size_six_layers) and that the table adds up: 28.8 + 12.7 + 25.5 = 67.0 against a 67.8 total, the 0.8 remainder being the STAC and index JSON. Units are MiB throughout. No other generated region's fact or sentence changed.",
-  "registry_holds_no_live_claim": "No entry added, removed or altered by this work; the count stands at the 63 reviewed at C3, and nothing in C4 introduced a frozen measurement or converted one into a live claim. Not a fresh first-hand reading of all 63 — that reading is the one still outstanding for Luca."
+  "declarations_plausible": "Two sections added, both declared and both sources checked against what the section actually states. docs/viewer.md §5 declares viewer/count.js (the 2 km crossover, 46,000 px, 226 x 200 = 45,379), scripts/publish.py (22 values, 250 bytes, 0.1 degree sampling, the 2 % span), sensisat/raster.py (9.98 m N-S, 8.83 m E-W, 88 m² against 100), measured:browser decode timings and the 127-year slider sweep, measured:browser-versus-rasterio parity (0.477047 against 0.477048), and measured:overview inflation pinned in tests/test_coverage.py (1,026.7 / 3,310.3 / 23.9x / 101.7x) — that file exists and does pin them. docs/viewer.md §6 states only the 2 km crossover and declares viewer/count.js, which owns it. Section 6 of the old numbering became section 7; its declaration moved with it unchanged.",
+  "generated_from_right_fact": "One region added, in docs/viewer.md §5: the overview-inflation table's first row. Checked the fact matches the sentence — area('buildings-dated') in a row labelled 'full resolution ← the published figure', which is exactly what that row claims to be — with units km² and the same two decimals the rest of the document uses. It was hand-typed as '104.3 km²' in the first draft and the collision check caught it; it now generates 104.33 and moves with the build. The other two rows (1,026.7 and 3,310.3) are frozen measurements of what an overview would imply, not live values, and must not track a rebuild. Re-read the size regions as well: unchanged since the previous attestation this morning.",
+  "registry_holds_no_live_claim": "No entry added, removed or altered. Count unchanged at 63. Nothing in C4's documentation introduced a frozen measurement needing registration, and no existing entry became a live claim. Not a fresh first-hand reading of all 63 — that remains outstanding for Luca."
  },
  "reviewed": "2026-09-25",
- "reviewer": "Claude Opus 5 (session) — C4; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewer": "Claude Opus 5 (session) — C4 documentation; Luca's own first-hand reading of the full listing is still outstanding"
 }
