@@ -416,6 +416,18 @@ def test_list_marker_rule_is_positional(text: str, exempt: bool) -> None:
     assert (toks[0].start() in exempt_at) is exempt, f"{text!r}: exempt={not exempt} — wrong"
 
 
+def test_data_version_ignores_hook_environment(monkeypatch: pytest.MonkeyPatch) -> None:
+    """Git exports GIT_DIR to the pre-push hook. Inherited, it made `data_version()`'s
+    `git log` come back empty, and the mtime fallback supplied the checkout date —
+    so the hook passed only in a clone old enough for the two to coincide."""
+    from sensisat.facts import data_version
+    clean = data_version()
+    git_dir = subprocess.run(["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT,
+                             capture_output=True, text=True, check=True).stdout.strip()
+    monkeypatch.setenv("GIT_DIR", git_dir)
+    assert data_version() == clean
+
+
 if __name__ == "__main__":
     if "--write-baseline" not in sys.argv:
         raise SystemExit(__doc__ + "\n\nusage: python tests/test_documented_numbers.py --write-baseline")
