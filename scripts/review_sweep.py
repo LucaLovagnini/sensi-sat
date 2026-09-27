@@ -49,33 +49,49 @@ PARTS: dict[str, list[str]] = {
 REPO_URL = "https://github.com/LucaLovagnini/sensi-sat"
 
 
-def git(*args: str, env: dict | None = None) -> str:
-    return subprocess.run(["git", *args], check=True, capture_output=True, text=True,
-                          env=env).stdout.strip()
+def clean_env(**extra: str) -> dict:
+    """The environment without the variables that redirect git to another repository.
+
+    A git hook exports GIT_DIR (and sometimes GIT_WORK_TREE), and those win over the
+    working directory. Run from inside a hook, `--delete --push` would otherwise
+    delete branches on *that* repository's origin. `sensisat.facts.data_version`
+    was bitten by the same inheritance.
+    """
+    env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
+    return {**env, **extra}
+
+
+def git(*args: str, env: dict | None = None, check: bool = True) -> subprocess.CompletedProcess:
+    return subprocess.run(["git", *args], check=check, capture_output=True, text=True,
+                          env=env or clean_env())
+
+
+def out(*args: str, env: dict | None = None) -> str:
+    return git(*args, env=env).stdout.strip()
 
 
 def files(part: str) -> list[str]:
-    out = git("ls-files", "--", *PARTS[part])
-    return out.splitlines() if out else []
+    listed = out("ls-files", "--", *PARTS[part])
+    return listed.splitlines() if listed else []
 
 
 def tree_without(part: str) -> str:
     """The tree of HEAD with the part's paths removed, built in a throwaway index."""
     with tempfile.TemporaryDirectory() as tmp:
-        env = {**os.environ, "GIT_INDEX_FILE": os.path.join(tmp, "index")}
-        git("read-tree", "HEAD", env=env)
-        git("rm", "-r", "-q", "--cached", "--ignore-unmatch", "--", *PARTS[part], env=env)
-        return git("write-tree", env=env)
+        env = clean_env(GIT_INDEX_FILE=os.path.join(tmp, "index"))
+        out("read-tree", "HEAD", env=env)
+        out("rm", "-r", "-q", "--cached", "--ignore-unmatch", "--", *PARTS[part], env=env)
+        return out("write-tree", env=env)
 
 
 def create(part: str, head: str) -> tuple[str, str]:
-    subject = git("log", "-1", "--format=%h %s", head)
-    base = git("commit-tree", tree_without(part), "-m",
+    subject = out("log", "-1", "--format=%h %s", head)
+    base = out("commit-tree", tree_without(part), "-m",
                f"sweep base: the repository without '{part}' (at {subject})")
-    tip = git("commit-tree", f"{head}^{{tree}}", "-p", base, "-m",
+    tip = out("commit-tree", f"{head}^{{tree}}", "-p", base, "-m",
               f"sweep: every file in '{part}' as of {subject}")
-    git("branch", "-f", f"sweep/{part}-base", base)
-    git("branch", "-f", f"sweep/{part}", tip)
+    out("branch", "-f", f"sweep/{part}-base", base)
+    out("branch", "-f", f"sweep/{part}", tip)
     return base, tip
 
 
@@ -91,7 +107,7 @@ def main() -> int:
     args = ap.parse_args()
     parts = args.part or list(PARTS)
 
-    tracked = set(git("ls-files").splitlines())
+    tracked = set(out("ls-files").splitlines())
     covered = {f for p in PARTS for f in files(p)}
 
     if args.list:
@@ -104,18 +120,23 @@ def main() -> int:
         return 0
 
     if args.delete:
+        # A branch that is already absent counts as deleted; one that is present and
+        # survives the delete is a failure, reported and reflected in the exit code.
         failed = []
         for p in parts:
             for b in (f"sweep/{p}", f"sweep/{p}-base"):
-                subprocess.run(["git", "branch", "-D", b], capture_output=True)
-                if args.push and subprocess.run(["git", "push", "-q", "origin", "--delete", b],
-                                                capture_output=True).returncode:
+                if (git("show-ref", "--verify", "-q", f"refs/heads/{b}", check=False).returncode == 0
+                        and git("branch", "-D", b, check=False).returncode):
                     failed.append(b)
+                if (args.push
+                        and out("ls-remote", "--heads", "origin", f"refs/heads/{b}")
+                        and git("push", "-q", "origin", "--delete", b, check=False).returncode):
+                    failed.append(f"origin/{b}")
         for b in failed:
-            print(f"could not delete origin/{b} — it is still on the remote", file=sys.stderr)
+            print(f"could not delete {b} — it still exists", file=sys.stderr)
         return 1 if failed else 0
 
-    head = git("rev-parse", "HEAD")
+    head = out("rev-parse", "HEAD")
     for p in parts:
         base, tip = create(p, head)
         n = len(files(p))
@@ -123,7 +144,7 @@ def main() -> int:
         if args.push:
             # --no-verify: the pre-push hook checks the working tree's figure review,
             # which these branches do not change; they are never merged.
-            git("push", "-q", "--no-verify", "-f", "origin",
+            out("push", "-q", "--no-verify", "-f", "origin",
                 f"sweep/{p}-base", f"sweep/{p}")
     print("\nOpen one pull request per part (base <- compare), and never merge them:")
     for p in parts:

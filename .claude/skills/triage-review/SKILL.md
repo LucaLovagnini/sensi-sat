@@ -12,11 +12,13 @@ thread that was answered from one that was clicked away. This skill is the answe
 ## 0. Identity first — never a work account
 
 ```bash
+export GH_TOKEN=$(gh auth token --user LucaLovagnini)   # the personal account, this shell only
 gh api user --jq .login        # must print LucaLovagnini
 ```
 
-Anything else (the machine's default `gh` login is a work account) means **stop
-writing to GitHub**. Reading still works without auth because the repository is
+The machine's active `gh` login is a work account; the personal one is in the same
+keyring and is used per command through `GH_TOKEN`, never by `gh auth switch`. If the
+check prints anything else, **stop writing to GitHub**. Reading still works without auth because the repository is
 public:
 
 ```bash
@@ -25,7 +27,7 @@ curl -s "https://api.github.com/repos/LucaLovagnini/sensi-sat/pulls/<N>/comments
 ```
 
 In that case write every reply into `<scratchpad>/pr-<N>-replies.md` (thread URL,
-verdict, reply text) and hand it to Luca to post. Never switch `gh` accounts yourself.
+verdict, reply text) and hand it to Luca to post.
 
 ## 1. Read everything before answering anything
 
@@ -36,8 +38,17 @@ state (GraphQL, authenticated; `--paginate` follows `endCursor` for you):
 ```bash
 gh api graphql -f query='query($n:Int!, $endCursor:String){repository(owner:"LucaLovagnini",name:"sensi-sat"){
   pullRequest(number:$n){reviewThreads(first:100, after:$endCursor){nodes{id isResolved path line
-  comments(first:50){nodes{author{login} body url}}} pageInfo{hasNextPage endCursor}}}}}' \
+  comments(first:100){nodes{author{login} body url} pageInfo{hasNextPage}}} pageInfo{hasNextPage endCursor}}}}}' \
   --paginate -F n=<N>
+```
+
+`--paginate` follows the outer cursor only. For any thread whose `comments.pageInfo.hasNextPage`
+is true, read the rest of that thread before judging it:
+
+```bash
+gh api graphql -f query='query($id:ID!, $endCursor:String){node(id:$id){... on PullRequestReviewThread{
+  comments(first:100, after:$endCursor){nodes{author{login} body url} pageInfo{hasNextPage endCursor}}}}}' \
+  --paginate -F id=<thread id>
 ```
 
 CodeRabbit also puts findings on lines outside the diff and "nitpicks" in the review

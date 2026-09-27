@@ -358,3 +358,12 @@ account. Before any `gh` command that writes to this repository, run
 `gh api user --jq .login` and continue only if it prints `LucaLovagnini`. Reading
 needs no login — the repository is public — so read with `curl` against
 `api.github.com` when in doubt.
+
+The personal account sits in the same `gh` keyring, not active. Use it per command,
+never by switching the default — switching would change the work account for every
+other shell on the machine:
+
+```bash
+export GH_TOKEN=$(gh auth token --user LucaLovagnini)
+[ "$(gh api user --jq .login)" = LucaLovagnini ] || { echo "not the personal account"; false; }
+```
