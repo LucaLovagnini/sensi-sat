@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensiSat — accuracy assessment</title>
+<link rel="stylesheet" href="label.css">
+</head>
+<body>
+<main>
+  <header>
+    <div>
+      <h1>Accuracy assessment</h1>
+      <p id="sub">loading sample…</p>
+    </div>
+    <div class="progress">
+      <div id="count">0 / 0</div>
+      <div class="bar"><span id="fill"></span></div>
+    </div>
+  </header>
+
+  <section id="chips">
+    <figure>
+      <figcaption>2015 <span class="hint">PNOA orthophoto</span></figcaption>
+      <div class="chip"><img id="img2015" alt="aerial photograph, 2015"><div class="cell"><i></i></div></div>
+      <div class="answer" data-year="2015">
+        <button data-v="built">Built <kbd>1</kbd></button>
+        <button data-v="not">Not built <kbd>2</kbd></button>
+        <button data-v="unsure">Unsure <kbd>3</kbd></button>
+      </div>
+    </figure>
+    <figure>
+      <figcaption>2024 <span class="hint">PNOA orthophoto</span></figcaption>
+      <div class="chip"><img id="img2024" alt="aerial photograph, 2024"><div class="cell"><i></i></div></div>
+      <div class="answer" data-year="2024">
+        <button data-v="built">Built <kbd>Q</kbd></button>
+        <button data-v="not">Not built <kbd>W</kbd></button>
+        <button data-v="unsure">Unsure <kbd>E</kbd></button>
+      </div>
+    </figure>
+  </section>
+
+  <p class="guide"><strong>Is there a BUILDING anywhere inside the square?</strong>
+    A building means a roofed structure — house, block, shed, warehouse, garage,
+    hotel. <strong>Any part of any roof inside the square counts</strong>, however
+    small a corner. You are not being asked where its edge falls.</p>
+  <p class="guide small">The square is 30 m across. It used to be 10 m, judged at
+    its exact centre — but the median building here is 121 m² against a 100 m²
+    pixel, so almost every point landed on the edge of a roof, and an aerial photo
+    shows a roof several metres from the footprint beneath it. No one can read that
+    reliably. A 30 m square is larger than the disagreement, so the question has an
+    answer.</p>
+  <table class="counts">
+    <tr><th>counts as built</th><th>does NOT count</th></tr>
+    <tr>
+      <td>any roofed structure, however small — a shed or garage counts</td>
+      <td><strong>roads, streets, car parks, drives, paved yards, patios</strong><br>
+          swimming pools · walls and fences · bare ground, crops, scrub, rock, sand</td>
+    </tr>
+  </table>
+  <p class="guide alt2">Why the centre and not the majority: the map was drawn by
+    the same rule. A pixel is marked built when a building footprint covers its
+    centre point, so judging the centre compares like with like. Scoring by how
+    much of the square is filled would measure a different quantity than the map
+    ever claimed.</p>
+  <p class="guide alt2">Why roads do not count: this is measuring the <em>cadastre</em>,
+    the building register, and it contains buildings and nothing else — its
+    "other constructions" file for one municipality is 87 features, every one an
+    open-air swimming pool, with no road anywhere in it. Marking a road as built
+    would score an omission against a map that never claimed roads exist, which
+    measures the definition rather than the accuracy. Road and paving coverage is a
+    different layer, checked separately.</p>
+  <p class="guide">If a <strong>greenhouse</strong> fills the square, mark
+    <strong>unsure</strong> and note it — covered agriculture is deliberately its
+    own layer. Use <strong>unsure</strong> too whenever a leaning roof, a shadow or
+    a mosaic seam means you genuinely cannot tell.</p>
+  <p class="guide alt"><strong>The two photos will not look identical, and should
+    not.</strong> Tall roofs lean away from the camera and lean differently in each
+    flight, so buildings appear to shift while the ground does not — check
+    alignment on <em>flat</em> features: kerbs, road markings, path edges. Colour
+    and sun angle can jump across a mosaic seam. And of course the ground may
+    genuinely have changed, which is the thing you are here to judge.</p>
+
+  <p id="flag" class="flag"></p>
+
+  <p class="guide alt2">Stop whenever you like — progress is saved in this browser
+    and reopening resumes at the first unanswered point. You can download part-way
+    and score what you have: the estimator is valid at any number of points, it just
+    gives wider intervals. Do look in order to catch problems; do not stop because
+    a number looks good.</p>
+
+  <footer>
+    <input id="note" placeholder="Optional note (greenhouse, cloud, shadow, can't tell…)">
+    <div class="acts">
+      <button id="back">← Back</button>
+      <button id="skip">Skip</button>
+      <button id="next">Next →</button>
+      <button id="resume" title="Jump to the first point not yet judged (R)">Resume ⇥</button>
+      <button id="save" class="primary">Download labels</button>
+    </div>
+  </footer>
+</main>
+<script src="label.js"></script>
+</body>
+</html>

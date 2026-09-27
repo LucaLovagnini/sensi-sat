@@ -1,0 +1,6 @@
+island,explanation,share_pct,share_excl_pct
+Gran Canaria,roads (15 m buffer),43.3,43.3
+Gran Canaria,airport/port/industrial/quarry etc. (OSM),12.8,7.8
+Gran Canaria,greenhouse parcels (crop map),4.1,3.5
+Gran Canaria,any agricultural parcel (crop map),13.2,7.4
+Gran Canaria,UNEXPLAINED (candidate bare-soil commission),38.0,38.0
