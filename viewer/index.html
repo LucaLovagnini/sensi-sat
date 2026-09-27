@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SensiSat — urban expansion in the Canary Islands</title>
+<link rel="stylesheet" href="ol.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div id="map"></div>
+
+<aside id="panel">
+  <header>
+    <h1>SensiSat</h1>
+    <p class="sub">Built-up land in the Canary Islands, 1900&ndash;2026</p>
+  </header>
+
+  <div class="field">
+    <span>Basemap</span>
+    <div class="modes modes-wrap" id="basemaps"></div>
+    <p id="basemap-note" class="note"></p>
+  </div>
+
+  <label class="field">
+    <span>Layer</span>
+    <select id="layer"></select>
+  </label>
+  <p id="layer-note" class="note"></p>
+
+  <div id="time-controls">
+    <div class="field">
+      <span>View</span>
+      <div class="modes" id="viewmodes">
+        <button data-mode="state" class="on">State at year</button>
+        <button data-mode="since">Added since</button>
+      </div>
+    </div>
+    <p id="mode-note" class="note"></p>
+
+    <div class="year-row">
+      <output id="year-out">2020</output>
+      <button id="play" title="Play through the years">&#9658;</button>
+    </div>
+    <input type="range" id="year" min="1900" max="2020" value="2020" step="1">
+    <div class="ticks"><span id="tick-min"></span><span id="tick-max"></span></div>
+    <p id="precision-note" class="warn"></p>
+    <p id="seam-note" class="seam"></p>
+  </div>
+
+  <div id="legend"></div>
+  <div id="readout"></div>
+
+  <footer>
+    <p id="status">Loading…</p>
+    <p class="attrib"><a href="about-the-data.html">About the data &rarr;</a>
+      &mdash; what these numbers mean, and what they cannot be used for.</p>
+    <p class="attrib">Basemap tiles &copy; Esri. Data: Spanish Catastro, DLR (WSF),
+      EU JRC (GHSL), Copernicus/EEA, Gobierno de Canarias.</p>
+  </footer>
+</aside>
+
+<!-- Bundled (npm run build). One request instead of 248 to a third-party
+     CDN, and no runtime dependency on that CDN being up. -->
+<script type="module" src="app.bundle.js"></script>
+</body>
+</html>

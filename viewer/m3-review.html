@@ -1,0 +1,1299 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>M3 review — undated</title>
+<style>
+  :root { --bg:#12151a; --fg:#e8eaed; --dim:#9aa3ad; --line:#2a303a; --hit:#7ee081; --miss:#ff8f6b; }
+  * { box-sizing:border-box; }
+  body { margin:0; background:var(--bg); color:var(--fg); font:15px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+  header { position:sticky; top:0; background:var(--bg); border-bottom:1px solid var(--line);
+           padding:14px 20px; z-index:5; }
+  h1 { margin:0 0 4px; font-size:17px; font-weight:600; }
+  p { margin:4px 0; color:var(--dim); font-size:13px; max-width:70ch; }
+  button { background:#1d2430; color:var(--fg); border:1px solid var(--line); border-radius:6px;
+           padding:6px 12px; font:inherit; cursor:pointer; margin-right:8px; }
+  button:hover { border-color:#3d4654; }
+  .grid { display:grid; gap:22px; padding:20px; }
+  .card { border:1px solid var(--line); border-radius:10px; overflow:hidden; background:#161b22; }
+  .pair { display:grid; grid-template-columns:1fr 1fr; gap:2px; background:var(--line); }
+  .cell { position:relative; aspect-ratio:1; background:#0b0d11; }
+  .cell img { width:100%; height:100%; display:block; object-fit:cover; }
+  .cell span.yr { position:absolute; left:8px; top:8px; background:rgba(0,0,0,.65);
+                  padding:2px 7px; border-radius:4px; font-size:12px; letter-spacing:.04em; }
+  /* the 10 m square, and the centre dot that is what actually gets judged */
+  .cell::after { content:""; position:absolute; left:50%; top:50%; width:64px; height:64px;
+                 transform:translate(-50%,-50%); border:2px solid #fff;
+                 box-shadow:0 0 0 1px rgba(0,0,0,.7); pointer-events:none; }
+  .dot { position:absolute; left:50%; top:50%; width:7px; height:7px; margin:-3.5px 0 0 -3.5px;
+         background:#ffd84d; border-radius:50%; box-shadow:0 0 0 1px rgba(0,0,0,.8); z-index:2; }
+  .meta { padding:9px 12px; font-size:13px; display:flex; justify-content:space-between; gap:12px; }
+  .id { color:var(--dim); font-variant-numeric:tabular-nums; }
+  .answer { display:none; }
+  body.revealed .answer { display:block; }
+  .agree { color:var(--hit); } .disagree { color:var(--miss); }
+  @media (max-width:760px) { .pair { grid-template-columns:1fr; } }
+</style></head>
+<body>
+<header>
+  <h1>M3 review — the “undated” stratum, 125 points</h1>
+  <p>Both dates, same ground, same framing the labelling tool used. The white square
+  is 10 m; the yellow dot is the pixel centre, which is what the map was drawn by
+  and what the judgement is about.</p>
+  <p><strong>Shown in shuffled order with the answers hidden</strong>, so that a
+  second look is not steered by what you or the map said the first time. Reveal only
+  after you have formed your own view of a card.</p>
+  <button onclick="document.body.classList.toggle('revealed')">Show / hide the answers</button>
+  <button onclick="window.scrollTo(0,0)">Back to top</button>
+</header>
+<div class="grid">
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.001247775049755,-15.413308308192642,28.002152424950246,-15.412290891807357&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.001247775049755,-15.413308308192642,28.002152424950246,-15.412290891807357&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00286 &middot; 28.00170, -15.41280</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.042749975049755,-15.478166804341488,28.043654624950246,-15.477148995658514&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.042749975049755,-15.478166804341488,28.043654624950246,-15.477148995658514&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00276 &middot; 28.04320, -15.47766</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031341375049756,-15.409086350380163,28.032246024950247,-15.408068649619837&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031341375049756,-15.409086350380163,28.032246024950247,-15.408068649619837&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00326 &middot; 28.03179, -15.40858</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.123149175049754,-15.502960685517788,28.124053824950245,-15.501942114482212&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.123149175049754,-15.502960685517788,28.124053824950245,-15.501942114482212&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00313 &middot; 28.12360, -15.50245</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.744329675049755,-17.978087003212615,27.745234324950246,-17.977071996787387&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.744329675049755,-17.978087003212615,27.745234324950246,-17.977071996787387&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00254 &middot; 27.74478, -17.97758</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.531343675049754,-16.385737145202555,28.532248324950245,-16.384714654797442&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.531343675049754,-16.385737145202555,28.532248324950245,-16.384714654797442&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00353 &middot; 28.53180, -16.38523</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.382852175049756,-16.54042632757312,28.383756824950247,-16.53940527242688&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.382852175049756,-16.54042632757312,28.383756824950247,-16.53940527242688&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00362 &middot; 28.38330, -16.53992</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.364346875049755,-16.82016153852201,28.365251524950246,-16.81914066147799&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.364346875049755,-16.82016153852201,28.365251524950246,-16.81914066147799&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00361 &middot; 28.36480, -16.81965</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.129527275049753,-15.450050015824049,28.130431924950244,-15.449031384175951&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.129527275049753,-15.450050015824049,28.130431924950244,-15.449031384175951&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00267 &middot; 28.12998, -15.44954</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.338655075049754,-16.410350015027795,28.339559724950245,-16.409329384972203&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.338655075049754,-16.410350015027795,28.339559724950245,-16.409329384972203&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00375 &middot; 28.33911, -16.40984</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.752863675049756,-17.9470952429828,27.753768324950247,-17.946080157017196&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.752863675049756,-17.9470952429828,27.753768324950247,-17.946080157017196&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00251 &middot; 27.75332, -17.94659</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.089552175049754,-15.489306126041502,28.090456824950245,-15.488287873958498&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.089552175049754,-15.489306126041502,28.090456824950245,-15.488287873958498&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00302 &middot; 28.09000, -15.48880</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120633875049755,-16.463888573568784,28.121538524950246,-16.462870026431215&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120633875049755,-16.463888573568784,28.121538524950246,-16.462870026431215&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00355 &middot; 28.12109, -16.46338</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.955797675049755,-13.589553226746979,28.956702324950246,-13.58852657325302&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.955797675049755,-13.589553226746979,28.956702324950246,-13.58852657325302&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00340 &middot; 28.95625, -13.58904</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.117130475049755,-15.460380556928353,28.118035124950246,-15.459362043071646&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.117130475049755,-15.460380556928353,28.118035124950246,-15.459362043071646&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00296 &middot; 28.11758, -15.45987</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.635997375049755,-17.909010854253246,28.636902024950246,-17.907987345746754&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.635997375049755,-17.909010854253246,28.636902024950246,-17.907987345746754&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00336 &middot; 28.63645, -17.90850</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.434145975049756,-16.464069774850017,28.435050624950247,-16.463048225149983&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.434145975049756,-16.464069774850017,28.435050624950247,-16.463048225149983&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00350 &middot; 28.43460, -16.46356</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090360675049755,-15.488048529876014,28.091265324950246,-15.487030270123984&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090360675049755,-15.488048529876014,28.091265324950246,-15.487030270123984&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00307 &middot; 28.09081, -15.48754</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.810804975049756,-17.97503311346405,27.811709624950247,-17.97401748653595&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.810804975049756,-17.97503311346405,27.811709624950247,-17.97401748653595&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00252 &middot; 27.81126, -17.97453</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.900726375049754,-15.443850534835958,27.901631024950245,-15.44283406516404&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.900726375049754,-15.443850534835958,27.901631024950245,-15.44283406516404&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00311 &middot; 27.90118, -15.44334</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023526075049755,-15.408457513432968,28.024430724950246,-15.407439886567033&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023526075049755,-15.408457513432968,28.024430724950246,-15.407439886567033&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00285 &middot; 28.02398, -15.40795</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.155129175049755,-17.194308937574203,28.156033824950246,-17.1932900624258&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.155129175049755,-17.194308937574203,28.156033824950246,-17.1932900624258&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00332 &middot; 28.15558, -17.19380</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.896504275049754,-15.675346315007527,27.897408924950245,-15.674329884992474&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.896504275049754,-15.675346315007527,27.897408924950245,-15.674329884992474&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00312 &middot; 27.89696, -15.67484</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.062962075049754,-15.449151400019984,28.063866724950245,-15.448133399980017&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.062962075049754,-15.449151400019984,28.063866724950245,-15.448133399980017&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00299 &middot; 28.06341, -15.44864</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727356075049755,-13.856711000862878,28.728260724950246,-13.85568659913712&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727356075049755,-13.856711000862878,28.728260724950246,-13.85568659913712&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00265 &middot; 28.72781, -13.85620</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.984359475049754,-15.459212128494345,27.985264124950245,-15.458194871505656&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.984359475049754,-15.459212128494345,27.985264124950245,-15.458194871505656&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00316 &middot; 27.98481, -15.45870</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.113537175049753,-15.460560239864021,28.114441824950244,-15.459541760135979&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.113537175049753,-15.460560239864021,28.114441824950244,-15.459541760135979&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00303 &middot; 28.11399, -15.46005</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.287990075049755,-16.379447771968955,28.288894724950246,-16.378427628031048&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.287990075049755,-16.379447771968955,28.288894724950246,-16.378427628031048&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00371 &middot; 28.28844, -16.37894</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.454358075049754,-16.3005764724667,28.455262724950245,-16.299554727533298&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.454358075049754,-16.3005764724667,28.455262724950245,-16.299554727533298&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00358 &middot; 28.45481, -16.30007</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090719975049755,-15.489306131580136,28.091624624950246,-15.488287868419864&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090719975049755,-15.489306131580136,28.091624624950246,-15.488287868419864&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00273 &middot; 28.09117, -15.48880</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.145786775049753,-15.549583393127772,28.146691424950244,-15.548564606872226&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.145786775049753,-15.549583393127772,28.146691424950244,-15.548564606872226&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00294 &middot; 28.14624, -15.54907</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.789065775049753,-15.615338411886595,27.789970424950244,-15.614322988113406&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.789065775049753,-15.615338411886595,27.789970424950244,-15.614322988113406&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00271 &middot; 27.78952, -15.61483</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.030353175049754,-15.408277845707582,28.031257824950245,-15.407260154292418&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.030353175049754,-15.408277845707582,28.031257824950245,-15.407260154292418&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00293 &middot; 28.03081, -15.40777</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.821764375049753,-17.90999506471551,27.822669024950244,-17.908979335284492&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.821764375049753,-17.90999506471551,27.822669024950244,-17.908979335284492&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00253 &middot; 27.82222, -17.90949</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.081646975049754,-15.470082188557507,28.082551624950245,-15.469064011442493&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.081646975049754,-15.470082188557507,28.082551624950245,-15.469064011442493&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00329 &middot; 28.08210, -15.46957</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.997744375049756,-15.414835391653911,27.998649024950247,-15.41381800834609&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.997744375049756,-15.414835391653911,27.998649024950247,-15.41381800834609&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00328 &middot; 27.99820, -15.41433</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.365963775049753,-16.739223346299486,28.366868424950244,-16.738202453700513&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.365963775049753,-16.739223346299486,28.366868424950244,-16.738202453700513&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00369 &middot; 28.36642, -16.73871</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.465856475049755,-16.355104228044596,28.466761124950246,-16.354082371955407&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.465856475049755,-16.355104228044596,28.466761124950246,-16.354082371955407&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00365 &middot; 28.46631, -16.35459</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.726278075049756,-13.856980495580904,28.727182724950246,-13.855956104419095&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.726278075049756,-13.856980495580904,28.727182724950246,-13.855956104419095&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00261 &middot; 28.72673, -13.85647</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.072214675049754,-15.42085444385238,28.073119324950245,-15.419836356147622&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.072214675049754,-15.42085444385238,28.073119324950245,-15.419836356147622&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00318 &middot; 28.07267, -15.42035</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.842425675049753,-15.463523361416444,27.843330324950244,-15.462507438583556&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.842425675049753,-15.463523361416444,27.843330324950244,-15.462507438583556&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00283 &middot; 27.84288, -15.46302</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.539248875049754,-16.370465783559684,28.540153524950245,-16.369443216440313&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.539248875049754,-16.370465783559684,28.540153524950245,-16.369443216440313&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00367 &middot; 28.53970, -16.36995</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.376653775049753,-16.577077497735818,28.377558424950244,-16.576056502264183&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.376653775049753,-16.577077497735818,28.377558424950244,-16.576056502264183&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00360 &middot; 28.37711, -16.57657</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.996217275049755,-15.413038784445762,27.997121924950246,-15.412021415554237&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.996217275049755,-15.413038784445762,27.997121924950246,-15.412021415554237&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00289 &middot; 27.99667, -15.41253</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.102308275049754,-17.123431586559036,28.103212924950245,-17.122413213440964&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.102308275049754,-17.123431586559036,28.103212924950245,-17.122413213440964&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00333 &middot; 28.10276, -17.12292</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.773978575049753,-17.97719362958123,28.774883224950244,-17.976168770418774&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.773978575049753,-17.97719362958123,28.774883224950244,-17.976168770418774&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00339 &middot; 28.77443, -17.97668</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090630175049753,-15.48831803115422,28.091534824950244,-15.487299768845778&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090630175049753,-15.48831803115422,28.091534824950244,-15.487299768845778&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00272 &middot; 28.09108, -15.48781</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.876741275049753,-15.42184172225094,27.877645924950244,-15.42082547774906&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.876741275049753,-15.42184172225094,27.877645924950244,-15.42082547774906&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00282 &middot; 27.87719, -15.42133</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.767236675049755,-15.583268410003473,27.768141324950246,-15.582253189996528&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.767236675049755,-15.583268410003473,27.768141324950246,-15.582253189996528&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00284 &middot; 27.76769, -15.58276</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.766607875049754,-15.583448107070367,27.767512524950245,-15.582432892929631&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.766607875049754,-15.583448107070367,27.767512524950245,-15.582432892929631&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00309 &middot; 27.76706, -15.58294</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.883927875049753,-15.72466375596995,27.884832524950244,-15.72364744403005&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.883927875049753,-15.72466375596995,27.884832524950244,-15.72364744403005&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00287 &middot; 27.88438, -15.72416</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.656299275049754,-17.862478253319903,28.657203924950245,-17.861454546680097&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.656299275049754,-17.862478253319903,28.657203924950245,-17.861454546680097&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00338 &middot; 28.65675, -17.86197</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090091175049754,-15.489755328597827,28.090995824950244,-15.488737071402173&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.090091175049754,-15.489755328597827,28.090995824950244,-15.488737071402173&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00308 &middot; 28.09054, -15.48925</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.087306375049753,-15.433520815391072,28.088211024950244,-15.432502584608928&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.087306375049753,-15.433520815391072,28.088211024950244,-15.432502584608928&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00300 &middot; 28.08776, -15.43301</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.845929075049753,-15.467026777823582,27.846833724950244,-15.466010822176417&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.845929075049753,-15.467026777823582,27.846833724950244,-15.466010822176417&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00295 &middot; 27.84638, -15.46652</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.053529775049753,-16.715057155357723,28.054434424950244,-16.714039244642276&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.053529775049753,-16.715057155357723,28.054434424950244,-16.714039244642276&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00354 &middot; 28.05398, -16.71455</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.973045275049756,-13.537900212285145,28.973949924950247,-13.536873387714856&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.973045275049756,-13.537900212285145,28.973949924950247,-13.536873387714856&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00341 &middot; 28.97350, -13.53739</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.995682875049756,-13.616143524668512,28.996587524950247,-13.615116475331487&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.995682875049756,-13.616143524668512,28.996587524950247,-13.615116475331487&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00346 &middot; 28.99614, -13.61563</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.194295775049756,-16.423734224141107,28.195200424950247,-16.422714975858895&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.194295775049756,-16.423734224141107,28.195200424950247,-16.422714975858895&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00373 &middot; 28.19475, -16.42322</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.798318375049753,-15.461007855105912,27.799223024950244,-15.45999234489409&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.798318375049753,-15.461007855105912,27.799223024950244,-15.45999234489409&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00327 &middot; 27.79877, -15.46050</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.118477975049753,-15.494965663328347,28.119382624950244,-15.493947136671654&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.118477975049753,-15.494965663328347,28.119382624950244,-15.493947136671654&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00280 &middot; 28.11893, -15.49446</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031071875049754,-15.418608449105841,28.031976524950245,-15.417590750894158&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031071875049754,-15.418608449105841,28.031976524950245,-15.417590750894158&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00317 &middot; 28.03152, -15.41810</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.651717875049755,-17.909370230955197,28.652622524950246,-17.908346569044802&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.651717875049755,-17.909370230955197,28.652622524950246,-17.908346569044802&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00335 &middot; 28.65217, -17.90886</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.059009475049756,-15.437024081301654,28.059914124950247,-15.436006118698344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.059009475049756,-15.437024081301654,28.059914124950247,-15.436006118698344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00310 &middot; 28.05946, -15.43652</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023256575049754,-15.412949012159158,28.024161224950245,-15.411931387840843&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023256575049754,-15.412949012159158,28.024161224950245,-15.411931387840843&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00291 &middot; 28.02371, -15.41244</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.425971275049754,-16.307493335397997,28.426875924950245,-16.306471864602006&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.425971275049754,-16.307493335397997,28.426875924950245,-16.306471864602006&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00352 &middot; 28.42642, -16.30698</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.067902775049756,-15.517243623423,28.068807424950247,-15.516225576577&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.067902775049756,-15.517243623423,28.068807424950247,-15.516225576577&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00314 &middot; 28.06836, -15.51673</span>
+      <span class="answer agree">you said unsure / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.929472375049755,-15.405941769951578,27.930377024950246,-15.404925030048421&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.929472375049755,-15.405941769951578,27.930377024950246,-15.404925030048421&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00277 &middot; 27.92992, -15.40543</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.973045275049756,-13.538169612285145,28.973949924950247,-13.537142787714856&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.973045275049756,-13.538169612285145,28.973949924950247,-13.537142787714856&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00344 &middot; 28.97350, -13.53766</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.178395575049755,-16.772909348356613,28.179300224950246,-16.771890251643384&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.178395575049755,-16.772909348356613,28.179300224950246,-16.771890251643384&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00368 &middot; 28.17885, -16.77240</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120364375049753,-16.575010172288607,28.121269024950244,-16.573991627711393&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120364375049753,-16.575010172288607,28.121269024950244,-16.573991627711393&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00366 &middot; 28.12082, -16.57450</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.092157275049754,-15.548505138397406,28.093061924950245,-15.547486861602593&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.092157275049754,-15.548505138397406,28.093061924950245,-15.547486861602593&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00298 &middot; 28.09261, -15.54800</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.760499275049753,-15.67651347858109,27.761403924950244,-15.67549832141891&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.760499275049753,-15.67651347858109,27.761403924950244,-15.67549832141891&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00275 &middot; 27.76095, -15.67601</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.007805475049754,-15.534760539158013,28.008710124950245,-15.533743060841987&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.007805475049754,-15.534760539158013,28.008710124950245,-15.533743060841987&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00330 &middot; 28.00826, -15.53425</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.865427075049755,-13.799848379785582,28.866331724950246,-13.798822620214418&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.865427075049755,-13.799848379785582,28.866331724950246,-13.798822620214418&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00342 &middot; 28.86588, -13.79934</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728164575049753,-13.858507704824548,28.729069224950244,-13.85748329517545&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728164575049753,-13.858507704824548,28.729069224950244,-13.85748329517545&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00264 &middot; 28.72862, -13.85800</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.766877375049756,-15.595755008327467,27.767782024950247,-15.594739791672533&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.766877375049756,-15.595755008327467,27.767782024950247,-15.594739791672533&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00274 &middot; 27.76733, -15.59525</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.641656775049753,-17.884935981858963,28.642561424950244,-17.88391241814104&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.641656775049753,-17.884935981858963,28.642561424950244,-17.88391241814104&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00337 &middot; 28.64211, -17.88442</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.110752475049754,-15.45642792664184,28.111657124950245,-15.45540947335816&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.110752475049754,-15.45642792664184,28.111657124950245,-15.45540947335816&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00290 &middot; 28.11120, -15.45592</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=29.082909275049754,-13.670581858911186,29.083813924950245,-13.669553941088813&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=29.082909275049754,-13.670581858911186,29.083813924950245,-13.669553941088813&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00343 &middot; 29.08336, -13.67007</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.446991875049754,-16.3357903368791,28.447896524950245,-16.334768663120897&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.446991875049754,-16.3357903368791,28.447896524950245,-16.334768663120897&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00349 &middot; 28.44744, -16.33528</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.059009475049756,-15.436574881301654,28.059914124950247,-15.435556918698344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.059009475049756,-15.436574881301654,28.059914124950247,-15.435556918698344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00320 &middot; 28.05946, -15.43607</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023795475049756,-15.412230414706322,28.024700124950247,-15.411212785293678&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023795475049756,-15.412230414706322,28.024700124950247,-15.411212785293678&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00269 &middot; 28.02425, -15.41172</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.432079775049754,-16.482215664876747,28.432984424950245,-16.481194135123253&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.432079775049754,-16.482215664876747,28.432984424950245,-16.481194135123253&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00357 &middot; 28.43253, -16.48170</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.152703775049755,-15.422022626033325,28.153608424950246,-15.421003773966675&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.152703775049755,-15.422022626033325,28.153608424950246,-15.421003773966675&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00288 &middot; 28.15316, -15.42151</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.103206575049754,-15.418159690822248,28.104111224950245,-15.417141309177753&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.103206575049754,-15.418159690822248,28.104111224950245,-15.417141309177753&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00268 &middot; 28.10366, -15.41765</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.976633975049754,-15.38258579205966,27.977538624950245,-15.38156860794034&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.976633975049754,-15.38258579205966,27.977538624950245,-15.38156860794034&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00322 &middot; 27.97709, -15.38208</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.211004475049755,-14.022986703845715,28.211909124950246,-14.021967296154285&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.211004475049755,-14.022986703845715,28.211909124950246,-14.021967296154285&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00256 &middot; 28.21146, -14.02248</span>
+      <span class="answer agree">you said unsure / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.010769975049755,-16.640047653159765,28.011674624950246,-16.639030146840238&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.010769975049755,-16.640047653159765,28.011674624950246,-16.639030146840238&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00348 &middot; 28.01122, -16.63954</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.470437875049754,-16.27344745019804,28.471342524950245,-16.27242554980196&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.470437875049754,-16.27344745019804,28.471342524950245,-16.27242554980196&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00370 &middot; 28.47089, -16.27294</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.180551575049755,-16.773088958629053,28.181456224950246,-16.77206984137095&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.180551575049755,-16.773088958629053,28.181456224950246,-16.77206984137095&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00374 &middot; 28.18100, -16.77258</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.951755175049755,-13.747836306709356,28.952659824950246,-13.746809693290643&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.951755175049755,-13.747836306709356,28.952659824950246,-13.746809693290643&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00345 &middot; 28.95221, -13.74732</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.769662175049753,-15.58210062131837,27.770566824950244,-15.58108537868163&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.769662175049753,-15.58210062131837,27.770566824950244,-15.58108537868163&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00324 &middot; 27.77011, -15.58159</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.174802275049753,-16.77228043123857,28.175706924950244,-16.77126136876143&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.174802275049753,-16.77228043123857,28.175706924950244,-16.77126136876143&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00351 &middot; 28.17525, -16.77177</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.453190275049753,-16.44960696682393,28.454094924950244,-16.44858523317607&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.453190275049753,-16.44960696682393,28.454094924950244,-16.44858523317607&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00364 &middot; 28.45364, -16.44910</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.442230775049754,-16.299678113884394,28.443135424950245,-16.298656486115608&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.442230775049754,-16.299678113884394,28.443135424950245,-16.298656486115608&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00347 &middot; 28.44268, -16.29917</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.111830375049756,-17.31656943175965,28.112735024950247,-17.31555096824035&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.111830375049756,-17.31656943175965,28.112735024950247,-17.31555096824035&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00331 &middot; 28.11228, -17.31606</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023795475049756,-15.412140614706322,28.024700124950247,-15.411122985293678&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023795475049756,-15.412140614706322,28.024700124950247,-15.411122985293678&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00279 &middot; 28.02425, -15.41163</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.324641275049753,-13.895067147735295,28.325545924950244,-13.894046652264704&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.324641275049753,-13.895067147735295,28.325545924950244,-13.894046652264704&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00266 &middot; 28.32509, -13.89456</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.920040075049755,-15.429657225594655,27.920944724950246,-15.428640574405344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.920040075049755,-15.429657225594655,27.920944724950246,-15.428640574405344&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00323 &middot; 27.92049, -15.42915</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.487595675049754,-16.398852333211025,28.488500324950245,-16.397830266788972&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.487595675049754,-16.398852333211025,28.488500324950245,-16.397830266788972&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00363 &middot; 28.48805, -16.39834</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.769123175049753,-15.590724418803825,27.770027824950244,-15.589709181196175&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.769123175049753,-15.590724418803825,27.770027824950244,-15.589709181196175&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00305 &middot; 27.76958, -15.59022</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.771818075049755,-15.672920331376776,27.772722724950246,-15.671905068623225&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.771818075049755,-15.672920331376776,27.772722724950246,-15.671905068623225&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00321 &middot; 27.77227, -15.67241</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.482834675049755,-16.415021910169024,28.483739324950246,-16.413999889830976&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.482834675049755,-16.415021910169024,28.483739324950246,-16.413999889830976&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00359 &middot; 28.48329, -16.41451</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.991006975049753,-15.39588095985659,27.991911624950244,-15.39486364014341&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.991006975049753,-15.39588095985659,27.991911624950244,-15.39486364014341&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00281 &middot; 27.99146, -15.39537</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728164575049753,-13.857878904824549,28.729069224950244,-13.856854495175451&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728164575049753,-13.857878904824549,28.729069224950244,-13.856854495175451&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00259 &middot; 28.72862, -13.85737</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.780891075049755,-15.637706373719336,27.781795724950246,-15.636691026280666&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.780891075049755,-15.637706373719336,27.781795724950246,-15.636691026280666&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00304 &middot; 27.78134, -15.63720</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031251575049755,-15.418249149955546,28.032156224950246,-15.417231450044454&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.031251575049755,-15.418249149955546,28.032156224950246,-15.417231450044454&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00306 &middot; 28.03170, -15.41774</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728074675049754,-13.85859750438403,28.728979324950245,-13.857573095615972&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.728074675049754,-13.85859750438403,28.728979324950245,-13.857573095615972&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00262 &middot; 28.72853, -13.85809</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727445875049753,-13.857878901302893,28.728350524950244,-13.856854498697107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727445875049753,-13.857878901302893,28.728350524950244,-13.856854498697107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00255 &middot; 28.72790, -13.85737</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.896594075049755,-15.674897215429214,27.897498724950246,-15.673880784570786&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.896594075049755,-15.674897215429214,27.897498724950246,-15.673880784570786&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00278 &middot; 27.89705, -15.67439</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.129078075049755,-15.4501398136893,28.129982724950246,-15.4491211863107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.129078075049755,-15.4501398136893,28.129982724950246,-15.4491211863107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00315 &middot; 28.12953, -15.44963</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.331737975049755,-13.944833881806721,28.332642624950246,-13.94381331819328&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.331737975049755,-13.944833881806721,28.332642624950246,-13.94381331819328&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00258 &middot; 28.33219, -13.94432</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023526075049755,-15.410703313432967,28.024430724950246,-15.409685686567032&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023526075049755,-15.410703313432967,28.024430724950246,-15.409685686567032&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00325 &middot; 28.02398, -15.41019</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.087935275049755,-15.473046618373429,28.088839924950246,-15.47202838162657&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.087935275049755,-15.473046618373429,28.088839924950246,-15.47202838162657&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00297 &middot; 28.08839, -15.47254</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727445875049753,-13.857699201302893,28.728350524950244,-13.856674798697107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727445875049753,-13.857699201302893,28.728350524950244,-13.856674798697107&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00263 &middot; 28.72790, -13.85719</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.847546075049756,-15.469991285397324,27.848450724950247,-15.468975314602677&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=27.847546075049756,-15.469991285397324,27.848450724950247,-15.468975314602677&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00319 &middot; 27.84800, -15.46948</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120364375049753,-16.576088172288607,28.121269024950244,-16.575069627711393&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.120364375049753,-16.576088172288607,28.121269024950244,-16.575069627711393&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00356 &middot; 28.12082, -16.57558</span>
+      <span class="answer agree">you said built / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.632943075049756,-13.902704339358134,28.633847724950247,-13.901680860641864&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.632943075049756,-13.902704339358134,28.633847724950247,-13.901680860641864&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00260 &middot; 28.63340, -13.90219</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727715375049755,-13.858148402623438,28.728620024950246,-13.857123997376561&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.727715375049755,-13.858148402623438,28.728620024950246,-13.857123997376561&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00257 &middot; 28.72817, -13.85764</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.837758975049756,-17.80292084335323,28.838663624950247,-17.80189535664677&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.837758975049756,-17.80292084335323,28.838663624950247,-17.80189535664677&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00334 &middot; 28.83821, -17.80241</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023346375049755,-15.413398212583601,28.024251024950246,-15.412380587416397&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023346375049755,-15.413398212583601,28.024251024950246,-15.412380587416397&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00301 &middot; 28.02380, -15.41289</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.072035075049754,-15.421213743001362,28.072939724950245,-15.420195656998638&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.072035075049754,-15.421213743001362,28.072939724950245,-15.420195656998638&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00270 &middot; 28.07249, -15.42070</span>
+      <span class="answer agree">you said built / built &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.121083075049754,-16.575369475702608,28.121987724950245,-16.57435092429739&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.121083075049754,-16.575369475702608,28.121987724950245,-16.57435092429739&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00372 &middot; 28.12154, -16.57486</span>
+      <span class="answer agree">you said unsure / unsure &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div>
+  <div class="card">
+    <div class="pair">
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms/pnoa-historico?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=PNOA2015&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023346375049755,-15.408188012583603,28.024251024950246,-15.407170387416398&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">2015</span><i class="dot"></i></div>
+      <div class="cell"><img loading="lazy" src="https://www.ign.es/wms-inspire/pnoa-ma?service=WMS&amp;version=1.3.0&amp;request=GetMap&amp;layers=OI.OrthoimageCoverage&amp;styles=&amp;crs=EPSG:4326&amp;bbox=28.023346375049755,-15.408188012583603,28.024251024950246,-15.407170387416398&amp;width=640&amp;height=640&amp;format=image/jpeg" alt=""><span class="yr">recent</span><i class="dot"></i></div>
+    </div>
+    <div class="meta">
+      <span class="id">p00292 &middot; 28.02380, -15.40768</span>
+      <span class="answer disagree">you said not / not &nbsp;|&nbsp; map said undated</span>
+    </div>
+  </div></div>
+</body></html>

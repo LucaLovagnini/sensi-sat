@@ -1,0 +1,1014 @@
+# Milestone 0 — dataset evaluation for the Canary Islands
+<!-- figures: scripts/fetch_m0.py @ 2026-09-19 -->
+
+<!--[[[cog cog.outl(f.contract()) ]]]-->
+**About the numbers in this document.** Figures fall into two kinds.
+
+*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.
+
+*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted.
+<!--[[[end]]]-->
+
+What this is: a measured, reproducible answer to "which open datasets can SensiSat
+trust, and where do they fail?" Nothing here is taken on faith from a dataset's
+documentation; every number was computed locally from the downloaded files.
+
+Run date: 2026-09-19. Reproduce with `python scripts/fetch_m0.py` then the
+`scripts/analysis_*.py` files (list at the end). Downloads are recorded with size and
+SHA-256 in `data/raw/manifest.json`; the rasters actually used total ~200 MiB. Two
+inputs are not auto-fetched: the Copernicus Built-Up Change package (needs a free
+CLMS account; place under `data/raw/hrl/110241/`) and the HISDAC-ES municipal tables.
+
+Evidence tags: **measured** = computed here · **verified** = read in a primary
+source · **estimate** = our arithmetic, shown.
+
+---
+
+## Headline findings
+<!-- figures: scripts/analysis_01_totals.py; scripts/analysis_02_negative_controls.py; scripts/analysis_03_seam_factors.py; scripts/analysis_08_cadastre.py; scripts/analysis_13_hrl_change.py; scripts/analysis_16_copernicus_status.py @ 2026-09-19 -->
+
+1. **Dynamic World is disqualified.** It reports 307.8 km² built on Gran Canaria
+   alone. The whole archipelago measures 376.9 km² (WSF Evolution, 30 m),
+   230.4 km² (WSF 2019, 10 m) or 152.9 km² (GHSL built surface). One island in
+   Dynamic World exceeds all eight islands in every independent product.
+2. **Lava is not the problem we feared — and the lava burial IS now recorded by one
+   product.** Timanfaya National Park — 51 km² of bare lava — comes back clean in every
+   product (≤ 0.08 %); no lava mask is needed. And **Copernicus Impervious Built-Up
+   captures Todoque's destruction**: inside the 2021 Tajogaite flow, built-up falls from
+   0.909 km² (2018) to 0.084 (2021) to 0.011 km² (2024), and the 2021→2024 change layer
+   records 0.060 km² of "loss of cover" there — 64 % of all loss in the archipelago for
+   the period. Every WSF product and GHSL still show those buildings (§6f).
+3. **WSF 2015 and WSF 2019 are not a time series.** They imply 9.7 %/yr growth,
+   against WSF Evolution's own 0.49 %/yr. The difference is method, not building.
+4. **The WSF family and GHSL cannot measure demolition — Copernicus can, and the
+   answer is "almost none".** WSF 2019 is a strict superset of WSF 2015 (loss
+   0.02 km²), and Tracker encodes the *earliest* epoch a pixel was seen built. But
+   Copernicus Impervious Built-Up Change 2018–2021 (downloaded 2026-09-19) records
+   gain and loss separately: **0.259 km² lost against 1.95 km² gained** across the
+   archipelago — **0.052 %/yr**. A growth-only encoding therefore misplaces ~2 % of
+   built pixels over 40 years. Decision 5 stands; the two-image "real view" is not
+   needed (section 5).
+
+5. **WSF Tracker passes its tests and is a GO** — 1.11 %/yr growth archipelago-wide,
+   a smooth epoch histogram, a clean Timanfaya, and only 0.5 % of the Tajogaite
+   lava field newly flagged as built (most likely the rebuilt LP-2 road, not
+   fresh-lava confusion). But its 2016 baseline is 1.66× WSF 2015 from eighteen
+   months earlier, which makes the 2015/2016 seam a calibration problem, not a
+   join (section 6).
+6. **Extent and surface disagree in *opposite directions* depending on density** —
+   the cleanest empirical demonstration of the distinction so far (section 3).
+7. **The 1985 baseline is half-confirmed and WSF Evolution misses the other half of
+   the island.** Against the cadastre (98.5 % of Canary buildings carry a construction
+   year), about half (42–61 %) of WSF's "built by 1985" pixels sit on cells with a pre-1985
+   building, a quarter to a third (22–31 %) on cells with **no building at all**. And WSF has no
+   built pixel in ~50 % of the cells that held a pre-1985 building — 89 % on La Gomera.
+   WSF maps *settlement*, not *buildings*; dispersed rural stock is largely invisible
+   to it (section 6c). The cadastre-derived HISDAC-ES becomes a serious candidate for
+   the pre-2016 "when" layer in Spain.
+
+---
+
+## 1. How much is built? (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
+
+Per island, with the same island polygon applied to every product.
+
+| island | area km² | WSF Evo 2015 (30 m) | % | WSF 2015 (10 m) | % | WSF 2019 (10 m) | % | GHSL surface 2020 | % |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|
+| El Hierro | 268 | 2.4 | 0.9 | 1.4 | 0.5 | 2.5 | 0.9 | 1.6 | 0.6 |
+| La Palma | 708 | 18.2 | 2.6 | 7.4 | 1.0 | 11.7 | 1.6 | 9.3 | 1.3 |
+| La Gomera | 369 | 1.8 | 0.5 | 2.0 | 0.5 | 2.9 | 0.8 | 2.3 | 0.6 |
+| Tenerife | 2039 | 128.6 | 6.3 | 60.9 | 3.0 | 79.4 | 3.9 | 58.3 | 2.9 |
+| Gran Canaria | 1566 | 125.5 | 8.0 | 53.3 | 3.4 | 83.2 | 5.3 | 49.0 | 3.1 |
+| Fuerteventura | 1663 | 42.1 | 2.5 | 18.0 | 1.1 | 23.3 | 1.4 | 14.8 | 0.9 |
+| Lanzarote | 809 | 57.9 | 7.2 | 22.6 | 2.8 | 27.1 | 3.4 | 17.5 | 2.2 |
+| La Graciosa | 27 | 0.4 | 1.3 | 0.1 | 0.5 | 0.2 | 0.7 | 0.1 | 0.3 |
+| **archipelago** | **7476** | **376.9** | **5.0** | **165.8** | **2.2** | **230.4** | **3.1** | **152.9** | **2.0** |
+
+**Plausibility.** Official statistics put artificial land near 6 % of the
+archipelago, and artificial surfaces are a *superset* of built-up (they include
+quarries, dumps and sports grounds). Every product above lands below that ceiling,
+in the right order: extent at 30 m (5.0 %) > extent at 10 m (3.1 %) > surface
+(2.0 %). All three are plausible. **measured**
+
+**Dynamic World is not.** Its 307.8 km² for Gran Canaria is 19.7 % of that island
+— higher than the whole archipelago's artificial-land share, and 2.5× the best
+30 m extent estimate for the same island, 6× the surface estimate. Its "Built"
+class includes urban open space and confuses bare ground, crops and greenhouses
+**verified**; the arithmetic here **measured** confirms the scale of the error.
+**Verdict: do not use, not even as an experimental layer, without correction.**
+
+## 2. Lava: one control passes, one test is not yet testable (analysis 2)
+<!-- figures: scripts/analysis_02_negative_controls.py; docs/figures/data/m0_negative_controls.csv @ 2026-09-19 -->
+
+| polygon | role | product | built | share | verdict |
+|---|---|---|---:|---:|---|
+| Timanfaya NP (50.7 km² after removing the LZ-67 road and visitor facilities) | negative control | WSF Evolution 2015 | 0.000 km² | 0.00 % | **PASS** |
+| | | WSF 2015 | 0.000 km² | 0.00 % | **PASS** |
+| | | WSF 2019 | 0.043 km² | 0.08 % | **PASS** |
+| | | GHSL 2015 / 2020 | 0.004 km² | 0.01 % | **PASS** |
+| Tajogaite 2021 lava (10.4 km²) | loss test case | WSF Evolution 2015 | 2.652 km² | 25.6 % | baseline |
+| | | WSF 2015 | 0.556 km² | 5.4 % | baseline |
+| | | WSF 2019 | 0.823 km² | 7.9 % | baseline |
+| | | GHSL 2015 / 2020 | 0.587 / 0.595 km² | 5.7 % | baseline |
+
+**Timanfaya passes cleanly.** 300-year-old bare lava is not mistaken for
+settlement by WSF or GHSL. This removes a risk the plan flagged for Lanzarote and
+Fuerteventura, and means no lava mask is required. **measured**
+
+**Tajogaite is a loss test, not a control** — and a correction to our own test
+design. That lava buried Todoque and part of La Laguna in Sep–Dec 2021, so
+built-up land inside the polygon is *correct* for every dataset evaluated here,
+all of which predate the eruption. It measures what was destroyed. The polygon
+only becomes a test once a product covers 2022+, when those pixels must switch to
+not-built. **That is the single sharpest test available for WSF Tracker.**
+
+**An accidental cross-validation.** GHSL puts 0.587 km² of built *surface* inside
+the lava field; Catastro recorded 1,676 buildings destroyed **verified**. That
+implies ~350 m² per building — plausible for detached housing plus agricultural
+structures in a rural municipality. Two completely independent methods, one
+satellite and one cadastral, agree to within the precision either can claim.
+**estimate** (the per-building figure, not the two source numbers).
+
+**Resolution inflation is worst where settlement is sparse.** In the Tajogaite
+polygon, WSF Evolution at 30 m reports 4.8× the extent that WSF 2015 reports at
+10 m, against ~2.3× archipelago-wide. Scattered rural buildings each switch on a
+whole coarse pixel. **measured**
+
+## 3. Extent vs surface: the direction of the gap depends on density (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
+
+Growth 1990 → 2015, same island polygon, extent (WSF Evolution) vs surface (GHSL):
+
+| island | WSF extent | GHSL surface | which is larger |
+|---|---:|---:|---|
+| Tenerife | +10 % | +13 % | surface |
+| Gran Canaria | +11 % | +57 % | **surface, by far** |
+| La Palma | +17 % | +15 % | ~equal |
+| La Gomera | +18 % | +15 % | ~equal |
+| El Hierro | +26 % | +13 % | extent |
+| Lanzarote | +183 % | +192 % | ~equal |
+| Fuerteventura | +400 % | +162 % | **extent, by far** |
+| La Graciosa | +620 % | +285 % | extent |
+
+This is the extent/surface distinction (docs/concepts.md §3) showing both of its
+faces:
+
+- **Dense, already-urbanised islands** (Gran Canaria): extent saturates — the
+  pixels were already switched on in 1990, so infill adds surface but no extent.
+  Surface growth is 5× extent growth.
+- **Sparse, rapidly developing islands** (Fuerteventura, La Graciosa): the
+  opposite. Each new scattered building switches on a whole 30 m pixel while
+  adding little actual cover, so extent grows 2.5× faster than surface.
+
+Neither product is wrong. **Reporting only one of them would misrepresent
+whichever half of the archipelago it suits less**, which settles the plan's
+decision to publish both.
+
+## 4. The 1985 baseline (analysis 1)
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
+
+WSF Evolution's first year is a baseline: everything built before satellite record
+began. The plan flagged a risk that early Landsat over-detects bare dry soil,
+inflating it.
+
+| island | 1985 km² | 2015 km² | baseline share | growth |
+|---|---:|---:|---:|---:|
+| La Graciosa | 0.05 | 0.36 | 14 % | ×7.2 |
+| Fuerteventura | 7.59 | 42.07 | 18 % | ×5.5 |
+| Lanzarote | 18.50 | 57.92 | 32 % | ×3.1 |
+| El Hierro | 1.88 | 2.37 | 79 % | ×1.3 |
+| La Gomera | 1.48 | 1.76 | 84 % | ×1.2 |
+| La Palma | 15.56 | 18.21 | 85 % | ×1.2 |
+| Gran Canaria | 109.66 | 125.52 | 87 % | ×1.1 |
+| Tenerife | 115.62 | 128.64 | 90 % | ×1.1 |
+| **archipelago** | **270.4** | **376.9** | **72 %** | **×1.4** |
+
+**This is more credible than a uniform saturation would be.** The split is not
+random: the islands with a low baseline and explosive growth (Fuerteventura ×5.5,
+Lanzarote ×3.1) are exactly the two whose tourism development came late, while the
+saturated ones (Tenerife, Gran Canaria) had their build-out in the 1960s–70s,
+before the record starts. WSF Evolution is reproducing known history, not noise.
+**measured**, interpretation ours.
+
+It remains true that for Gran Canaria and Tenerife the product has little to say:
+~88 % of what it will ever show is present in frame one. For those islands the
+1975–1990 GHSL epochs and cadastral data carry the story, not WSF.
+
+**Still to test:** what share of WSF's "built by 1985" pixels contain a building
+the cadastre dates ≤ 1985. That needs HISDAC-ES (not yet fetched).
+
+## 5. Loss and demolition: still unanswered (analysis 7)
+<!-- figures: scripts/analysis_07_loss_rate.py; scripts/analysis_13_hrl_change.py; docs/figures/data/m0_loss_rate.csv; docs/figures/data/m0_hrl_change_2018_2021.csv @ 2026-09-19 -->
+
+The plan needs the real rate at which built-up land stops being built-up, because
+that is the cost of a growth-only time encoding.
+
+Measured between WSF 2015 and WSF 2019 (both 10 m, same producer, 4 years apart):
+
+| | archipelago |
+|---|---:|
+| built 2015 | 165.78 km² |
+| built 2019 | 230.42 km² |
+| apparent loss | **0.02 km² (0.01 %)** |
+| gained | 64.66 km² |
+
+**Loss is exactly zero.** WSF 2019 is effectively a strict superset of WSF 2015.
+Combined with the documented growth-only construction of WSF Evolution and GHSL
+**verified**, no dataset currently in hand can express demolition at all.
+
+**And the gain is not real either.** +64.66 km² in four years is 9.7 %/yr, against
+WSF Evolution's own 2011–2015 rate of 0.49 %/yr — a factor of 20. Per island the
+implied rates are absurd: El Hierro +20 %/yr, Gran Canaria +14 %/yr. WSF 2015 and
+WSF 2019 were built from different sensors, and the difference is method change.
+**measured**
+
+Two consequences for the plan:
+
+- **The 2015/2016 seam is more dangerous than assumed.** If two products from the
+  same producer four years apart differ by 39 %, splicing WSF Evolution (ends
+  2015) onto WSF Tracker (starts 2016-07) will produce a step change that looks
+  like a building boom. Calibration across the seam is mandatory, not optional.
+- ~~The loss question needs a source we do not have.~~ **Answered** (analysis 13,
+  Copernicus Impervious Built-Up Change 2018–2021, 20 m, EPSG:3035, ten 100 km tiles
+  covering all islands; class codes read from the shipped SLD style):
+
+  | island | built 2018 | built 2021 | new | **lost** | loss %/yr |
+  |---|---:|---:|---:|---:|---:|
+  | Tenerife | 59.94 | 60.38 | 0.572 | **0.130** | 0.072 |
+  | Gran Canaria | 55.56 | 56.00 | 0.536 | **0.098** | 0.059 |
+  | Lanzarote | 24.77 | 25.10 | 0.349 | 0.020 | 0.027 |
+  | Fuerteventura | 13.31 | 13.68 | 0.374 | 0.011 | 0.027 |
+  | La Palma | 7.62 | 7.63 | 0.006 | 0.000 | 0.000 |
+  | La Gomera | 2.07 | 2.13 | 0.061 | 0.000 | 0.006 |
+  | El Hierro | 1.51 | 1.56 | 0.052 | 0.000 | 0.000 |
+  | **archipelago** | **164.97** | **166.67** | **1.950** | **0.259** | **0.052** |
+
+  (km², 20 m pixels = exactly 400 m² in the LAEA grid, no latitude correction.)
+  **Real loss is 0.052 %/yr** — a growth-only encoding misplaces ~2.1 % of built pixels
+  over 40 years. Gain is 0.394 %/yr, about a third of Tracker's 1.11 %/yr; Copernicus
+  counts buildings within sealed areas, Tracker counts more (including greenhouses,
+  section 6b). Two caveats: the "technical vs real change" support layer was not in the
+  download, so 0.259 km² is an upper bound on real loss; and La Palma shows **zero**
+  loss, so the 2021 reference imagery predates the Sep–Dec 2021 eruption — the 2024
+  layer is the one that will show Todoque disappear.
+
+## 6. WSF Tracker: plausible, but the seam is worse than we thought (analysis 10)
+<!-- figures: scripts/analysis_10_wsf_tracker.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_wsf_tracker.csv; docs/figures/data/m0_wsf_tracker_lava.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
+
+Read directly from the GeoZarr on source.coop over anonymous HTTP range requests —
+no bulk download of the 1.54M × 4.01M global grid, only the windows we ask for.
+
+**Its internal growth rate is credible.** This is the single most important test it
+passes, and the one WSF 2015 → 2019 failed badly:
+
+| island | built 2026 | baseline (2016-07) | baseline share | added | growth |
+|---|---:|---:|---:|---:|---:|
+| Tenerife | 122.61 | 110.85 | 90.4 % | 11.76 | 1.12 %/yr |
+| Gran Canaria | 101.91 | 92.33 | 90.6 % | 9.58 | 1.09 %/yr |
+| Lanzarote | 30.57 | 28.11 | 92.0 % | 2.46 | 0.92 %/yr |
+| Fuerteventura | 27.02 | 23.72 | 87.8 % | 3.31 | 1.47 %/yr |
+| La Palma | 16.25 | 14.91 | 91.8 % | 1.34 | 0.95 %/yr |
+| La Gomera | 3.69 | 3.27 | 88.5 % | 0.43 | 1.37 %/yr |
+| El Hierro | 3.02 | 2.75 | 91.2 % | 0.26 | 1.01 %/yr |
+| La Graciosa | 0.17 | 0.16 | 95.6 % | 0.01 | 0.48 %/yr |
+| **archipelago** | **305.23** | **276.10** | **90.5 %** | **29.14** | **1.11 %/yr** |
+
+0.5–1.5 %/yr is what real urban growth looks like. The epoch histogram is smooth —
+1.0 to 3.6 km² per half-year with no spikes — which is what genuine construction
+looks like and what a method change does not. **measured**
+
+**Timanfaya: PASS.** 0.029 km² in 50.7 km² of lava = 0.06 %.
+
+**Tajogaite: the sharpest result in M0.** Tracker reports 0.839 km² of built-up
+inside the 2021 lava field, split by when it was *first* detected:
+
+- 0.776 km² first seen **before** 2021-07 — the buildings the lava buried. Correct.
+- 0.062 km² first seen **after** 2021-07 — built-up appearing *on* the lava.
+
+That 6.2 hectares is most likely the LP-2 road rebuilt across the flow, which is
+real construction. It is only 0.5 % of the lava field, far too little for
+systematic fresh-lava-reads-as-built confusion. **This is the strongest available
+evidence that Tracker is not fooled by fresh basalt** — the risk the plan worried
+about most. A visual check against 2023+ imagery would settle it; not done here.
+
+**But Tracker confirms the seam is a real hazard.** There are now *three*
+incompatible 10 m footprints from DLR for essentially the same moment:
+
+| product | date | archipelago built-up |
+|---|---|---:|
+| WSF 2015 | 2015 | 165.8 km² |
+| **WSF Tracker epoch 1** | **2016-07** | **276.1 km²** |
+| WSF 2019 | 2019 | 230.4 km² |
+
+Tracker's 2016 baseline is **1.66× WSF 2015** eighteen months earlier, and larger
+than WSF 2019 from three years *later*. Per island the ratio to WSF 2015 ranges
+1.12× (La Graciosa) to 2.02× (La Palma). These are definitional differences, not
+construction. **measured**
+
+Consequence for the plan: WSF Evolution (ends 2015, 30 m) and WSF Tracker (starts
+2016-07, 10 m) **cannot simply be spliced**. The 30 m → 10 m change would shrink
+the footprint while the definitional change would inflate it, by different amounts
+per island. The two effects partially cancel archipelago-wide (376.9 → 276.1) and
+would be read as a 27 % collapse in urban area at the seam. Calibration is
+mandatory.
+
+**And Tracker cannot show loss either.** Its values encode the *earliest* epoch a
+pixel was seen built, and its overviews aggregate by minimum — growth-only by
+construction, like everything else in the family **verified from the array's own
+metadata**. The La Palma burial is invisible to it.
+
+**The seam per island, with the greenhouse mask applied (analysis 3).** Resolution
+factor = WSF Evolution 2015 (30 m) ÷ WSF 2015 (10 m), same producer and year.
+Definition factor = Tracker epoch 1 (2016-07) ÷ WSF 2015, both 10 m, before and after
+removing greenhouse parcels from Tracker. Agreement = WSF Evolution 2015 vs masked
+Tracker 2016 on a common 100 m grid: Jaccard of cells ≥ 10 % built, and correlation
+of cell fractions.
+
+| island | Evo 2015 (30 m) | WSF 2015 (10 m) | Tracker 2016 → masked | resolution × | definition × raw → masked | Evo→Tracker net × | Jaccard | r |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| Gran Canaria | 125.5 | 53.3 | 92.3 → 75.4 | 2.35 | 1.73 → **1.41** | 0.60 | 0.53 | 0.77 |
+| Tenerife | 128.6 | 60.9 | 110.9 → 95.0 | 2.11 | 1.82 → **1.56** | 0.74 | 0.53 | 0.78 |
+| La Palma | 18.2 | 7.4 | 14.9 → 11.4 | 2.47 | 2.02 → **1.55** | 0.63 | 0.37 | 0.63 |
+| Fuerteventura | 42.1 | 18.0 | 23.7 → 23.3 | 2.33 | 1.31 → 1.29 | 0.55 | 0.49 | 0.79 |
+| Lanzarote | 57.9 | 22.6 | 28.1 → 28.1 | 2.56 | 1.24 → 1.24 | 0.48 | 0.61 | 0.85 |
+
+The greenhouse mask takes 32–46 % off the definitional jump where greenhouses are
+common (the excess over ×1: Gran Canaria 0.73 → 0.41, Tenerife 0.82 → 0.56, La Palma
+1.02 → 0.55) and nothing where they are not. A residual
+×1.24–1.56 remains — the dispersed buildings and infrastructure Landsat never saw
+(section 6c). Spliced naively, the footprint would **drop by 26–52 % at the join,
+differently on every island**; the calibration is per island, as the design requires.
+Spatial agreement between the two eras on a common grid is moderate (r 0.63–0.85),
+worst on La Palma, best on Lanzarote. **measured**
+
+A correction to the plan's wording: averaging a binary mask to 100 m *fractions*
+preserves total area, so the fraction grid does **not** remove coarse-pixel
+inflation — it only provides a common support for cell-by-cell comparison. Only
+surface products (GHSL, HRL, cadastre) are free of the pixel-size effect.
+
+## 6b. The greenhouse question, answered sideways (analysis 11)
+<!-- figures: scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_undated_roads.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
+
+43 % of Tracker's 2016 footprint has no WSF Evolution year. Roads do not explain it:
+28.7 % of those pixels lie within 15 m of an OpenStreetMap road, against 47.0 % of the
+dated pixels (60,603 highway ways, Gran Canaria) **measured**. A map does: the two
+largest undated clusters (129 ha by Vecindario, 63 ha by Gáldar) are greenhouses and
+plastic- or mesh-covered plantations, drawn precisely along the plot boundaries, with
+the dated pixels on the adjacent towns. Sentinel-1 radar sees metal and plastic
+frames as structure; Landsat spectral indices did not.
+
+Two consequences. WSF Tracker's "built-up" is over-inclusive against our definition
+(decision 2) and needs covered agriculture masked out before its totals are comparable
+with anything else — the plan's "plan B" greenhouse mask returns, but for Tracker
+specifically, not for WSF Evolution or GHSL. And a substantial part of the 1.66×
+definitional jump at the 2015/2016 seam is agriculture, not urban growth.
+
+**Quantified against the Gobierno de Canarias Mapa de Cultivos** (1:2 000, surveyed
+2023–24; Global-PCG-10 turned out to have no cells over the Canaries): on Gran Canaria
+**36.5 % of the undated class lies on greenhouse parcels, against 4.6 % of the dated
+class**; 42.4 % on any agricultural parcel; **57.6 % (≈ 23 km²) outside every parcel
+and mostly away from roads — unexplained**, and the target of the M3 stratum
+(analysis 12). The greenhouse mask alone removes ≈ 17 km² (18 %) from Tracker's
+Gran Canaria 2016 baseline.
+
+Timanfaya remains clean; the *lava* mask is still unnecessary. The two masks answer
+different failure modes.
+
+## 6c. The cadastre as an independent witness (analysis 8)
+<!-- figures: scripts/analysis_08_cadastre.py; scripts/analysis_14_baseline_nobuilding.py; docs/figures/data/m0_cadastre_vs_wsf.csv; docs/figures/data/m0_cadastre_bufa_series.csv; docs/figures/data/m0_cadastre_completeness_canarias.csv; docs/figures/data/m0_cadastre_cell_omission.csv; docs/figures/data/m0_cadastre_baseline_refined.csv; docs/figures/data/m0_baseline_nobuilding.csv; docs/figures/data/m0_cadastre_vs_ghsl.csv; docs/figures/data/m0_cadastre_vs_ghsl_thresholds.csv @ 2026-09-19 -->
+
+Spain's cadastre records a construction year for every building; HISDAC-ES (Uhl et
+al. 2023, CC BY 4.0) grids it at 100 m: earliest construction year per cell, and
+building footprint area per 5-year epoch 1900–2020. It shares no data and no failure
+mode with any satellite product. In the Canaries it is unusually complete: **only
+1.5 % of 470,942 buildings lack a construction year** (worst municipality 10 %), and
+cells whose only buildings are undated account for 0.1–0.4 % of the area below —
+so "no dated building" can be read as "no building". **measured**
+
+**Is WSF Evolution's 1985 baseline real?** For its "built by 1985" pixels, what the
+cadastre has in the same 100 m cell:
+
+| island | WSF 1985 km² | building dated ≤ 1985 | earliest building after 1985 | **no building at all** |
+|---|---:|---:|---:|---:|
+| Tenerife | 115.6 | 53.0 % | 21.9 % | **25.0 %** |
+| Gran Canaria | 109.7 | 51.4 % | 17.7 % | **30.5 %** |
+| Lanzarote | 18.5 | 51.7 % | 24.8 % | 23.2 % |
+| La Palma | 15.6 | 61.4 % | 16.4 % | 22.1 % |
+| Fuerteventura | 7.6 | 42.0 % | 29.1 % | 28.7 % |
+
+About half (42–61 %) is confirmed. A quarter to a third (22–31 %) sits in cells with **no building** —
+roads, ports, airports and quarries (the cadastre excludes them, and they *are*
+built-up under our definition), greenhouses, or bare-soil commission. Roughly a fifth
+(16–29 %) sits where the earliest surviving building post-dates 1985 — WSF early, or the whole cell
+rebuilt. Because a 100 m cell is generous (any building within it counts), the
+confirmed share is an upper bound and the no-building share a lower bound.
+
+**And the other direction: what WSF Evolution never saw.** Of the cadastre's cells
+with a building dated ≤ 1985:
+
+| island | cells | WSF has a ≤ 1985 pixel | WSF dates it later | **WSF never flags the cell** |
+|---|---:|---:|---:|---:|
+| Lanzarote | 4,517 | 56.4 % | 20.4 % | 23.2 % |
+| Tenerife | 23,494 | 52.6 % | 1.6 % | **45.7 %** |
+| Gran Canaria | 19,785 | 47.0 % | 1.6 % | **51.4 %** |
+| Fuerteventura | 3,362 | 19.0 % | 38.3 % | 42.7 % |
+| La Palma | 7,665 | 29.8 % | 1.1 % | **69.1 %** |
+| El Hierro | 1,028 | 27.5 % | 1.8 % | **70.6 %** |
+| La Gomera | 2,173 | 10.4 % | 0.8 % | **88.9 %** |
+
+**WSF Evolution has no built pixel at all in roughly half of the 100 m cells that
+held a pre-1985 building — 89 % on La Gomera.** This is the fair reading: WSF maps
+*settlement* — clusters dense enough to register at 30 m — not *buildings*. A lone
+farmhouse in a ravine is a building to the cadastre and nothing to WSF. It is not a
+classification error so much as a definition, but it means WSF Evolution
+under-represents dispersed rural building stock badly, worst on the steep western
+islands. It explains two earlier puzzles at once: La Gomera's "127 % full" (GHSL
+surface exceeding WSF extent — WSF simply misses most of the island's buildings),
+and the Tracker undated class, **51–65 % of which sits in cells that do contain
+cadastral buildings** — dispersed houses that 10 m radar sees and 30 m Landsat
+indices did not.
+
+**Does WSF's year match the cadastre's?** For pixels WSF dates 1986–2015, the
+cadastre's earliest building in the cell agrees within ±5 years in only 9–16 % of
+cases; it is *earlier* in 32–53 %. WSF's year is the year a pixel became detectably
+settled, which comes after the first building. The honest label is **"settlement
+detected by year X"**, not "built in X".
+
+**A third surface series across the seam.** Cadastral building footprint per island
+(surviving buildings, by construction year), km²:
+
+| | 1975 | 1985 | 1990 | 2000 | 2010 | 2015 | 2020 |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| Tenerife | 14.5 | 20.4 | 23.8 | 31.3 | 40.1 | 40.7 | 41.1 |
+| Gran Canaria | 12.8 | 18.5 | 21.3 | 27.2 | 33.3 | 33.8 | 34.1 |
+| Lanzarote | 2.3 | 4.0 | 5.7 | 7.7 | 9.9 | 10.0 | 10.1 |
+| Fuerteventura | 1.1 | 1.9 | 2.7 | 4.4 | 7.2 | 7.4 | 7.5 |
+| **archipelago** | **34.1** | **49.2** | **58.5** | **77.6** | **96.1** | **99.5** | **100.3** |
+
+Growth 1990→2015: **cadastre +70 %**, GHSL surface +42 %, WSF Evolution extent
++36 %. The cadastre's is an upper bound — demolished buildings vanish and a rebuild
+takes the rebuild's date — and the near-flat 2015→2020 (+0.8 %) is registration lag
+as much as a slowdown. Three products, three definitions, growth rates from +36 % to
++70 % for the same islands and years.
+
+**What is the no-building third made of?** (analysis 14, Gran Canaria). Of the
+33.45 km² of WSF's 1985 baseline that sits in cells with no cadastral building:
+
+| explanation | share | cumulative |
+|---|---:|---:|
+| within 15 m of an OpenStreetMap road | 43.3 % | 43.3 % |
+| airport, port, industrial, quarry, marina, golf (OSM) | +7.8 % | 51.1 % |
+| greenhouse parcels (crop map) | +3.5 % | 54.6 % |
+| other agricultural parcels | +7.4 % | 62.0 % |
+| **unexplained — candidate bare-soil commission** | **38.0 % = 12.7 km²** | |
+
+Roads and infrastructure — built-up under our definition, invisible to the cadastre
+— account for half. The unexplained 12.7 km² is **11.6 % of the whole 1985
+baseline** on Gran Canaria and becomes its own stratum in the M3 sample. **measured**
+
+**Is GHSL any better at seeing buildings?** Same cell test, GHSL 1990 against cells
+with a building dated ≤ 1990, with a minimum surface per 100 m cell so that
+interpolation smear does not count:
+
+| island | GHSL ≥ 1 m² | GHSL ≥ 100 m² | GHSL ≥ 500 m² | WSF Evo (any pixel ≤ 1990) | GHSL surface on cells with a building |
+|---|---:|---:|---:|---:|---:|
+| Tenerife | 99 % | 91 % | 55 % | 53 % | 65 % |
+| Gran Canaria | 97 % | 81 % | 39 % | 47 % | 62 % |
+| Lanzarote | 99 % | 81 % | 27 % | 59 % | 62 % |
+| Fuerteventura | 97 % | 73 % | 21 % | 21 % | 51 % |
+| La Palma | 96 % | 82 % | 41 % | 29 % | 70 % |
+| La Gomera | 94 % | 75 % | 33 % | 11 % | 66 % |
+
+GHSL *does* register dispersed buildings that WSF misses — at ≥ 100 m² per cell its
+recall is 73–91 % against WSF's 11–59 % — but it pays for it in precision: 30–49 % of
+its 1990 built surface lies on cells with no cadastral building, and its surface
+exceeds the cadastral footprint by 1.3–2.5× on most islands. GHSL sees more and
+smears it; WSF sees less and sharper. Neither is a *buildings* map. **measured**
+
+**Can the raw cadastre be turned into a 10 m dated layer? Yes — demonstrated.**
+The INSPIRE Buildings feed for Santa Lucía de Tirajana (Vecindario; one zip of
+6.4 MiB from the province-35 ATOM feed) holds 12,481 building polygons in EPSG:32628,
+**98.7 % with a construction date**, readable with GeoPandas and rasterised by year
+onto Tracker's 10 m grid in seconds; the resulting year-first-built COG for the
+municipality is 58 KiB. On that grid:
+
+| | km² |
+|---|---:|
+| cadastral building footprints, any year | 2.32 |
+| footprints built by 1985 / by 2016 | 1.07 / 2.29 |
+| WSF Tracker built-up by 2016-07 | 18.61 |
+| WSF Evolution, any year | 22.35 |
+
+Footprints are ~12 % of the *extent* products — yards, streets and plots make up the
+rest, as they should. Recall is high where settlement is dense: Tracker covers
+**88.6 %** of the 2016 footprints and WSF Evolution **85.0 %** of the pre-1985 ones in
+this town, against ~50 % for WSF island-wide — the dispersed-building gap is a rural
+phenomenon. And only **3.0 %** of Tracker's undated pixels here fall on a building
+footprint: in Vecindario the undated class is the greenhouse belt, as the map showed.
+Scaling to all 88 Canary municipalities is ~500 MiB of downloads and minutes of
+processing. **measured**
+
+**Verdict.** The cadastre is the strongest reference we have for *buildings* in the
+Canaries, and a serious candidate for the pre-2016 "when" layer in Spain — 98.5 %
+dated, 1900→2020, 100 m. WSF Evolution remains the right product for *settlement
+extent* and the only global option; the two answer different questions and the map
+must say which one it is showing.
+
+## 6c′. The other global candidates, through the same test (analysis 15)
+<!-- figures: sensisat/evaluate.py; docs/figures/data/m0_alternatives_gran_canaria.csv; docs/figures/data/m0_alternatives_tenerife.csv @ 2026-09-19 -->
+
+Every remaining global "year first built" product was put through one harness
+(`sensisat/evaluate.py`): extent by year on Gran Canaria, and the cadastre cell test
+at 1990 — recall = share of 100 m cells with a building dated ≤ 1990 that the product
+flags by 1990; precision = share of the cells it flags that contain any building.
+
+| product | source | GC extent 1990 → 2015 | growth | recall | precision | verdict |
+|---|---|---:|---:|---:|---:|---|
+| **WSF Evolution** (30 m, 1985–2015) | DLR | 112.7 → 125.5 | +11 % | **47.0 %** | **59.8 %** | reference |
+| GAIA (30 m, 1985–2018) | Tsinghua, via GEE (host migrated) | 67.0 → 70.0 | +4 %; **flat for 25 years** | 27.7 % | 54.0 % | **NO-GO** |
+| GISA v1 (30 m, 1972–2019) | Zenodo | 36.3 → 102.3 | +181 %, era-shaped jumps; **no data at all on Tenerife** | 13.6 % | 47.1 % | **NO-GO** |
+| GISA-new (30 m, 1985–2021) | Zenodo | 69.0 → 136.6 | +98 %, jumps at 2005/2015; 157 km² in 2020 | 41.0 % | 55.8 % | **NO-GO** |
+| GISD30 (30 m, 1985–2020) | Zenodo (RAR) | 37.8 → 51.4 | +36 %, smooth | 25.6 % | 64.7 % | **NO-GO** as a replacement; usable as a cross-check |
+| GHSL built surface (~92 m, 1975–2030) | JRC | surface, not extent | +58 % | 80.6 % (≥ 100 m²/cell) | ~62 % of surface on building cells | keep, as *surface* (§6c) |
+| Esri / IO annual LULC "Built area" (10 m, 2017–2023) | Planetary Computer, no login | 284.9 (2017) → 288.0 (2023); **2019 spikes to 313.8** | year-to-year "loss" 2.6–11.8 %/yr — flicker | 82.6 % (2017) | 54.5 % | **NO-GO**: Dynamic-World-scale inflation and unusable as a state series |
+
+Tenerife confirms the pattern: GAIA 14.8 km² flat, recall 9 %; GISD30 recall 15 %;
+GISA v1 returns zero pixels for the whole island. **No global product beats WSF
+Evolution on both recall and precision.** The two that see dispersed buildings — GHSL
+and Esri — pay for it with smeared or inflated area; the 30 m Landsat products share
+WSF's detectability limit and add method artefacts of their own. **measured**
+
+The candidate list for the pre-2016 era is therefore closed: **WSF Evolution for
+settlement extent (global), the cadastre for buildings (Spain), GHSL for surface.**
+
+## 6e. Copernicus status layers 2018 / 2021 / 2024 (analysis 16)
+<!-- figures: scripts/analysis_16_copernicus_status.py; docs/figures/data/m0_copernicus_status.csv; docs/figures/data/m0_copernicus_tajogaite.csv; docs/figures/data/m0_copernicus_loss_2021_2024.csv @ 2026-09-19 -->
+
+Downloaded 2026-09-19 (five products, 41 tiles, 25 MiB, EPSG:3035). Four results.
+
+**1. The loss test — passed.** Built-up inside the Tajogaite lava polygon (10.4 km²):
+
+| | 2018 | 2021 | 2024 | change layer 2021→2024, "loss of cover" |
+|---|---:|---:|---:|---:|
+| Copernicus Impervious Built-Up | 0.909 km² | 0.084 km² | **0.011 km²** | **0.060 km²** |
+| WSF Evolution / WSF 2015 / 2019 / Tracker / GHSL | still there | still there | still there | cannot express loss |
+
+87 % of the 2021 built-up inside the flow is gone by 2024, and 0.060 of the
+archipelago's 0.094 km² of 2021–2024 loss is that lava field. Copernicus is the only
+product in the stack that records the burial — the curated `loss-events` layer in the
+design now has a measured source. **measured** (The 2021 status already shows most of
+the loss while the 2018→2021 *change* layer showed none on La Palma: the two products
+are not derived from the same 2021 state. Read the PUM before trusting one over the
+other; the 2024 figure is unambiguous.)
+
+**2. Status layers across releases are not a time series either.** Archipelago totals:
+2018 (v011) **215.5 km²** → 2021 (R02) **184.6** → 2024 (R01) **259.3**. Tenerife goes
+97.9 → 59.9 → 101.6. Buildings did not vanish and reappear; the method changed between
+releases — the same lesson as WSF 2015 → 2019, from a producer that *knows* it, which is
+exactly why Copernicus ships change layers with technical-change flags (P6). **Use the
+change layers for change; never subtract status layers across releases.** The
+2021→2024 change layer gives a real loss rate of **0.017 %/yr** (0.094 km²; gain
+1.455 km² = 0.26 %/yr), against 0.052 %/yr for 2018→2021. Both tiny; decision 5
+holds. **measured**
+
+**3. Copernicus does not count greenhouses — the Sentinel-1 products do.** Of Gran
+Canaria's 27.1 km² of greenhouse parcels, Copernicus IBU 2021 flags **9.5 %** as
+built-up; **WSF Tracker 71.5 %; WSF 2019 67.3 %**. This refines §6b: it is the
+radar-based WSF products (2019 and Tracker, both Sentinel-1 + 2) that read plastic and
+mesh frames as structures; Copernicus (Sentinel-2 optical plus ancillary data) and,
+per §6b, the Landsat-based WSF Evolution do not. Copernicus is the product closest to
+our definition (decision 2). **measured**
+
+**4. Copernicus sees buildings about as well as WSF, more cleanly.** Cadastre cell test,
+IBU 2018 against cells with a building dated ≤ 2018: recall Gran Canaria 48.3 %,
+Tenerife 58.6 %, Fuerteventura 44.9 %, **La Gomera 36.9 %** (WSF Evolution: 10 %);
+precision 57–80 % — the highest of any satellite product tested. On Gran Canaria's 10 m
+grid: Copernicus 2021 = 65.0 km², WSF 2019 = 83.2, Tracker by 2021 = 99.5; Copernicus
+vs Tracker IoU 0.40, with 52.9 km² of Tracker not in Copernicus (greenhouses, yards,
+roads) and 18.4 km² the other way. **measured**
+
+**Verdict: GO.** Copernicus Impervious Built-Up is the independent accuracy anchor, the
+loss source, and the closest match to our definition; its status layers are per-release
+snapshots, its change layers the time series. Coverage stops at the EU's border and at
+2018.
+
+## 6f. CORINE 2018: the "official ~6 %" measured (analysis 17)
+<!-- figures: docs/figures/data/m0_corine_2018.csv; external:one-off measurement in commit 0694845 — no script survives @ 2026-09-19 -->
+
+The CNIG GeoPackage has a dedicated Canarias layer (2,565 polygons, EPSG:4083).
+Artificial surfaces (CORINE class 1xx, 25 ha minimum mapping unit): **469.5 km² =
+6.28 % of the archipelago** — Gran Canaria 9.6 %, Tenerife 8.3 %, Lanzarote 6.9 %,
+Fuerteventura 4.1 %, the western islands 1–2 %. Of it, urban fabric 330.5, industrial /
+commercial 52.6, transport 27.9, quarries / dumps / construction 31.3, green and sport
+27.2 km². **measured**
+
+This completes a ladder of six definitions, all consistent in order:
+
+| product | what a pixel/polygon means | archipelago km² |
+|---|---|---:|
+| CORINE 2018 "artificial" | any artificial land use, ≥ 25 ha blocks, incl. parks, quarries | 469.5 |
+| WSF Evolution 2015 | 30 m pixels containing settlement | 376.9 |
+| WSF 2019 | 10 m pixels containing settlement (incl. greenhouses) | 230.4 |
+| Copernicus IBU 2018 | 10 m pixels with buildings within sealed areas | 215.5 |
+| GHSL 2020 | m² of built surface | 152.9 |
+| cadastre 2020 | building footprints | 100.3 |
+
+Dynamic World's 308 km² for Gran Canaria *alone* exceeds CORINE's artificial total for
+that island (149.8 km²) — every artificial thing CORINE can find, doubled.
+
+## 6d. How big is it, really? (analysis 9)
+<!-- figures: scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/data/m0_sizes_raw.csv @ 2026-09-19 -->
+
+Every dataset's Canary window, re-encoded the way we would publish it (GeoTIFF,
+DEFLATE, sparse blocks, overviews):
+
+| layer | size |
+|---|---:|
+| WSF Evolution 1985–2015, year first built, 30 m, **all 31 years in one file** | **0.48 MiB** |
+| WSF Tracker 2016–2026, epoch first built, 10 m, **all 20 epochs**, 8 island windows | **3.13 MiB** |
+| WSF 2015 binary, 10 m | 1.96 MiB |
+| WSF 2019 binary, 10 m | 2.46 MiB |
+| GHSL built surface 2020, 3 arcsec, m² per cell | 0.83 MiB |
+| **all of the above** | **8.9 MiB** |
+
+The complete 1985–2026 timeline for the whole archipelago at native resolution is
+**3.6 MiB**. The raw download cache is 893 MiB, but 311 MiB of that is the useless
+Global-PCG-10 and 358 MiB the HISDAC-ES municipal tables; the rasters we actually
+use total ~200 MiB. The plan's hosting argument — that no server is needed to
+display this — is confirmed by measurement. **measured**
+
+## 7. What each dataset is good for
+<!-- figures: docs/figures/data/m0_totals.csv; docs/figures/data/m0_wsf_tracker.csv; docs/figures/data/m0_copernicus_status.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
+
+| dataset | verdict | use it for | do not use it for |
+|---|---|---|---|
+| **WSF Evolution** (30 m, 1985–2015) | **GO, as "settlement detected by year"** | the 1985–2015 *settlement* extent timeline; the only annual global series | dispersed rural buildings (misses ~half the cells with a pre-1985 building, 89 % on La Gomera); "built in year X" semantics (its year trails the cadastre's); loss; comparison with 10 m products |
+| **HISDAC-ES / cadastre** (100 m, 1900–2020; raw INSPIRE footprints at 10 m) | **GO** | building-level truth for the Canaries (98.5 % dated); the pre-2016 "when" layer candidate for Spain (10 m rasterisation demonstrated, §6c); a third surface series across the seam | roads and infrastructure (not in the cadastre); demolished buildings (vanish); anywhere outside Spain |
+| GAIA, GISA v1, GISA-new, GISD30 (30 m Landsat, global) | **NO-GO** | GISD30 only as a cross-check | replacing WSF Evolution — none beats it on recall and precision; GAIA is flat for 25 years, GISA v1 has no Tenerife, GISA-new jumps with sensor eras (§6c′) |
+| Esri / Impact Observatory annual LULC (10 m, 2017–2023) | **NO-GO** | — | anything: 285–314 km² on Gran Canaria (Dynamic-World scale), 3–12 %/yr flicker between years (§6c′) |
+| **GHSL built surface** (~92 m, 1975–2020) | **GO** | surface/density; 1975–1985 context; the only pre-1985 source in hand | extent; sub-100 m detail; loss (non-decreasing by construction) |
+| **WSF 2019** (10 m) | **GO, as a snapshot** | one accurate modern extent figure; validating a 10 m footprint | any time series with WSF 2015 |
+| **WSF 2015** (10 m) | **GO, as a snapshot** | the 10 m footprint at the seam year | time series with WSF 2019 |
+| **Dynamic World** (10 m) | **NO-GO** | — | anything; 2.5–6× over-count here |
+| **WSF Tracker** (10 m, 2016–2026) | **GO, with a greenhouse mask** | the 2016–2026 spine; 1.11 %/yr growth is credible; passes Timanfaya; not fooled by fresh lava | splicing onto WSF Evolution without calibration; loss (growth-only); **raw totals — its "built-up" includes greenhouses and covered plantations** (analysis 11 + `docs/figures/undated_pixels_gran_canaria.png`), which our definition excludes |
+| **Copernicus Impervious Built-Up 2018/2021/2024 + change layers** | **GO** | the loss source (Todoque captured); independent 10 m accuracy anchor; closest to our definition (no greenhouses); highest precision vs cadastre | comparing *status* layers across releases (215 → 185 → 259 km² is method, not buildings); anything before 2018 or outside the EU |
+| **CORINE 2018** (Canarias layer) | **GO, as the sanity band** | the official artificial-surface share per island (6.28 % archipelago) | anything fine-grained (25 ha minimum mapping unit) |
+| **HISDAC-ES** | **NOT YET FETCHED** | testing the 1985 baseline against cadastral dates | — |
+
+## 7. Blocked — needs your account (resolved 2026-09-19)
+<!-- figures: scripts/fetch_m0.py @ 2026-09-19 -->
+
+Both account-gated inputs were downloaded by Luca on 2026-09-19 and are analysed in
+§6e (Copernicus Impervious Built-Up 2018/2021/2024 and the 2018–2021 and 2021–2024
+change layers; package `110252.zip`) and §6f (CORINE 2018, `CLC2018_GPKG.zip` —
+note: Deflate64 compression, open with macOS `unzip`, not Python or `bsdtar`). Still
+not downloaded: the Change *Support* layers (technical vs real change) and the
+Imperviousness *Density* layers. Everything else was obtained without any account.
+
+## Reproducing
+<!-- figures: pyproject.toml; scripts/fetch_m0.py @ 2026-09-19 -->
+
+```bash
+pip install -e .                                  # then the extras you need
+python scripts/fetch_m0.py                        # 90 MiB, all public URLs
+python scripts/analysis_01_totals.py              # per-island totals
+python scripts/analysis_02_negative_controls.py   # lava control and loss test
+python scripts/analysis_07_loss_rate.py           # WSF 2015 vs 2019
+python scripts/analysis_10_wsf_tracker.py        # WSF Tracker, read from source.coop
+python scripts/analysis_11_undated_roads.py      # undated class vs OSM roads
+python scripts/analysis_12_undated_vs_crops.py   # undated class vs greenhouse/crop parcels
+python scripts/analysis_13_hrl_change.py         # Copernicus Built-Up Change 2018-2021 (needs data/raw/hrl/110241/)
+python scripts/analysis_08_cadastre.py           # WSF and Tracker vs the cadastre (HISDAC-ES)
+python scripts/analysis_03_seam_factors.py       # per-island seam factors, greenhouse-masked
+python scripts/analysis_09_sizes.py              # published-layer sizes
+python docs/figures/src/m0_results.py            # the summary figure
+python docs/figures/src/undated_pixels.py        # the undated-class map
+```
+
+Tables are written to `docs/figures/data/m0_*.csv`.
+
+Sources: WSF Evolution / 2015 / 2019 © DLR (CC-BY-4.0, CC0-1.0) via
+download.geoservice.dlr.de · GHS-BUILT-S R2023A © European Union, JRC (CC BY 4.0)
+via jeodpp.jrc.ec.europa.eu · WSF Tracker © DLR / MindEarth / ESA GDA (CC BY 4.0)
+via source.coop/mindearth/wsf · island and control boundaries © OpenStreetMap
+contributors (ODbL) via Nominatim and Overpass · Dynamic World figures from the
+project's own earlier notebook.
+
+## 10. The cadastre's construction years are bucketed before 1980 (analysis 19)
+<!-- figures: scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv; docs/figures/data/m0_cadastre_spike_by_island.csv; docs/figures/data/m0_cadastre_year_histogram.csv @ 2026-09-20 -->
+
+Found from the viewer on 2026-09-20: Caleta de Famara (Lanzarote) showed **two**
+buildings standing by 1949, in a village the historical record dates to the late
+1700s, permanently settled from 1888, and credited with *"tres edificios,
+veinticuatro almacenes y veinticinco habitantes"* by 1909.
+
+The raw feed explains it. Those two buildings are dated `1900-01-01`; the next
+block in Famara is dated exactly `1950-01-01`. Round dates are what a register
+writes when it does not know, and the Catastro did it systematically.
+
+### The buckets are not all alike
+
+This distinction matters more than the raw count of "15 spike years", and was
+missed on the first pass. Separating them by size:
+
+| | years | buildings | share of all dated |
+|---|---|---|---|
+| **major buckets** | 1900, 1910, 1920, 1930, 1940, 1950, 1960, 1970, 1975, 1980 | **158,658** | **33.8 %** |
+| minor buckets | 1905, 1915, 1925, 1935, 1945 | 4,471 | 0.95 % |
+
+The ten major buckets:
+
+| year | buildings | × its neighbours | share |
+|---|---|---|---|
+| **1900** | **25,971** | **1,146×** | 5.54 % |
+| 1960 | 25,143 | 10.4× | 5.36 % |
+| 1970 | 25,051 | 6.4× | 5.34 % |
+| 1980 | 24,907 | 5.0× | 5.31 % |
+| 1950 | 16,745 | 22.6× | 3.57 % |
+| 1975 | 14,798 | 3.4× | 3.15 % |
+| 1940 | 9,058 | 24.2× | 1.93 % |
+| 1920 | 8,354 | 78.4× | 1.78 % |
+| 1930 | 6,529 | 24.5× | 1.39 % |
+| 1910 | 2,102 | 30.5× | 0.45 % |
+
+1900 alone is the largest single year in the register — the catch-all for "old,
+date unknown".
+
+**The five minor buckets are statistically real and practically invisible.** They
+sit 3–5× above their neighbours, but their neighbours are tiny, so the absolute
+numbers are negligible. 1915 adds **338 buildings archipelago-wide**; in Santa
+Cruz de Tenerife it is **38 buildings in a city of 23,881**, which is why looking
+for it on the map finds nothing. Anyone hunting for these on screen is wasting
+their time, and the viewer does not flag them — warning about a year that moves
+0.07 % of the data would only teach the reader to ignore the warnings that matter.
+
+### Where it stops
+
+Every bucket is 1980 or earlier. The 46 years from **1981 to 2026 contain not one
+spike**, and hold 44.8 % of all dated buildings. This is a bounded artefact of how
+old records were entered, not a property of the dataset.
+
+### There is real data between the buckets
+
+Also easy to get wrong, and worth stating: the pre-1980 era is a *mixture*, not a
+set of decade stamps.
+
+| 1900–1980 | buildings |
+|---|---|
+| in the 15 bucket years | 163,129 (63 %) |
+| **in ordinary years** | **95,752 (37 %)** |
+
+In 1920–1950 alone, 8,420 buildings sit in the 24 ordinary years — a median of
+~300 a year. The register clearly did know the exact year for a substantial
+minority of old buildings and bucketed the rest.
+
+**This is why the viewer's slider still moves a year at a time below 1980.**
+Snapping it to five-year steps was considered and rejected: it would discard
+95,752 genuine year-level records to disguise an artefact affecting the other
+163,129. Destroying real information to hide a caveat is the wrong trade, and the
+same one the project already refused when it declined to invent a year for the
+undated class and declined to blend across the 2015/2016 seam.
+
+### Per island
+
+| island | dated buildings | in a bucket year |
+|---|---|---|
+| La Gomera | 12,112 | **50.3 %** |
+| La Palma | 34,876 | 45.5 % |
+| El Hierro | 7,014 | 43.2 % |
+| Gran Canaria | 162,108 | 35.4 % |
+| Tenerife | 193,321 | 34.8 % |
+| Lanzarote | 36,026 | 24.9 % |
+| Fuerteventura | 23,732 | 19.0 % |
+
+The small western islands are worst — the same three where WSF Evolution also
+performs worst (El Hierro dates only 24.5 % of its footprint). Before 1980 on La
+Gomera, half the building dates are bucketed **and** the satellite alternative
+barely works. That is the weakest corner of the whole archive. The ratio is
+therefore a usable per-island quality measure, not just a caveat.
+
+### A cross-check that could not run, and what that tells us
+
+An attempt to test the bucket years against WSF Evolution failed for a structural
+reason: WSF Evolution covers 1985–2015 and **no bucket year falls inside it**. The
+bucketing ended before the independent source began, so the two cannot be
+compared — and equally, nothing in the satellite-covered era is affected.
+
+### What was changed
+
+Nothing in the published data. These are the register's own values, and
+substituting different ones would be inventing them. The viewer warns when the
+slider sits below 1980, and names the year when it sits on one of the ten major
+buckets.
+
+## 11. What the cadastre's construction year actually means (analysis 20)
+<!-- figures: scripts/analysis_20_cadastre_date_validity.py; external:Catastro methodology note and the INSPIRE Buildings specification @ 2026-09-20 -->
+
+**Sources** — primary, both from the Dirección General del Catastro:
+[*Metodología — Mapas temáticos*](https://www.catastro.hacienda.gob.es/ayuda/METODOLOGIA_MAPAS%20TEMATICOS_DEF.pdf)
+(§5, "Fecha de construcción o reforma integral") and
+[*Conjunto de datos INSPIRE*](https://www.catastro.hacienda.gob.es/webinspire/documentos/Conjuntos%20de%20datos_en.pdf)
+(English edition, the `dateOfConstruction` structure). Both were fetched and read on
+2026-09-20, not quoted second-hand. Reproduce the measurements with
+`scripts/analysis_20_cadastre_date_validity.py --all`.
+
+Established 2026-09-20, after M3 found that a quarter to a third (24–33 %) of the buildings
+our map dates 2016–2024 were already standing in 2015. That looked like a data
+quality problem. It is not. **The field does not mean what this project assumed**,
+and the Dirección General del Catastro says so in its own methodology:
+
+> *"Fecha de construcción. Fecha de finalización de la construcción que consta en la
+> base de datos catastral. **En el supuesto de rehabilitación integral de una
+> construcción, la fecha de finalización de dicha rehabilitación tiene la
+> consideración de fecha de construcción.**"*
+>
+> — "In the event of comprehensive rehabilitation of a construction, the completion
+> date of that rehabilitation **is considered to be the date of construction**."
+
+The thematic map the Catastro itself publishes from this field is titled
+**"Fecha de construcción o reforma integral"** — *date of construction or
+comprehensive renovation*. A *reforma integral* is defined quantitatively: works
+meeting the planning definition of rehabilitation, or costing **more than 75 %** of
+what the same building would cost to build new.
+
+So a 1970 house comprehensively rebuilt in 2019 is a **2019 building** to the
+Catastro. That is correct for the register's purpose, which is taxation and
+valuation, and wrong only for ours. **M3 did not find an error. It measured a
+definition.**
+
+### A Building is a container of construction units
+
+The INSPIRE dataset specification is explicit:
+
+> *"the values are the dates of construction of each construction unit, if more
+> than one in the field 'beginning' it includes the oldest and field 'end' the
+> latest"*
+
+So `dateOfConstruction` is not an instant but a pair spanning a building's units.
+Measured across all 88 Canary feeds (474,292 buildings, 469,189 dated):
+
+| | |
+|---|---:|
+| `beginning` ≠ `end` | **100,404 (21.40 %)** |
+| of those, `end` later than `beginning` | 100,404 (**100 %**) |
+| gap in years: median / 90th pct / max | 23 / 66 / **1000** |
+| date not on 1 January | 0 (0.00 %) |
+
+`end` is always the later date, and the gap reaches a thousand years — so the
+earlier docstring in `datasets/cadastre.py`, which called it "the end of the
+construction period", was wrong. Nothing is built over a thousand years. It is the
+newest unit's date.
+
+**This confirms that taking `beginning` is the right choice** and was not merely a
+convenient one: it is the oldest date the register still holds, and therefore the
+least rehabilitation-contaminated estimate available. Using `end` would have made
+the layer substantially *more* wrong.
+
+### What cannot be recovered
+
+For the 78.6 % of buildings where `beginning` equals `end` — one construction unit,
+or several sharing a year — a comprehensive rehabilitation has overwritten the
+original date and **nothing in the feed can recover it**. There is no
+`dateOfRenovation`: INSPIRE defines one, Spain does not publish it. The fields
+available are `beginning`, `end`, `conditionOfConstruction`, `beginLifespanVersion`,
+`currentUse`, `numberOfDwellings`, `numberOfFloorsAboveGround` and `officialArea`.
+
+### A test that failed, and why it is worth recording
+
+`beginLifespanVersion` is the moment this version of the record entered the
+database, so a record version cannot predate the building it describes. A building
+"constructed" in 2019 sitting on a 2005 record version would be direct evidence of
+an overwritten date. Measured: **163 of 469,189 (0.03 %)**, and 22 of 6,880 among
+buildings dated 2016 or later.
+
+The test finds nothing because it cannot: when a rehabilitation rewrites the
+construction year it also creates a new record version, so both fields move
+together. The absence of signal here is not evidence that dates are sound.
+
+### Round-year placeholders, measured across the whole archipelago
+
+Eight years hold **32.7 %** of all dated buildings:
+
+| year | buildings | share | vs its neighbours |
+|---|---:|---:|---:|
+| 1960 | 25,143 | 5.36 % | 14.0× |
+| 1970 | 25,051 | 5.34 % | 7.3× |
+| 1980 | 24,907 | 5.31 % | 5.5× |
+| **1900** | 20,136 | 4.29 % | **442.5×** |
+| 1950 | 16,745 | 3.57 % | 28.4× |
+| 1975 | 14,798 | 3.15 % | 4.2× |
+| 2000 | 14,739 | 3.14 % | 2.1× |
+| 1990 | 11,828 | 2.52 % | 2.4× |
+
+1900 is the clamp floor and behaves like one. Note that 1990 and 2000 appear here
+too at 2.1–2.4×, which §10 did not report: the rounding habit weakens after 1980
+but does not stop.
+
+### It depends on what the building is
+
+| use | buildings | dated | on a round year |
+|---|---:|---:|---:|
+| agriculture | 34,416 | 99.9 % | **39.7 %** |
+| public services | 6,723 | 100.0 % | 39.7 % |
+| industrial | 25,589 | 100.0 % | 36.9 % |
+| residential | 387,807 | 100.0 % | 31.8 % |
+| retail | 10,628 | 100.0 % | 26.8 % |
+| office | 1,847 | 100.0 % | **24.4 %** |
+| *(no use recorded)* | 7,282 | **32.1 %** | 47.3 % |
+
+Agricultural buildings are the worst dated and offices the best, which fits how
+each reaches the register. The 7,282 rows with no recorded use are the weakest of
+all: only a third (32.1 %) carry any date, and half of those (47.3 %) sit on a round year.
+
+Also available and unused: `conditionOfConstruction` marks **17,255 buildings as
+`declined` and 1,829 as `ruin`** (4.1 % together). Our layer counts all of them as
+built, which is defensible — a ruin is still a structure on the ground — but it is a
+choice, and a ruin is one candidate explanation for the buildings M3 found in
+"empty" countryside.
+
+### Consequences
+
+1. **Rename what the layer claims.** It is not "year first built". It is **"year
+   first built or comprehensively rebuilt"**, and the viewer and the public page
+   must say so.
+2. **M3's dating finding is explained, not outstanding.** The register is behaving
+   as documented; our label was wrong.
+3. **The pre-2005 dates remain uncheckable** (see `validation.md` §7b), and this
+   finding makes them harder to interpret rather than easier: an old building
+   rebuilt in 1995 carries 1995, and no photograph before 2005 exists to catch it.
+4. **A possible future layer.** `end` gives, for 21 % of buildings, the date of the
+   most recent construction unit. A "buildings with recorded works since year X"
+   layer is derivable from data already downloaded. Not built; recorded here.
+
+## 12. GHSL and the cadastre agree before 2010 and diverge after (analysis 21)
+<!-- figures: scripts/analysis_21_ghsl_vs_cadastre_timing.py @ 2026-09-20 -->
+
+M3 left a gap it could not close: aerial photography of the Canaries begins in
+2005, so **85 % of the building layer carries a date no photograph can check**
+(`validation.md` §7b). GHSL is the only independent source reaching further back —
+its **1975, 1990 and 2000 epochs are observed Landsat**, not interpolation.
+
+The two measure different quantities (GHSL = built *surface* m² per ~93 m cell;
+cadastre = building *footprint* area), so levels are not comparable. Shapes are.
+
+| epoch | GHSL km² | index | cadastre km² | index | increment ratio |
+|---|---:|---:|---:|---:|---:|
+| 1975 | 76.1 | 100 | 34.27 | 100 | |
+| 1980 | 83.8 | 110 | 43.13 | 126 | 0.86 |
+| 1985 | 91.8 | 121 | 49.52 | 145 | 1.26 |
+| 1990 | 100.2 | 132 | 58.91 | 172 | 0.90 |
+| 1995 | 108.7 | 143 | 65.77 | 192 | 1.23 |
+| 2000 | 118.0 | 155 | 77.62 | 227 | 0.79 |
+| 2005 | 125.5 | 165 | 90.64 | 265 | 0.58 |
+| 2010 | 133.6 | 176 | 98.96 | 289 | 0.97 |
+| 2015 | 142.3 | 187 | 100.72 | 294 | **4.95** |
+| 2020 | 152.9 | 201 | 101.98 | 298 | **8.35** |
+
+**Before 2010 the increment ratio stays within 0.58–1.26.** Two independent
+sources, built by unrelated methods, agreeing on *when* growth happened across the
+decades no photograph can reach. This is the only corroboration the pre-2005 dates
+have, and it is better than nothing by a wide margin: had the bucketed pre-1980
+years (§10) been badly distorting the timeline, this is where it would show.
+
+It does **not** validate individual building dates. A building dated 1970 that was
+really built in 1965 is invisible here. What it establishes is that the *aggregate
+trajectory* is not fabricated.
+
+### After 2010 they disagree by a factor of five, then eight
+
+One of them is wrong about the last decade, and the cadastre's own annual series
+says which. Footprint added per year, archipelago-wide, in hectares:
+
+| | |
+|---|---|
+| 2000–2007 mean | **266.5 ha/yr** |
+| 2008 | 203.0 |
+| 2009 | 113.4 |
+| 2010 | 76.5 |
+| 2011 | 51.9 |
+| 2012 | 43.5 |
+| 2013 onward | flat, 18–29 |
+| 2012–2019 mean | **28.1 ha/yr — 11 % of the pre-crash rate** |
+
+That is Spain's construction collapse, recorded year by year with the right shape
+and the right date: a monotonic fall from 2008 to 2013, then flat. **It is not
+registration lag** — 2012 has had fourteen years to register and sits at the same
+level as 2023.
+
+GHSL's **largest increment in the entire series is 10.5 km², in 2015–2020** — the
+exact window the cadastre says construction had all but stopped. GHSL interpolates
+between sparse observations, and a real, abrupt, extensively documented economic
+event is smoothed out of existence.
+
+### Two consequences
+
+1. **GHSL must not be used to date recent growth.** It remains sound for the long
+   trend and for density (decision M1.3 stands), but its timing after ~2005 is an
+   artefact of interpolation. `density-trend`'s band descriptions already mark
+   which epochs are observed; this adds *why that matters*.
+2. **The cadastre's recent years are independently corroborated.** M3 could test
+   only one date boundary; the crash signature is a second, entirely different kind
+   of evidence, and it is hard to produce by accident — a register with fabricated
+   or lagging recent dates would not reproduce the timing of a documented national
+   recession.

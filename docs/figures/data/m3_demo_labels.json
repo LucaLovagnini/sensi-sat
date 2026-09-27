@@ -1,0 +1,103 @@
+{
+ "island": "Gran Canaria",
+ "labelled": "2026-09-20T11:23:56.959Z",
+ "interpreter_saw_the_map": false,
+ "labels": [
+  {
+   "id": "p00008",
+   "lon": -15.6136629,
+   "lat": 27.791674,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00009",
+   "lon": -15.4266336,
+   "lat": 27.9182466,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00003",
+   "lon": -15.5338925,
+   "lat": 28.0100545,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00002",
+   "lon": -15.648787,
+   "lat": 28.1481255,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00011",
+   "lon": -15.525628,
+   "lat": 28.0339497,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00005",
+   "lon": -15.6847196,
+   "lat": 27.769306,
+   "label_2015": "unsure",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00004",
+   "lon": -15.4756816,
+   "lat": 28.0768891,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00001",
+   "lon": -15.5758438,
+   "lat": 27.7492735,
+   "label_2015": "built",
+   "label_2024": "built",
+   "note": null
+  },
+  {
+   "id": "p00007",
+   "lon": -15.4885275,
+   "lat": 28.0909927,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00006",
+   "lon": -15.4346286,
+   "lat": 27.9949628,
+   "label_2015": "unsure",
+   "label_2024": "unsure",
+   "note": null
+  },
+  {
+   "id": "p00010",
+   "lon": -15.4243878,
+   "lat": 27.9810389,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  },
+  {
+   "id": "p00012",
+   "lon": -15.6678313,
+   "lat": 27.8389254,
+   "label_2015": "not",
+   "label_2024": "not",
+   "note": null
+  }
+ ]
+}

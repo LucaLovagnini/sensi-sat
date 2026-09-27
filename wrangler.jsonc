@@ -1,0 +1,37 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "sensisat",
+  "compatibility_date": "2026-09-18",
+  "observability": { "enabled": true },
+
+  // The canonical URL is sensisat.org, and it is the ONLY one: "workers_dev": false
+  // turns off sensisat.ensi-at.workers.dev rather than leaving it as a second address
+  // for the same site. That matters more here than it usually would -- every figure
+  // this project publishes is meant to be cited, and a citation that resolves through
+  // two different hostnames is a citation nobody can check. Changed 2026-09-24, while
+  // the site was still unannounced and no citation of the old URL could exist yet.
+  "workers_dev": false,
+
+  // Preview URLs survive "workers_dev": false only if asked for explicitly -- wrangler
+  // warns about this on deploy and then disables them. They are the `wrangler versions
+  // upload` path: a real deployment on real Cloudflare infrastructure, with real limits,
+  // at a URL that is NOT production. That is how the R2 architecture was proved before
+  // it replaced anything, and `wrangler dev` cannot substitute for it because it does
+  // not enforce the platform limits that were the whole question.
+  "preview_urls": true,
+  "routes": [
+    { "pattern": "sensisat.org", "custom_domain": true },
+    { "pattern": "www.sensisat.org", "custom_domain": true }
+  ],
+  "assets": {
+    // The SHELL only. The rasters live in R2 (data.sensisat.org) and are never
+    // uploaded here: Workers Assets ignores the `Range` header, and a Cloud-Optimized
+    // GeoTIFF is defined by being read in slices. That mismatch is what worker/index.js
+    // used to paper over, pulling each whole object into memory to return a few
+    // kilobytes -- measured at 1.27 ms of CPU per MiB, which put the largest layers
+    // over the Workers Free 10 ms limit. R2 slices at the storage layer, so the Worker
+    // is gone and there is no script here at all: no "main", no "binding", no
+    // "run_worker_first". Requests to static assets are free and unlimited.
+    "directory": "dist/site"
+  }
+}
