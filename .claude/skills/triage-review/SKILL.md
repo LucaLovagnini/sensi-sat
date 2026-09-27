@@ -20,7 +20,8 @@ writing to GitHub**. Reading still works without auth because the repository is
 public:
 
 ```bash
-curl -s "https://api.github.com/repos/LucaLovagnini/sensi-sat/pulls/<N>/comments?per_page=100"
+curl -s "https://api.github.com/repos/LucaLovagnini/sensi-sat/pulls/<N>/comments?per_page=100&page=1"
+# ...and page=2, 3, … until a page returns []
 ```
 
 In that case write every reply into `<scratchpad>/pr-<N>-replies.md` (thread URL,
@@ -28,16 +29,19 @@ verdict, reply text) and hand it to Luca to post. Never switch `gh` accounts you
 
 ## 1. Read everything before answering anything
 
-Fetch the review threads with their resolution state (GraphQL, authenticated):
+**Read every page.** A read that stops at the first page silently drops findings, and
+then "every thread answered" is false. Fetch the review threads with their resolution
+state (GraphQL, authenticated; `--paginate` follows `endCursor` for you):
 
 ```bash
-gh api graphql -f query='query($n:Int!){repository(owner:"LucaLovagnini",name:"sensi-sat"){
-  pullRequest(number:$n){reviewThreads(first:100){nodes{id isResolved path line
-  comments(first:20){nodes{author{login} body url}}}}}}}' -F n=<N>
+gh api graphql -f query='query($n:Int!, $endCursor:String){repository(owner:"LucaLovagnini",name:"sensi-sat"){
+  pullRequest(number:$n){reviewThreads(first:100, after:$endCursor){nodes{id isResolved path line
+  comments(first:50){nodes{author{login} body url}}} pageInfo{hasNextPage endCursor}}}}}' \
+  --paginate -F n=<N>
 ```
 
 CodeRabbit also puts findings on lines outside the diff and "nitpicks" in the review
-body itself; read the review bodies (`gh api repos/LucaLovagnini/sensi-sat/pulls/<N>/reviews`) too.
+body itself; read the review bodies (`gh api --paginate repos/LucaLovagnini/sensi-sat/pulls/<N>/reviews`) too.
 
 ## 2. For each finding: verify, then one of three verdicts
 

@@ -39,10 +39,11 @@ import tempfile
 #: prototype) is filtered there, not here, so the diff stays the true tree.
 PARTS: dict[str, list[str]] = {
     "package": ["sensisat", "tests", "pyproject.toml", ".githooks", ".claude",
-                ".coderabbit.yaml"],
+                ".coderabbit.yaml", ".gitignore"],
     "scripts": ["scripts"],
     "viewer": ["viewer", "wrangler.jsonc", "wrangler.preview.jsonc"],
-    "docs": ["docs", "CLAUDE.md", "README.md", "CONTRIBUTING.md", "LICENSE-DATA.md"],
+    "docs": ["docs", "CLAUDE.md", "README.md", "CONTRIBUTING.md", "LICENSE",
+             "LICENSE-DATA.md"],
 }
 
 REPO_URL = "https://github.com/LucaLovagnini/sensi-sat"
@@ -103,12 +104,16 @@ def main() -> int:
         return 0
 
     if args.delete:
+        failed = []
         for p in parts:
             for b in (f"sweep/{p}", f"sweep/{p}-base"):
                 subprocess.run(["git", "branch", "-D", b], capture_output=True)
-                if args.push:
-                    subprocess.run(["git", "push", "-q", "origin", "--delete", b])
-        return 0
+                if args.push and subprocess.run(["git", "push", "-q", "origin", "--delete", b],
+                                                capture_output=True).returncode:
+                    failed.append(b)
+        for b in failed:
+            print(f"could not delete origin/{b} — it is still on the remote", file=sys.stderr)
+        return 1 if failed else 0
 
     head = git("rev-parse", "HEAD")
     for p in parts:
