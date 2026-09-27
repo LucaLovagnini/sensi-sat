@@ -1,0 +1,72 @@
+[project]
+name = "sensisat"
+version = "0.1.0"
+description = "Urban expansion in the Canary Islands from open satellite and cadastral datasets"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+
+# Milestones 0-2: local data evaluation, then the local processing pipeline.
+# Serving dependencies (titiler, uvicorn, ...) are not needed until M4 — M2's
+# output is a folder of static files, and nothing serves them yet.
+dependencies = [
+    "numpy>=1.26",
+    "pandas>=2.0",
+    "requests>=2.31",
+    "rasterio>=1.3",
+    "shapely>=2.0",
+    "geopandas>=1.0",
+    "pyogrio>=0.7",         # fast vector I/O backend for geopandas
+    "scipy>=1.11",          # morphology helpers for change maps / flicker filtering
+    "matplotlib>=3.8",
+    "pillow>=10.0",
+    "pyproj>=3.6",          # municipality extents come in UTM and must reach lon/lat
+    "pystac>=1.10",         # M2: the STAC catalogue
+    "rio-cogeo>=5.0",       # M2: valid COG writing, not just GeoTIFF + overviews
+]
+
+[project.optional-dependencies]
+# WSF Tracker ships as GeoZarr (Zarr v3) on an S3-compatible endpoint.
+zarr = ["xarray>=2024.1", "zarr>=3.0", "fsspec>=2024.1", "s3fs>=2024.1", "aiohttp>=3.9"]
+# fastapi is a TEST dependency, not a runtime one. Decision 7 says the per-zone
+# statistics must have exactly one implementation, shared by the batch build and by
+# a future web API. tests/test_api_parity.py stands up a throwaway route to prove
+# the two callers return byte-identical JSON; nothing in sensisat/ imports fastapi.
+dev = [
+    "pytest>=8.0", "ruff>=0.5", "jupyterlab>=4.0", "nbformat>=5.9",
+    "fastapi>=0.110", "httpx>=0.27", "stac-validator>=3.3",
+    "cogapp>=3.4",
+]
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+include = ["sensisat*"]
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+# The GEE notebooks are kept as history, not as live code: Dynamic World was
+# disqualified in M0 and nothing in sensisat/ touches Earth Engine. They are
+# preserved unmodified, so they are not linted.
+extend-exclude = ["geeLocalTesting"]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = ["E501"]  # long lines are tolerated in data tables and URLs
+
+[tool.ruff.lint.per-file-ignores]
+# The M0 analysis scripts are deliberately dense one-off notebooks-as-scripts, and
+# their job is to have produced every published number reproducibly. Reformatting
+# them buys nothing and risks the one thing they are for, so the layout rules are
+# relaxed there rather than the scripts being rewritten. Everything in sensisat/,
+# scripts/build.py, scripts/verify_m2.py and tests/ is held to the full set.
+"scripts/analysis_*.py" = ["E401", "E402", "E701", "E702", "F401", "F541", "I001", "B905"]
+# The figure sources are the same kind of artefact: each one produced a specific
+# published figure and is kept so that figure stays reproducible.
+"docs/figures/src/*.py" = ["E401", "E402", "E701", "E702", "F401", "F541", "I001", "B905", "B007"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

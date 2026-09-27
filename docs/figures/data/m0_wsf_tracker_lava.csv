@@ -1,0 +1,3 @@
+polygon,role,polygon_km2,tracker_built_km2,share_pct,first_seen_before_2021_07_km2,first_seen_after_2021_07_km2
+Timanfaya NP,negative control,52.0,0.029,0.06,0.029,0.0
+Tajogaite lava 2021,loss test case,12.07,0.839,6.95,0.776,0.062

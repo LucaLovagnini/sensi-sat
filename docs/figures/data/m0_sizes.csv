@@ -1,0 +1,6 @@
+layer,published_MiB,note
+"WSF Evolution 1985-2015, year-first-built (30 m)",0.484,all 31 years in one file
+WSF 2015 binary (10 m),1.957,one year
+WSF 2019 binary (10 m),2.459,one year
+"GHSL built surface 2020 (3 arcsec, uint16 m2)",0.83,one epoch
+"WSF Tracker 2016-2026, epoch-first-built (10 m), 8 island windows",3.132,all 20 epochs in one file per island

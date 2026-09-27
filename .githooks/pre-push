@@ -1,0 +1,17 @@
+#!/bin/sh
+# Refuse to push while the figure review is stale or the figure gate fails.
+#
+# Enable once per clone:  git config core.hooksPath .githooks
+# This checks the WORKING TREE at push time — the state you are about to publish —
+# not each commit. `git push --no-verify` bypasses it, by design: the hook covers
+# "you forgot", never "you decided to skip it". See docs/design/figure-provenance.md.
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if ! python scripts/review_figures.py --check; then
+  echo "pre-push: the figure review is stale — run /verify-figures, then push again." >&2
+  exit 1
+fi
+if ! python -m pytest -q -p no:cacheprovider tests/test_documented_numbers.py >/dev/null 2>&1; then
+  echo "pre-push: the figure gate fails — python -m pytest tests/test_documented_numbers.py" >&2
+  exit 1
+fi
+echo "pre-push: figure review current, figure gate passed"
