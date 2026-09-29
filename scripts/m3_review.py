@@ -155,14 +155,19 @@ def main() -> None:
     for c in pts:
         r = rows[c["id"]]
         said = f"{r.get('label_2015') or '—'} / {r.get('label_2024') or '—'}"
-        agrees = not (args.stratum == "undated" and r.get("label_2015") == "not"
-                      and r.get("label_2024") == "not")
+        # The same rule as the --only filter, so every stratum is coloured by it.
+        # A point with a missing or unsure year agrees with nothing and disagrees
+        # with nothing, so it gets no colour at all.
+        a, b = r.get("label_2015"), r.get("label_2024")
+        missing = not a or not b
+        unsure = "unsure" in (a, b)
+        cls = "" if missing or unsure else ("disagree" if disagrees(c["id"], c["stratum"]) else "agree")
         cards.append(CARD % {
             "u2015": chip_url(c["lon"], c["lat"], False),
             "u2024": chip_url(c["lon"], c["lat"], True),
             "pid": c["id"], "lat": c["lat"], "lon": c["lon"],
             "said": said, "claim": args.stratum.replace("_", " "),
-            "cls": "agree" if agrees else "disagree",
+            "cls": cls,
         })
 
     args.out.write_text(TEMPLATE % {"stratum": args.stratum.replace("_", " "),
