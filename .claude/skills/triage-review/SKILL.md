@@ -54,6 +54,12 @@ gh api graphql -f query='query($id:ID!, $endCursor:String){node(id:$id){... on P
 CodeRabbit also puts findings on lines outside the diff and "nitpicks" in the review
 body itself; read the review bodies (`gh api --paginate repos/LucaLovagnini/sensi-sat/pulls/<N>/reviews`) too.
 
+**Fetch once, then work from the files.** Save the threads and review bodies to JSON
+in the scratchpad with the token above, and give helpers (subagents, verification
+passes) those files instead of GitHub. Unauthenticated GitHub API calls are capped at
+a few dozen an hour; every helper of a sweep stalled on that cap, with no error beyond
+"no progress". Helpers never need the network to judge a finding.
+
 ## 2. For each finding: verify, then one of three verdicts
 
 Verify the claim against the code — reproduce it with a test or a one-off script
