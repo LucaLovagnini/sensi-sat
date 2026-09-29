@@ -269,7 +269,7 @@ recent growth — is its least reliable layer, and the "about the data" page say
 ---
 
 ## 6. Finding: the undated class is about a quarter (28 %) empty
-<!-- figures: scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20 -->
+<!-- figures: scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-20 -->
 
 `undated` is pixels the map knows are built but cannot date. Decision 15 created a
 dedicated stratum because M0 could not explain it: in the satellite settlement layer
@@ -280,6 +280,11 @@ that class is
 <!--[[[end]]]-->
 
 (M0 measured 43 % on the raw, unmasked Tracker baseline).
+
+That satellite class is why the stratum exists, but it is **not the population
+sampled here**. M3 assesses `buildings-dated` (§0), so its `undated` stratum is the
+cadastre's own undated class — buildings whose recorded year is malformed, the small
+`undated` row of §1 — and every figure below is about that class.
 
 Of 85 usable points: **60 hold a building (70.6 %)**, **24 show nothing at either
 date (28.2 %)**, 1 is new construction.
@@ -293,10 +298,14 @@ Imperviousness — different sensors, different method, never shown to the
 interpreter — read a median **91 %** sealed where the photographs found a building
 and **3 %** where they did not.
 
-**M0's greenhouse hypothesis is refuted.** Radar reads plastic as structure, so
-greenhouses were the leading candidate. **Zero of 107 undated points in the 10 m
-run fell inside a mapped greenhouse parcel**, on either side of the split. What the
-class is remains unexplained; it is now at least measured.
+**M0's greenhouse hypothesis was not tested by this sample, so it is neither
+confirmed nor refuted.** Radar reads plastic as structure, so greenhouses were M0's
+leading candidate for the *satellite* undated class — on Gran Canaria, 36.5 % of it
+lies on greenhouse parcels (`data-evaluation.md` §6b). **Zero of 107 undated points in
+the 10 m run fell inside a mapped greenhouse parcel**, on either side of the split, but
+those points were cadastral buildings with a malformed year, not Tracker pixels, so
+the zero says only that the cadastre's undated buildings are not greenhouses. What the
+cadastral class is remains unexplained; it is now at least measured.
 
 ---
 

@@ -10,7 +10,7 @@ Evidence tags: **measured** = computed from public data files by us · **verifie
 ---
 
 ## 1. A map frame is two layers: someone else's basemap + our thin overlay
-<!-- figures: scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py @ 2026-09-19 -->
+<!-- figures: scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py; scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
 
 ![What a SensiSat frame is](figures/sensisat_preview.png)
 
@@ -18,8 +18,8 @@ A web map is a **basemap** — the background streets or satellite photo, stream
 OpenStreetMap…) exactly as Google Maps loads its imagery — plus **overlays** drawn on top. SensiSat stores
 none of the basemap. Our data are only the overlay: coloured 10–30 m pixels marking built-up land.
 
-That is why our data are tiny. Gran Canaria at 30 m is ~160,000 land pixels, only 8 % are non-zero, and the
-values are small integers in clusters. **All 31 years (1985–2015) for the whole island fit in one 77 KiB
+That is why our data are tiny. Gran Canaria at 30 m is ~2 million land pixels (1,566 km² of island at ~793 m²
+a pixel, §2), only 8 % of them — ~160,000 — are non-zero, and the values are small integers in clusters. **All 31 years (1985–2015) for the whole island fit in one 77 KiB
 file** (measured). DLR's own source tiles, each covering a 2° × 2° square (~200 × 220 km, mostly ocean), are
 659 and 700 KiB.
 
@@ -31,7 +31,7 @@ just a threshold applied in the browser ("show values ≤ 1995"): panels B and C
 is downloaded when the slider moves.
 
 ## 2. Pixels and resolution — the same city has different areas at 30 m and at 10 m
-<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19 -->
+<!-- figures: scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; measured:first archipelago totals of WSF Evolution and WSF 2019, 2026-09-19, before analysis 1 — scope not recorded, no script survives @ 2026-09-19 -->
 
 A raster is a grid of pixels; the **resolution** is the ground size of one pixel. A 30 m pixel is
 "built" if it contains *any* building, so it contributes its full 900 m² to the total even when one house
@@ -40,7 +40,10 @@ the closer the total gets to the real footprint.
 
 Measured on DLR's own products for the whole archipelago: WSF Evolution (30 m) says **455 km²** built by
 2015; WSF2019 (10 m) says **293 km²** in 2019. Same producer, same islands, > 50 % apart purely from pixel
-size. **Areas are only comparable within one resolution.**
+size. **Areas are only comparable within one resolution.** (Those two are the project's first measurement,
+taken before analysis 1 existed, over a scope that was not recorded, and no surviving script reproduces them.
+Analysis 1 clips both products to the same island land polygons and gives **376.9** and **230.4 km²** — the
+figures in the ladder of definitions in `data-evaluation.md` §6f — and the same lesson: 64 % apart.)
 
 A subtlety: WSF Evolution pixels are 0.00026949° on both axes — ~30 m north–south but only ~26.5 m
 east–west at 28° N, so ~793 m² each, not 900. We use 793 m² when converting pixel counts to km².

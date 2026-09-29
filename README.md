@@ -1,7 +1,8 @@
 # SensiSat
 
 Mapping how built-up land in the **Canary Islands** grew from 1900 to today, from
-open satellite and cadastral data, for researchers, conservation NGOs and planners.
+open satellite and cadastral data (the cadastre is Spain's official property
+register, which records every building's footprint and year), for researchers, conservation NGOs and planners.
 
 The project is also a way to learn the geospatial domain properly, so the
 documentation explains its terms rather than assuming them. If a word here is new,
