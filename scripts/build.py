@@ -10,7 +10,7 @@ deployment step later has nothing left to decide.
 
 What one build does, per layer per island:
   1. builds the array from the adapters (sensisat/layers.py)
-  2. writes it as a sparse Cloud-Optimized GeoTIFF
+  2. writes it as a Cloud-Optimized GeoTIFF (dense, not sparse: see raster.write_cog)
   3. runs the Level-1 QA gates and prints their measured values
   4. computes per-zone statistics through the same stats.zonal() a web API
      would call (decision 7 — there must never be a second implementation)
@@ -130,7 +130,7 @@ def independent_agreement(spec, island, built) -> qa.Gate:
                                    transform=built.transform, shape=built.data.shape[-2:])
     except FileNotFoundError as exc:
         return qa.Gate("agreement", spec.name, island, True, None, "Copernicus not present",
-                       f"skipped ({exc.__class__.__name__})")
+                       f"skipped ({exc.__class__.__name__})", skipped=True)
     by_2021 = wt.epochs_up_to(2021.5)
     ours = (built.data > 0) & (built.data <= by_2021)
     return qa.agreement(spec.name, island, ours, theirs == 1)
