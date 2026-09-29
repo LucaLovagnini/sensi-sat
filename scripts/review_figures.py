@@ -138,6 +138,16 @@ def check() -> int:
         print(f"  STALE: the figure review on record is incomplete (missing: {', '.join(gaps)})"
               " — run /verify-figures")
         return 5
+    # The live values are the build's own figures. Without the build on disk they
+    # cannot be read, so figure_set() stores None; and a record written that way
+    # hashes None too, so the two would "match" having compared nothing. That is a
+    # skipped check, which must never read as a passed one (CLAUDE.md #11).
+    if figure_set()["live"] is None or rec.get("figures", {}).get("live") is None:
+        side = "this checkout has no build" if figure_set()["live"] is None else \
+            "the record was attested without a build"
+        print(f"  NOT CHECKED: the live values could not be compared ({side};"
+              " data/processed/statistics/layers.json is what they come from)")
+        return 5
     now = fingerprint()
     if rec.get("fingerprint") == now:
         print(f"  figure review current: {rec['reviewed']} by {rec['reviewer']}")

@@ -67,8 +67,9 @@ def page_text(html: str) -> str:
     return re.sub(r"\s+", " ", re.sub(r"<[^>]+>", " ", html))
 
 
-#: An external href, double- or single-quoted.
-HREF = re.compile(r"""href\s*=\s*(["'])(https?://.+?)\1""", re.I)
+#: An external href attribute, double-, single- or un-quoted. The look-behind keeps
+#: `data-href` and similar out: only a real href is a link a reader can follow.
+HREF = re.compile(r"""(?<![\w-])href\s*=\s*(?:(["'])(https?://.+?)\1|(https?://[^\s"'<>`=]+))""", re.I)
 
 
 def resolves(url: str, timeout: float = 10) -> tuple[bool, str]:
@@ -96,7 +97,7 @@ def main() -> int:
     found = [p for p in PLACEHOLDERS if re.search(rf"\b{re.escape(p)}\b", text)]
     report("no placeholders", not found, "none" if not found else f"found: {', '.join(found)}")
 
-    links = sorted({m.group(2) for m in HREF.finditer(html)})
+    links = sorted({m.group(2) or m.group(3) for m in HREF.finditer(html)})
     for url in links:
         ok, status = resolves(url)
         note = status

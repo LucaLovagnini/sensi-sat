@@ -25,7 +25,7 @@ def record(tmp_path, monkeypatch):
     path = tmp_path / "figures-review.json"
     monkeypatch.setattr(rf, "REVIEW", path)
     monkeypatch.setattr(rf, "figure_set", lambda: {"tokens": {}, "sections": {}, "generated": {},
-                                                   "declarations": {}, "registry": [], "live": None})
+                                                   "declarations": {}, "registry": [], "live": {"area(x)": 1.0}})
     monkeypatch.setattr(rf, "fingerprint", lambda: "f" * 64)
     return path
 
@@ -53,4 +53,13 @@ def test_check_reports_an_incomplete_record_as_stale(record):
     rec = json.loads(record.read_text())
     rec["judgements"]["declarations_plausible"] = " "
     record.write_text(json.dumps(rec))
+    assert rf.check() == 5
+
+
+def test_no_build_on_disk_is_not_checked_rather_than_current(record, monkeypatch):
+    """Without the build the live values read as None on both sides, and None == None
+    would 'match' having compared nothing (CLAUDE.md #11)."""
+    assert rf.attest("Luca", FULL) == 0
+    monkeypatch.setattr(rf, "figure_set", lambda: {"tokens": {}, "sections": {}, "generated": {},
+                                                   "declarations": {}, "registry": [], "live": None})
     assert rf.check() == 5

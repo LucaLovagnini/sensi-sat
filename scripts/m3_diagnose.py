@@ -107,7 +107,13 @@ def main() -> None:
     print("   0.0 m means the point itself is built, so every agreement inside a")
     print("   built stratum must read 0.0 — that is the check on the sampling.\n")
     groups: dict[str, list[tuple[str, float | None]]] = {}
-    for r in judged:
+    # A point whose island has no raster on disk was not measured at all. It must
+    # not join the censored ones below, which WERE measured and found nothing.
+    unmeasured = [r for r in judged if _src("buildings-dated", island[r["id"]]) is None]
+    if unmeasured:
+        print(f"   {len(unmeasured)} points not measured: no buildings-dated raster for "
+              f"{', '.join(sorted({island[r['id']] for r in unmeasured}))}\n")
+    for r in (r for r in judged if r not in unmeasured):
         key = f"{stratum[r['id']]} -> {reference_class(r['label_2015'], r['label_2024'])}"
         groups.setdefault(key, []).append(
             (r["id"], nearest_built_m(r["lon"], r["lat"], island[r["id"]])))
