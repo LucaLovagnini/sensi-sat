@@ -23,10 +23,15 @@ test('no import shadows a JavaScript built-in', () => {
   // minified code, nowhere near the import that caused it. The readout's file cache
   // was the first `new Map()` this file ever had, so the trap lay unsprung for
   // months.
-  const builtins = ['Map', 'Set', 'Array', 'Object', 'Image', 'Event', 'Error',
-                    'Promise', 'Date', 'Number', 'String', 'Text', 'Range'];
-  for (const [, bound] of CODE.matchAll(/^import\s+(\{[^}]*\}|[A-Za-z_$][\w$]*)/gm)) {
-    for (const name of bound.replace(/[{}]/g, '').split(',')) {
+  // Node's own globals, plus the browser constructors Node does not have. A
+  // hand-written list alone would miss the next one nobody thought of.
+  const builtins = [...Object.getOwnPropertyNames(globalThis),
+                    'Image', 'Text', 'Range', 'Node', 'Element', 'Document', 'Window',
+                    'Option', 'Audio', 'Selection', 'Location', 'History', 'Screen'];
+  // Every name the import clause binds: `import X`, `import {A, B as C}` and
+  // `import X, {A}` alike.
+  for (const [, clause] of CODE.matchAll(/^import\s+([^'"]+?)\s+from\s/gm)) {
+    for (const name of clause.replace(/[{}]/g, '').replace(/^\*\s+as\s+/, '').split(',')) {
       const local = name.includes(' as ') ? name.split(' as ')[1] : name;
       assert.ok(!builtins.includes(local.trim()),
                 `app.js imports something as "${local.trim()}", shadowing the built-in`);
