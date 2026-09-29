@@ -16,14 +16,18 @@ more importantly, about *which land* is built. Glued naively, the map would show
 decides how the join is made.
 
 ## 2. What we measured (Milestone 0, `docs/data-evaluation.md`)
-<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
+<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
 
 - The 27 % gap is two opposite effects: pixel size (30 m → 10 m shrinks extent ÷ 2.27)
   and definition (Tracker counts more: × 1.66). They partly cancel archipelago-wide
   and will not cancel the same way per island (definitional ratio 1.12× to 2.02×).
 - **43 % of Tracker's 2016 footprint (115 km²) lies on land WSF Evolution never
-  flagged in any year** — 57 % on Gran Canaria, 48 % on Tenerife, 68 % on La Palma.
-  Only 57 % of Tracker's baseline can inherit a year from Evolution at all.
+  flagged in any year** — 43 % on Gran Canaria, 48 % on Tenerife, 68 % on La Palma.
+  Only 57 % of Tracker's baseline can inherit a year from Evolution at all. (Gran
+  Canaria was first written here as 57 %, which is its *dated* share: 52.69 of
+  92.34 km² in `m0_undated_vs_crops.csv`. The La Palma figure has no surviving
+  output — no CSV covers that island's undated share — so it stands as recorded,
+  unverified.)
 - Both products are growth-only by construction; neither can express loss.
 - GHSL (surface, 1975–2020) spans the seam with a single method. Copernicus HRL
   (2006–2024, once downloaded) does too, and publishes an explicit "technical vs

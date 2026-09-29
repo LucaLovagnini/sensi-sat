@@ -70,7 +70,7 @@
    ],
    "docs/design/seam-harmonization.md": [
     "scripts/analysis_01_totals.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
-    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
+    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19",
     "external:CEOS LPV protocol v1.1 (2025) / Serra Pons & Saurí (2003) / the WSF Evolution GHSL GAIA and GISD30 method papers @ 2026-09-19",
     "scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
     "sensisat/derive.py; sensisat/encoding.py; scripts/analysis_03_seam_factors.py @ 2026-09-19",
@@ -1697,8 +1697,10 @@
      "30 m",
      "43 %",
      "48 %",
+     "52.69",
      "57 %",
-     "68 %"
+     "68 %",
+     "92.34 km²"
     ],
     "## 3. What the literature and the producers actually do": [
      "100 m",
@@ -2396,12 +2398,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "7a7e17a81f89b667cfb7a92d456d28ceacd610fe51016b235fd3f449a454f977",
+ "fingerprint": "00f584ce0f3992ff10bd016f795b4b171e60c8334abb93a0a977d724307e2a7b",
  "judgements": {
-  "declarations_plausible": "Every added figure traced to its declared source: 1,566 km2 and 36.5 % to m0_totals.csv and m0_undated_vs_crops.csv (Gran Canaria rows); 376.9 / 230.4 km2 and 64 % re-summed from m0_totals.csv island rows (63.5 %); 793 m2 is derived in the same file's section 2; 52.0 km2 from m0_wsf_tracker_lava.csv; 71 % as 0.060/0.084 from m0_copernicus_tajogaite.csv; 16x as 1,317,818/82,364 under viewer §5's measured source. The concepts §2 declaration honestly records that 455/293 have no surviving script.",
-  "generated_from_right_fact": "No generated region and no live value changed since this morning's full review; the delta is prose figures and declarations only.",
-  "registry_holds_no_live_claim": "No registry entry added or removed. The new 26-52 % in figure-provenance §1 coincides with seam_drop_range() but sits in a dated account of the 2026-09-21 defect, so it is a record, not a live claim; 376.9 is the registered WSF Evolution total."
+  "declarations_plausible": "seam-harmonization §2 gains 52.69 and 92.34 km2, both read from m0_undated_vs_crops.csv (Gran Canaria: 52.69 dated + 39.65 undated = 92.34 km2, so undated 43 %, dated 57 %); the declaration now names that CSV. La Palma's 68 % remains as recorded and is marked unverified in the text, since no surviving output covers it.",
+  "generated_from_right_fact": "No generated region and no live value changed; the delta is one prose section and its declaration.",
+  "registry_holds_no_live_claim": "No registry entry added or removed; the new tokens are M0 measurements quoted as the evidence for a corrected transcription, not claims about the published layers."
  },
- "reviewed": "2026-09-29",
- "reviewer": "Claude Opus 5.5 (figure-set delta against the 2026-09-29 attestation read in full, at Luca's invocation of /verify-figures)"
+ "reviewed": "2026-09-30",
+ "reviewer": "Claude Opus 5.5 (figure-set delta against the 2026-09-29 attestation, at Luca's invocation of /verify-figures)"
 }
