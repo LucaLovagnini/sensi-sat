@@ -33,6 +33,7 @@ import os
 import subprocess
 import sys
 import tempfile
+from pathlib import Path
 
 #: The parts, as pathspecs. Everything the reviewer would read is in exactly one
 #: part; what `.coderabbit.yaml` filters out (the bundle, images, the retired GEE
@@ -47,23 +48,32 @@ PARTS: dict[str, list[str]] = {
 }
 
 REPO_URL = "https://github.com/LucaLovagnini/sensi-sat"
+REPO_SLUG = "LucaLovagnini/sensi-sat"
+ROOT = Path(__file__).resolve().parents[1]
+
+# Every variable that tells git WHICH repository, index or object store to use.
+# Each one overrides the working directory, and a git hook exports several of them.
+GIT_LOCATION_VARS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_DIR",
+                     "GIT_OBJECT_DIRECTORY", "GIT_ALTERNATE_OBJECT_DIRECTORIES",
+                     "GIT_NAMESPACE", "GIT_PREFIX")
 
 
 def clean_env(**extra: str) -> dict:
     """The environment without the variables that redirect git to another repository.
 
-    A git hook exports GIT_DIR (and sometimes GIT_WORK_TREE), and those win over the
-    working directory. Run from inside a hook, `--delete --push` would otherwise
+    A git hook exports GIT_DIR (and sometimes GIT_WORK_TREE or GIT_INDEX_FILE), and
+    those win over the working directory. Run from inside a hook, `--delete --push` would otherwise
     delete branches on *that* repository's origin. `sensisat.facts.data_version`
     was bitten by the same inheritance.
     """
-    env = {k: v for k, v in os.environ.items() if k not in ("GIT_DIR", "GIT_WORK_TREE")}
+    env = {k: v for k, v in os.environ.items() if k not in GIT_LOCATION_VARS}
     return {**env, **extra}
 
 
 def git(*args: str, env: dict | None = None, check: bool = True) -> subprocess.CompletedProcess:
+    # cwd=ROOT: the repository this script belongs to, wherever it was started from.
     return subprocess.run(["git", *args], check=check, capture_output=True, text=True,
-                          env=env or clean_env())
+                          env=env or clean_env(), cwd=ROOT)
 
 
 def out(*args: str, env: dict | None = None) -> str:
@@ -113,11 +123,19 @@ def main() -> int:
     if args.list:
         for p in parts:
             fs = files(p)
-            size = sum(os.path.getsize(f) for f in fs if os.path.exists(f))
+            size = sum((ROOT / f).stat().st_size for f in fs if (ROOT / f).exists())
             print(f"{p:8} {len(fs):4} files {size / 1024:8.0f} KiB")
         left = sorted(tracked - covered)
         print(f"in no part ({len(left)}): {', '.join(left) or '-'}")
         return 0
+
+    if args.push:
+        # Every remote write below goes to `origin`; make sure that is this project.
+        url = git("remote", "get-url", "origin", check=False).stdout.strip()
+        if REPO_SLUG not in url:
+            print(f"origin is {url or 'not set'}, not {REPO_SLUG} — refusing to push",
+                  file=sys.stderr)
+            return 1
 
     if args.delete:
         # A branch that is already absent counts as deleted; one that is present and
@@ -128,12 +146,17 @@ def main() -> int:
                 if (git("show-ref", "--verify", "-q", f"refs/heads/{b}", check=False).returncode == 0
                         and git("branch", "-D", b, check=False).returncode):
                     failed.append(b)
-                if (args.push
-                        and out("ls-remote", "--heads", "origin", f"refs/heads/{b}")
+                if not args.push:
+                    continue
+                remote = git("ls-remote", "--heads", "origin", f"refs/heads/{b}", check=False)
+                if remote.returncode:
+                    # Could not even ask: record it and go on with the other branches.
+                    failed.append(f"origin/{b} (could not check: {remote.stderr.strip()})")
+                elif (remote.stdout.strip()
                         and git("push", "-q", "origin", "--delete", b, check=False).returncode):
                     failed.append(f"origin/{b}")
         for b in failed:
-            print(f"could not delete {b} — it still exists", file=sys.stderr)
+            print(f"could not delete {b} — it may still exist", file=sys.stderr)
         return 1 if failed else 0
 
     head = out("rev-parse", "HEAD")
