@@ -83,9 +83,9 @@ back a quarter to a third (24–33 %) wrong, and there is separate evidence (`da
 where buildings are; treat its years before 2005 as unverified.**
 
 **One limit worth stating twice.** All of this is about **30-metre squares**, not
-individual buildings. We can say the map is right about where buildings are to
-within 30 metres. We cannot say it is right to within 10 metres — §9 explains why
-nobody could, using aerial photographs.
+individual buildings. Each check asked whether a square holds a building, not where
+inside it the building sits, so nothing here measures placement finer than 30
+metres — §9 explains why nobody could, using aerial photographs.
 
 ---
 
@@ -106,9 +106,9 @@ the accuracy.
 **The unit is a 30 m square, so every number below is about 30 m squares.** The
 question put to the interpreter was *"is there a building anywhere inside this
 square?"* and the map's claim was read the same way. This is a real limitation: the
-assessment says the map is right about **where buildings are to within 30 m**, not
-to within 10 m. §9 explains why a finer unit is not measurable with aerial
-photography.
+assessment says whether a **30 m square holds a building**, and nothing about where
+inside the square it sits. §9 explains why a finer unit is not measurable with
+aerial photography.
 
 ---
 

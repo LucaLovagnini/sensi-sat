@@ -78,6 +78,7 @@ class RangeHandler(http.server.SimpleHTTPRequestHandler):
             f.close()
             self.send_response(416)
             self.send_header("Content-Range", f"bytes */{size}")
+            self.send_header("Content-Length", "0")   # no body; keeps keep-alive in step
             self.end_headers()
             return None
 
