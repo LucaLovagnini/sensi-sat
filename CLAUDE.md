@@ -361,9 +361,12 @@ needs no login — the repository is public — so read with `curl` against
 
 The personal account sits in the same `gh` keyring, not active. Use it per command,
 never by switching the default — switching would change the work account for every
-other shell on the machine:
+other shell on the machine. And never `export` it: an exported token is inherited by
+everything that shell runs next, including the tests and the pre-push hook, which
+execute a branch's code. Prefix each `gh` write instead, so only that one process
+holds it:
 
 ```bash
-export GH_TOKEN=$(gh auth token --user LucaLovagnini)
-[ "$(gh api user --jq .login)" = LucaLovagnini ] || { echo "not the personal account"; false; }
+GH_TOKEN=$(gh auth token --user LucaLovagnini) gh api user --jq .login   # must print LucaLovagnini
+GH_TOKEN=$(gh auth token --user LucaLovagnini) gh pr create …
 ```

@@ -58,6 +58,21 @@ GIT_LOCATION_VARS = ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_COMMON_D
                      "GIT_NAMESPACE", "GIT_PREFIX")
 
 
+def origin_is_ours(url: str) -> bool:
+    """Is this remote URL this repository on GitHub — not a fork with a similar name?
+
+    Accepts the forms a clone can have: the SSH alias `github-personal:` (see
+    CLAUDE.md, Git), `git@github.com:`, `ssh://git@github.com/` and `https://github.com/`,
+    each ending in exactly the slug, with or without `.git` and a trailing slash.
+    """
+    path = url.strip().removesuffix("/").removesuffix(".git")
+    for host in ("github-personal:", "git@github.com:", "ssh://git@github.com/",
+                 "https://github.com/"):
+        if path.startswith(host):
+            return path[len(host):] == REPO_SLUG
+    return False
+
+
 def clean_env(**extra: str) -> dict:
     """The environment without the variables that redirect git to another repository.
 
@@ -132,7 +147,7 @@ def main() -> int:
     if args.push:
         # Every remote write below goes to `origin`; make sure that is this project.
         url = git("remote", "get-url", "origin", check=False).stdout.strip()
-        if REPO_SLUG not in url:
+        if not origin_is_ours(url):
             print(f"origin is {url or 'not set'}, not {REPO_SLUG} — refusing to push",
                   file=sys.stderr)
             return 1

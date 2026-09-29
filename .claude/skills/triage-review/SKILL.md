@@ -12,12 +12,14 @@ thread that was answered from one that was clicked away. This skill is the answe
 ## 0. Identity first — never a work account
 
 ```bash
-export GH_TOKEN=$(gh auth token --user LucaLovagnini)   # the personal account, this shell only
-gh api user --jq .login        # must print LucaLovagnini
+GH_TOKEN=$(gh auth token --user LucaLovagnini) gh api user --jq .login   # must print LucaLovagnini
 ```
 
 The machine's active `gh` login is a work account; the personal one is in the same
-keyring and is used per command through `GH_TOKEN`, never by `gh auth switch`. If the
+keyring and is used per command through `GH_TOKEN`, never by `gh auth switch`. Put
+the prefix on **each** `gh` command that writes, and never `export` it: verifying a
+finding means running a branch's tests or scripts, and an exported token would be
+readable by that code. If the
 check prints anything else, **stop writing to GitHub**. Reading still works without auth because the repository is
 public:
 
