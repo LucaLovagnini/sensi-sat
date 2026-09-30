@@ -229,9 +229,15 @@ def data_version() -> str:
         v = version("sensisat")
     except PackageNotFoundError:
         v = "0.1.0"
+    # Git exports GIT_DIR (and friends) to hooks; inherited, it makes `git` treat the
+    # cwd as the work-tree root, the log comes back empty, and the mtime fallback
+    # below silently supplies the checkout date instead. Let git find the repo itself.
+    import os
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     try:
         date = subprocess.run(["git", "log", "-1", "--format=%cs", "--", str(STATS)],
-                              cwd=STATS.parents[2], capture_output=True, text=True, check=True).stdout.strip()
+                              cwd=STATS.parents[2], env=env,
+                              capture_output=True, text=True, check=True).stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         date = ""
     if not date:
