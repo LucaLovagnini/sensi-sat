@@ -18,7 +18,7 @@ import {readFileSync} from 'node:fs';
 import {
   YEAR_OFFSET, UNDATED, NEAR_MAX_BLOCKS, FAR_ONLY_KINDS,
   regimeFor, blockSpan, pixelAreaM2, rowAreas, areaHistogram, statsFromHistogram,
-  intersects, islandsInView, sumStats, describe, emptyStats, addedSince,
+  intersects, islandsInView, sumStats, describe, allIslands, emptyStats, addedSince,
 } from './count.js';
 
 const close = (a, b, eps = 1e-9) =>
@@ -57,7 +57,8 @@ test('panning at a fixed zoom cannot change which regime answers', () => {
   // to the reader.
   const tile = {width: 1024, height: 1024};
   const size = {width: 2831, height: 1995};
-  const spans = [0, 1, 500, 1023, 1024, 1500].map(() => blockSpan(size, tile));
+  const spans = [0, 1, 500, 1023, 1024, 1500]
+    .map((o) => blockSpan({left: o, top: o, ...size}, tile));
   assert.equal(new Set(spans).size, 1, 'blockSpan must not vary with position');
   assert.equal(spans[0], 3 * 2);
 });
@@ -320,6 +321,19 @@ test('"added since" subtracts two cumulative totals, identically in both regimes
   close(addedSince(series, 1950), 6);
   close(addedSince(series, 1990), 1);
   close(addedSince(series, 2026), 0);
+});
+
+test('a year the series does not list carries the last total forward', () => {
+  // Between two listed years the running total has not moved, so a year that falls
+  // in a gap reads the total of the year before it — never NaN.
+  const series = {1900: 1, 1950: 4, 2026: 10};
+  close(addedSince(series, 1949), 9);
+  close(addedSince(series, 1951), 6);
+});
+
+test('"all islands" takes its count from the catalogue', () => {
+  assert.equal(describe('far', ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'], 8), 'all eight islands');
+  assert.equal(allIslands(7), 'all seven islands');
 });
 
 test('a year outside the published range clamps rather than returning nothing', () => {
