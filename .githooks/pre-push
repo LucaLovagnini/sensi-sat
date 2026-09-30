@@ -2,16 +2,42 @@
 # Refuse to push while the figure review is stale or the figure gate fails.
 #
 # Enable once per clone:  git config core.hooksPath .githooks
-# This checks the WORKING TREE at push time — the state you are about to publish —
-# not each commit. `git push --no-verify` bypasses it, by design: the hook covers
-# "you forgot", never "you decided to skip it". See docs/design/figure-provenance.md.
+# The checks run on the WORKING TREE. That is only the state being published when
+# the working tree IS the commit being pushed, so the hook first insists on that:
+# every ref pushed must be HEAD, and no figure-bearing file may differ from HEAD.
+# Otherwise a newer attestation sitting uncommitted could pass a stale commit, or
+# an unrelated edit could block a good one. `git push --no-verify` bypasses all of
+# it, by design: the hook covers "you forgot", never "you decided to skip it" --
+# branch protection on GitHub is the gate that cannot be skipped.
+# See docs/design/figure-provenance.md.
 cd "$(git rev-parse --show-toplevel)" || exit 1
+
+head=$(git rev-parse HEAD)
+zero=0000000000000000000000000000000000000000
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [ "$local_sha" = "$zero" ] && continue          # a branch deletion publishes nothing
+  if [ "$local_sha" != "$head" ]; then
+    echo "pre-push: $local_ref is not the checked-out commit, so the figure checks" >&2
+    echo "  below would judge the wrong files. Check it out and push from there." >&2
+    exit 1
+  fi
+done
+
+surfaces="docs CLAUDE.md README.md viewer/about-the-data.html viewer/*.js sensisat/provenance.py sensisat/facts.py"
+if ! git diff --quiet HEAD -- $surfaces; then
+  echo "pre-push: figure-bearing files differ from the commit being pushed:" >&2
+  git diff --name-only HEAD -- $surfaces | sed 's/^/  /' >&2
+  echo "  commit them or set them aside, so the checks see what is published." >&2
+  exit 1
+fi
+
 if ! python scripts/review_figures.py --check; then
   echo "pre-push: the figure review is stale — run /verify-figures, then push again." >&2
   exit 1
 fi
-if ! python -m pytest -q -p no:cacheprovider tests/test_documented_numbers.py >/dev/null 2>&1; then
-  echo "pre-push: the figure gate fails — python -m pytest tests/test_documented_numbers.py" >&2
+if ! out=$(python -m pytest -q -p no:cacheprovider tests/test_documented_numbers.py 2>&1); then
+  printf '%s\n' "$out" | tail -40 >&2
+  echo "pre-push: the figure gate fails (output above)." >&2
   exit 1
 fi
 echo "pre-push: figure review current, figure gate passed"
