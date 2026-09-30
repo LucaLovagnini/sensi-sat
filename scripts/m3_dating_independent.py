@@ -115,6 +115,9 @@ def main() -> None:
                    ("old", "cadastre says built by 2015"),
                    ("empty", "cadastre says nothing built")):
         h, n = grand[k]
+        if not n:                     # a class with no pixels has no rate to show
+            print(f"   {lbl:32s} no pixels in this class")
+            continue
         print(f"   {lbl:32s} WSF 2015 fires on {100*h/n:5.1f} %  ({h:,} / {n:,})")
     print("   -> useless on its own: a new infill building sits in an old town.\n")
 
