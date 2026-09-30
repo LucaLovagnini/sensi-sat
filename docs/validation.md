@@ -303,9 +303,11 @@ confirmed nor refuted.** Radar reads plastic as structure, so greenhouses were M
 leading candidate for the *satellite* undated class — on Gran Canaria, 36.5 % of it
 lies on greenhouse parcels (`data-evaluation.md` §6b). **Zero of 107 undated points in
 the 10 m run fell inside a mapped greenhouse parcel**, on either side of the split, but
-those points were cadastral buildings with a malformed year, not Tracker pixels, so
-the zero says only that the cadastre's undated buildings are not greenhouses. What the
-cadastral class is remains unexplained; it is now at least measured.
+those points were cadastral buildings with a malformed year, not Tracker pixels. So
+the zero says only that none of these sampled buildings sat inside a *mapped*
+greenhouse parcel — not that the cadastral class holds no greenhouses, which a
+sample this size cannot rule out. What the cadastral class is remains unexplained;
+it is now at least measured.
 
 ---
 

@@ -16,8 +16,10 @@ and both explain why its sizes differ slightly from what `build.py` writes now:
   DEFLATE compression alone. See CLAUDE.md trap #12.
 - The overviews here (the pre-shrunk, zoomed-out copies stored inside a COG) were
   built with `write_cog`'s default then, nearest-neighbour. The live pipeline builds
-  categorical layers' overviews with `mode` (the most common value in each block),
-  so scattered buildings do not vanish when zoomed out. See CLAUDE.md trap #13.
+  categorical layers' overviews with `mode`: the most common value among a block's
+  non-empty pixels, because 0 is the files' nodata value and GDAL leaves nodata out
+  of the vote. A block holding any building therefore keeps a building's value, so
+  scattered buildings do not vanish when zoomed out. See CLAUDE.md trap #13.
 
 Output: docs/figures/data/m0_sizes.csv
     python scripts/analysis_09_sizes.py

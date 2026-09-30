@@ -188,7 +188,7 @@ Measured on the published `buildings-dated` mosaic:
 | 12.6 km | 1,317,818 px | 6 | ~280 ms |
 | 50.6 km | 21,085,093 px | 35 | ~2,500 ms |
 
-The middle two rows differ sixteenfold (16×) in pixels and cost the same. So the budget is
+The first two rows differ sixteenfold (16×) in pixels and cost the same. So the budget is
 `NEAR_MAX_BLOCKS = 8`, roughly a 25 km view — most of an island, which is the range
 over which a reader expects the number to follow the map. Beyond it the published
 island totals are instant and exact, and counting would buy nothing but seconds of
