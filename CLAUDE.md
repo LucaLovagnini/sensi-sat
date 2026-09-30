@@ -336,11 +336,14 @@ exactly that part. Those pull requests are triaged and closed, never merged.
   for a thread being resolved, so the check would go stale between runs. Until then
   "reply before resolve" is the skill's rule, not a gate.
 
-**Setup, once, by Luca** (the machine's default `gh` login is a work account, so no
-session may make these changes): install the CodeRabbit app on the repository; after
-its first review has posted a status, add a branch protection rule on `main` —
-require a pull request (no approvals needed), require CodeRabbit's status check,
-require conversation resolution, and do not allow bypassing, administrators included.
+**Setup — done.** Luca installed the CodeRabbit app in the browser. Branch protection
+on `main` was set through the API at his request on 2026-09-30, with the personal
+token: a pull request is required with no approvals, the status context `CodeRabbit`
+must pass, every conversation must be resolved, administrators are included, and
+force-pushes and deletion are refused. Merged head branches delete themselves
+(`delete_branch_on_merge`). Changing any of this is a repository-security setting:
+it is Luca's decision, never a session's own initiative. Read the rule back with
+`gh api repos/LucaLovagnini/sensi-sat/branches/main/protection`, token prefixed.
 
 ## Git
 
