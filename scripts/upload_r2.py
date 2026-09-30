@@ -84,7 +84,11 @@ def main() -> int:
         print(f"no {DATA} — run `python scripts/publish.py` first.")
         return 1
 
-    known = {} if args.force else json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    # What the bucket is recorded as holding, read even under --force: --force means
+    # "re-upload everything", not "forget what production is serving" -- the
+    # index.json guard below must still compare against the real record.
+    recorded = json.loads(MANIFEST.read_text()) if MANIFEST.exists() else {}
+    known = {} if args.force else recorded
     files = sorted(f for f in DATA.rglob("*") if f.is_file())
 
     # SHARED: index.json is the one object BOTH the deployed viewer and any preview
@@ -98,7 +102,7 @@ def main() -> int:
         shared = [f for f in files if f.name == "index.json" and f.parent == DATA]
         for f in shared:
             key = f.relative_to(DATA).as_posix()
-            if known.get(key) != digest(f):
+            if recorded.get(key) != digest(f):
                 print(f"REFUSING to overwrite {key}: the deployed viewer reads it, and a "
                       f"shape it does not understand breaks the live map silently.\n"
                       f"  --allow-index   if the viewer that reads it is being deployed too\n"

@@ -59,9 +59,13 @@ VIEWER_FILES = ["index.html", "about-the-data.html", "style.css", "about.css",
 
 def build_bundle() -> None:
     """Rebuild the JavaScript bundle (guardrail G3) so dist/ is never stale."""
+    # Refuse rather than warn: carrying on would ship whatever app.bundle.js is on
+    # disk, which may predate the last edit to app.js, and nothing downstream checks.
     if not (VIEWER / "node_modules").exists():
-        print("  ! node_modules missing — run `npm install` in viewer/ first")
-        return
+        raise SystemExit("  refusing to assemble dist/: viewer/node_modules is missing, so the "
+                         "bundle cannot be rebuilt and app.bundle.js may be stale.\n"
+                         "  run `npm install` in viewer/, or pass --skip-bundle to ship the "
+                         "bundle on disk knowingly")
     print("  bundling javascript…")
     subprocess.run(["npm", "run", "build", "--silent"], cwd=VIEWER, check=True,
                    capture_output=True)

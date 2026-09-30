@@ -81,6 +81,9 @@ def compare(args) -> None:
 
     both = [p for p in b if p in a and judged(a, p) and judged(b, p)]
     print(f"{len(both)} points judged in both passes\n")
+    if not both:
+        print("nothing to compare: no point was judged in both passes.")
+        return
 
     from collections import Counter
     changed: list[tuple] = []
@@ -122,7 +125,9 @@ def compare(args) -> None:
 def main() -> None:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--sample", default="m3_30m")
+    ap.add_argument("--sample", default=None,
+                    help="sample directory under data/processed (default: m3_30m; with "
+                         "--compare, the recheck in --out when it exists)")
     ap.add_argument("--labels", help="the first pass, to know which points were judged")
     ap.add_argument("--strata", nargs="+", default=["new_2015_2024", "undated"])
     ap.add_argument("--out", default="m3_30m_recheck")
@@ -133,9 +138,13 @@ def main() -> None:
     ap.add_argument("--verbose", action="store_true")
     args = ap.parse_args()
     if args.compare:
-        args.sample = args.out if (PROCESSED / args.out).exists() else args.sample
+        # An explicit --sample wins; only when it is absent is the recheck's own
+        # directory preferred, falling back to the first pass's sample.
+        if args.sample is None:
+            args.sample = args.out if (PROCESSED / args.out).exists() else "m3_30m"
         compare(args)
     else:
+        args.sample = args.sample or "m3_30m"
         build(args)
 
 

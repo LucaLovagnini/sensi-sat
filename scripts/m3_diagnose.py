@@ -107,16 +107,29 @@ def main() -> None:
     print("   0.0 m means the point itself is built, so every agreement inside a")
     print("   built stratum must read 0.0 — that is the check on the sampling.\n")
     groups: dict[str, list[tuple[str, float | None]]] = {}
-    for r in judged:
+    # A point whose island has no raster on disk was not measured at all. It must
+    # not join the censored ones below, which WERE measured and found nothing.
+    unmeasured = [r for r in judged if _src("buildings-dated", island[r["id"]]) is None]
+    if unmeasured:
+        print(f"   {len(unmeasured)} points not measured: no buildings-dated raster for "
+              f"{', '.join(sorted({island[r['id']] for r in unmeasured}))}\n")
+    for r in (r for r in judged if r not in unmeasured):
         key = f"{stratum[r['id']]} -> {reference_class(r['label_2015'], r['label_2024'])}"
         groups.setdefault(key, []).append(
             (r["id"], nearest_built_m(r["lon"], r["lat"], island[r["id"]])))
     for key in sorted(groups):
         v = groups[key]
-        ds = [d if d is not None else 200.0 for _, d in v]
+        # None means "nothing built inside the search window" (about 200 m either
+        # way): a censored distance, known only to be beyond the window. Coercing it
+        # to 200.0 put a value nothing measured into the median, so the median is
+        # over the real distances and the censored ones are counted beside it.
+        ds = [d for _, d in v if d is not None]
+        censored = len(v) - len(ds)
         said, saw = key.split(" -> ")
         mark = "" if said == saw else "   <-- DISAGREES"
-        print(f"   {key:46s} n={len(v):3d}  median {np.median(ds):5.1f} m{mark}")
+        median = f"{np.median(ds):5.1f} m" if ds else "    — m"
+        print(f"   {key:46s} n={len(v):3d}  median {median}"
+              f"{f'  ({censored} beyond 200 m, excluded)' if censored else ''}{mark}")
         if said != saw and len(v) <= 6:
             for pid, d in sorted(v, key=lambda x: (x[1] is None, x[1])):
                 shown = "nothing within 200 m" if d is None else f"{d:5.1f} m"
