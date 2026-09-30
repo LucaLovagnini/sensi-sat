@@ -19,6 +19,10 @@ reviews:
   auto_review:
     enabled: true
     drafts: false
+    # Never pause. After 5 reviewed commits CodeRabbit pauses a PR by default, and a
+    # paused review still posts its status as SUCCESS, which branch protection accepts:
+    # PR #1 would have merged with its last push unreviewed (CLAUDE.md #11). 0 disables it.
+    auto_pause_after_reviewed_commits: 0
     # The whole-repository sweep opens pull requests against `sweep/*-base`
     # branches (scripts/review_sweep.py), which are not the default branch.
     base_branches:
