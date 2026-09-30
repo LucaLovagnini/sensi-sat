@@ -142,8 +142,9 @@ def check() -> int:
     # cannot be read, so figure_set() stores None; and a record written that way
     # hashes None too, so the two would "match" having compared nothing. That is a
     # skipped check, which must never read as a passed one (CLAUDE.md #11).
-    if figure_set()["live"] is None or rec.get("figures", {}).get("live") is None:
-        side = "this checkout has no build" if figure_set()["live"] is None else \
+    live_now = figure_set()["live"]      # read once: a second read could see another build
+    if live_now is None or rec.get("figures", {}).get("live") is None:
+        side = "this checkout has no build" if live_now is None else \
             "the record was attested without a build"
         print(f"  NOT CHECKED: the live values could not be compared ({side};"
               " data/processed/statistics/layers.json is what they come from)")
