@@ -60,7 +60,9 @@ TELLS = {
     "future tense": re.compile(r"\bwill (?:be|need|decide|register|have to|replace|add)\b|\bM\d[a-z]? (?:must|will)\b", re.I),
 }
 #: A heading that claims the work behind it is finished.
-SETTLED = re.compile(r"\b(COMPLETE|DONE|CLOSED|IMPLEMENTED|SETTLED|✅)\b")
+#: `✅` sits outside the word boundaries: `\b` needs a word character on one side,
+#: and an emoji is not one, so `\b✅\b` could never match.
+SETTLED = re.compile(r"\b(?:COMPLETE|DONE|CLOSED|IMPLEMENTED|SETTLED)\b|✅")
 HEADING = re.compile(r"^(#{1,4})\s+(.*)$")
 
 
@@ -68,6 +70,9 @@ def scan(text: str) -> list[dict]:
     """Every line carrying a tell, with the section it sits in and whether that
     section claims to be finished."""
     out, section, settled, in_code = [], "(preamble)", False, False
+    # (level, settled) of each enclosing heading. A subsection inherits a settled
+    # parent: "### Table of decisions" under "## M1 COMPLETE" is finished too.
+    stack: list[tuple[int, bool]] = []
     for n, line in enumerate(text.splitlines(), 1):
         if line.lstrip().startswith("```"):
             in_code = not in_code
@@ -76,7 +81,11 @@ def scan(text: str) -> list[dict]:
             continue
         if (m := HEADING.match(line)):
             section = re.sub(r"[*`]", "", m.group(2))[:58]
-            settled = bool(SETTLED.search(line))
+            level = len(m.group(1))
+            while stack and stack[-1][0] >= level:
+                stack.pop()
+            settled = bool(SETTLED.search(line)) or any(s for _, s in stack)
+            stack.append((level, settled))
             # a heading may itself be the stale thing, so it is scanned too
         fired = [name for name, rx in TELLS.items() if rx.search(line)]
         if fired:

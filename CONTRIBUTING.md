@@ -42,6 +42,14 @@ python -m pytest -q && ruff check .        # includes the figure gate
 python scripts/review_figures.py --list    # what a reviewer still judges by eye
 ```
 
+## Every change is reviewed twice
+
+`main` accepts changes only through pull requests. CodeRabbit reviews each one
+(`.coderabbit.yaml`), and a pull request cannot merge until its review has run and
+every review thread is resolved. Resolve a thread only after replying to it: say
+what you fixed, or why the comment is wrong. Rejecting a comment with a reason is
+fine, but clicking it away is not.
+
 ## Licence
 
 Code is MIT (`LICENSE`); published data, documentation and the page are CC BY 4.0

@@ -429,6 +429,34 @@ def test_list_marker_rule_is_positional(text: str, exempt: bool) -> None:
     assert (toks[0].start() in exempt_at) is exempt, f"{text!r}: exempt={not exempt} — wrong"
 
 
+def test_data_version_ignores_hook_environment(monkeypatch: pytest.MonkeyPatch,
+                                               tmp_path: Path) -> None:
+    """Git exports GIT_DIR to the pre-push hook. Inherited, it made `data_version()`'s
+    `git log` come back empty, and the mtime fallback supplied the checkout date —
+    so the hook passed only in a clone old enough for the two to coincide.
+
+    The statistics live in a throwaway repository committed on a date no file
+    modification time can match, so the fallback cannot pass by coincidence."""
+    import os
+
+    from sensisat import facts
+    clean = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    stats = tmp_path / "data" / "processed" / "statistics" / "layers.json"
+    stats.parent.mkdir(parents=True)
+    stats.write_text("{}\n")
+    dated = clean | {"GIT_AUTHOR_DATE": "2000-01-02T00:00:00Z",
+                     "GIT_COMMITTER_DATE": "2000-01-02T00:00:00Z"}
+    for cmd in (["init", "-q"], ["add", "."],
+                ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "stats"]):
+        subprocess.run(["git", *cmd], cwd=tmp_path, env=dated, check=True, capture_output=True)
+    monkeypatch.setattr(facts, "STATS", stats)
+    # What a hook sees: GIT_DIR pointing at the repository whose hook is running.
+    git_dir = subprocess.run(["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, env=clean,
+                             capture_output=True, text=True, check=True).stdout.strip()
+    monkeypatch.setenv("GIT_DIR", git_dir)
+    assert facts.data_version().endswith("data of 2000-01-02")
+
+
 def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
     """Both CLAUDE.md #22 and figure-provenance.md §4 QUOTE the declaration syntax, in
     backticks, in order to explain it. Parsed literally an example is indistinguishable

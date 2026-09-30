@@ -43,6 +43,7 @@ from sensisat.figures import (  # noqa: E402
     SECTION_SURFACES,
     declaration,
     figure_set,
+    figures_in,
     fingerprint,
     generated_regions,
     live_values,
@@ -95,8 +96,24 @@ def listing() -> str:
         for heading, body in sections(md):
             m = declaration(body)
             if m:
-                out += [f"    {rel} :: {heading[:60]}", f"        {m.group('sources')} @ {m.group('date')}"]
+                # The section's figures beside its sources: judgement 3 asks whether
+                # these sources could produce THESE numbers, so both must be in view.
+                figs = ", ".join(sorted(figures_in(body, html=False))) or "(none)"
+                out += [f"    {rel} :: {heading[:60]}", f"        {m.group('sources')} @ {m.group('date')}",
+                        f"        figures: {figs}"]
     return "\n".join(out)
+
+
+#: The three judgements an attestation must carry, by the key it records them under.
+JUDGEMENTS = ("generated_from_right_fact", "registry_holds_no_live_claim", "declarations_plausible")
+
+
+def incomplete(reviewer: str | None, judgements: dict | None) -> list[str]:
+    """What an attestation lacks: a named reviewer and all three judgements written
+    out. Whitespace is not a judgement. Empty when the attestation is complete."""
+    judgements = judgements or {}
+    missing = [] if (reviewer or "").strip() else ["reviewer"]
+    return missing + [k for k in JUDGEMENTS if not str(judgements.get(k) or "").strip()]
 
 
 def counts(fs: dict) -> dict:
@@ -114,6 +131,24 @@ def check() -> int:
         print(f"  no figure review on record ({REVIEW.relative_to(ROOT)} missing) — run /verify-figures")
         return 5
     rec = json.loads(REVIEW.read_text())
+    # A hash that matches proves the figures have not moved since the record was
+    # written, not that anyone judged them: a record without its reviewer or its
+    # three judgements attests nothing, so it is as stale as a moved figure.
+    if (gaps := incomplete(rec.get("reviewer"), rec.get("judgements"))):
+        print(f"  STALE: the figure review on record is incomplete (missing: {', '.join(gaps)})"
+              " — run /verify-figures")
+        return 5
+    # The live values are the build's own figures. Without the build on disk they
+    # cannot be read, so figure_set() stores None; and a record written that way
+    # hashes None too, so the two would "match" having compared nothing. That is a
+    # skipped check, which must never read as a passed one (CLAUDE.md #11).
+    live_now = figure_set()["live"]      # read once: a second read could see another build
+    if live_now is None or rec.get("figures", {}).get("live") is None:
+        side = "this checkout has no build" if live_now is None else \
+            "the record was attested without a build"
+        print(f"  NOT CHECKED: the live values could not be compared ({side};"
+              " data/processed/statistics/layers.json is what they come from)")
+        return 5
     now = fingerprint()
     if rec.get("fingerprint") == now:
         print(f"  figure review current: {rec['reviewed']} by {rec['reviewer']}")
@@ -138,7 +173,11 @@ def check() -> int:
     return 5
 
 
-def attest(reviewer: str, judgements: dict[str, str]) -> int:
+def attest(reviewer: str | None, judgements: dict[str, str | None]) -> int:
+    if (gaps := incomplete(reviewer, judgements)):
+        print(f"  REFUSING to attest: missing {', '.join(gaps)}. Name the reviewer and write"
+              " out all three judgements.")
+        return 5
     fs = figure_set()
     rec = {"fingerprint": fingerprint(), "reviewed": dt.date.today().isoformat(), "reviewer": reviewer,
            "judgements": judgements, "counts": counts(fs), "figures": fs}
@@ -167,11 +206,7 @@ def main() -> int:
         return 0
     if a.check:
         return check()
-    if not (a.reviewer and a.generated and a.registry and a.declarations):
-        ap.error("--attest needs --reviewer and all three judgements, written out")
-    return attest(a.reviewer, {"generated_from_right_fact": a.generated,
-                               "registry_holds_no_live_claim": a.registry,
-                               "declarations_plausible": a.declarations})
+    return attest(a.reviewer, dict(zip(JUDGEMENTS, (a.generated, a.registry, a.declarations), strict=True)))
 
 
 if __name__ == "__main__":
