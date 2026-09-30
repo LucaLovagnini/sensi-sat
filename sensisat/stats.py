@@ -14,6 +14,7 @@ import rasterio
 from rasterio.features import geometry_mask
 from rasterio.transform import Affine
 
+from . import encoding as enc
 from .raster import row_areas_m2
 
 
@@ -92,14 +93,17 @@ def series_by_year(
     *,
     label: str = "built",
 ) -> pd.DataFrame:
-    """Cumulative extent per zone per year, from a 'year first built' raster.
+    """Cumulative extent per zone per year, from a published year layer.
 
-    0 means never built. A pixel counts from the year it first appears onward,
-    which is exactly what a growth-only encoding can express.
+    The raster holds the ENCODED year (`sensisat.encoding`: calendar year minus
+    YEAR_OFFSET, 0 never built, UNDATED built but undated), not the calendar year.
+    Comparing it with a calendar year directly would count every pixel, undated
+    ones included, at any year after 1900. `enc.built_by` applies the offset and
+    keeps undated pixels out of every dated question.
     """
     frames = []
     for year in years:
-        mask = (year_raster > 0) & (year_raster <= year)
+        mask = enc.built_by(year_raster, year)
         df = zonal(mask, transform, crs, zones, kind="binary", label=label)
         df["year"] = year
         frames.append(df)

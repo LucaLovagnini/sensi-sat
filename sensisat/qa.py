@@ -152,8 +152,14 @@ def negative_control(layer: str, island: str, built: np.ndarray, transform: Affi
     name = control["name"].iloc[0]
     mask = zone_masks(control, transform, built.shape, "EPSG:4326")[name]
     control_km2 = area_km2(mask, transform)
+    if not control_km2:
+        # The polygon exists but lands on no pixel of this grid (outside it, or a
+        # CRS mismatch). 0 km2 checked is not a clean control: it is a control
+        # that exists and cannot be used, which the docstring calls a failure.
+        return Gate("negative-control", layer, island, False, None,
+                    f"{label} must cover part of the grid", "0 km2 of the control on the grid")
     built_km2 = area_km2(built.astype(bool) & mask, transform)
-    share = 100 * built_km2 / control_km2 if control_km2 else 0.0
+    share = 100 * built_km2 / control_km2
     return Gate("negative-control", layer, island, share <= CONTROL_MAX_SHARE, share,
                 f"<= {CONTROL_MAX_SHARE} % of {label} ({control_km2:.1f} km2)",
                 f"= {built_km2:.3f} km2")
@@ -238,22 +244,19 @@ def cog_valid(path: Path, layer: str = "", island: str = "-") -> Gate:
     byte-range from a plain static host, which is the whole reason SensiSat needs
     no tile server.
 
-    One case is reported rather than judged. A layer can legitimately be empty -
-    there is no covered agriculture on La Graciosa - and a sparse COG with nothing
-    in it contains no data blocks at all, which makes rio-cogeo's validator raise
-    IndexError while checking the order of blocks it has none of. That is a gap in
-    the validator, not a defect in the file, so an empty layer is passed with its
-    emptiness stated instead of being silently marked valid.
+    An empty layer is validated like any other. It used to be passed unchecked,
+    because a SPARSE COG with nothing in it has no data blocks and made the
+    validator raise IndexError. SensiSat's COGs have been dense since 2026-09-20
+    (CLAUDE.md #12), and an empty dense COG validates: measured with
+    `raster.write_cog` on an all-zero array. A pass now always means the file's
+    byte layout was checked (CLAUDE.md #11).
     """
     layer = layer or Path(path).stem
     try:
-        with rasterio.open(path) as src:
-            empty = not any(src.read(i).any() for i in range(1, src.count + 1))
+        with rasterio.open(path):
+            pass
     except Exception as exc:
         return Gate("cog-valid", layer, island, False, None, "readable", f"{type(exc).__name__}: {exc}")
-    if empty:
-        return Gate("cog-valid", layer, island, True, 0, "valid COG",
-                    "layer is empty; strict validation not applicable")
     try:
         proc = subprocess.run(["rio", "cogeo", "validate", "--strict", str(path)],
                               capture_output=True, text=True, timeout=300)

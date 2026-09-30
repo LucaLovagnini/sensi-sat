@@ -18,9 +18,10 @@
   //   npx wrangler deploy -c wrangler.preview.jsonc
   //   -> https://sensisat-preview.ensi-at.workers.dev
   //
-  // The preview reads `v2/index.json` from the same R2 bucket (see R2_DATA in
-  // viewer/app.js), whose asset paths point back up to the root objects so the
-  // mosaics are not duplicated. At cutover this file and that prefix both go.
+  // The preview reads the same root `index.json` from the same R2 bucket as
+  // production (see R2_DATA in viewer/app.js): publish.py writes both the
+  // per-island and the archipelago shape into that one file, so there is no
+  // separate prefix to keep in step. At cutover this file goes.
   "name": "sensisat-preview",
   "compatibility_date": "2026-09-18",
   "observability": { "enabled": true },

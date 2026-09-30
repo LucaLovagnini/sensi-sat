@@ -20,15 +20,17 @@ disproved two of its claims.
 Every number a reader sees is a **copy** of something the pipeline computed, and a
 copy goes stale in silence: nothing on disk is wrong, no QA gate applies, and the
 only symptom is a document asserting last week's measurement. On 2026-09-21 the
-public page, the viewer and all 56 STAC items said the settlement layer was
+public page, the viewer and all 56 STAC items (SpatioTemporal Asset Catalog: the JSON
+record published beside each layer file) said the settlement layer was
 **43 %** undated when the layer we publish held **37 %** — an M0 measurement of the
 raw product, quoted for our masked, land-clipped layer. Three other viewer figures
 were wrong the same way (a 2.2× ratio that our layers give as 2.1×, a 9 % growth
-that our series gives as 5 %, a seam range true only for the five main islands
-and not saying so). Fixing one place left the others wrong for a day. The guard
-that existed — a test with a regex deciding what counted as a figure — had already
-exempted the whole ladder-of-definitions table twice, by accident, and nobody
-noticed. **The change is to invert the default**: every run of digits a reader can
+that our series gives as 5 %, and the seam range — settlement extent dropping by
+26–52 % across the 2015/2016 join — stated as if it held for the archipelago, when it
+holds only for the five main islands). Fixing one place left the others wrong for a
+day. The guard that existed — a test with a regex deciding what counted as a figure —
+had already exempted the whole ladder-of-definitions table twice, by accident, and
+nobody noticed. **The change is to invert the default**: every run of digits a reader can
 see must resolve to *generated*, *declared* or *excepted*, and anything unresolved
 fails the build naming itself.
 
@@ -49,8 +51,9 @@ nothing.
 
 Then three classes:
 
-- **generated** — inside a cog region (the `cog`/`end` marker pair, recognised in
-  any comment syntax), written by `scripts/sync_docs.py` from `sensisat/facts.py`;
+- **generated** — inside a cog region (cog is a Python tool that runs code written
+  inside comments and pastes its output below; a region is the `cog`/`end` marker
+  pair, recognised in any comment syntax), written by `scripts/sync_docs.py` from `sensisat/facts.py`;
 - **declared** — a key in `sensisat/provenance.HISTORICAL` (token-level surfaces),
   or inside a section carrying a `<!-- figures: … @ date -->` declaration
   (section-level surfaces);
@@ -66,7 +69,12 @@ carrying a unit.
 ## 3. The surfaces, and the burden each carries
 <!-- figures: sensisat/figures.py; scripts/review_figures.py; docs/figures/data/manifest.json @ 2026-09-21 -->
 
-Counts below are generated from the mechanism itself, so they are current.
+Counts below are generated from the mechanism itself, so they are current. This is
+the one cog block in the repository that imports anything besides `sensisat.facts`:
+it imports `sensisat.figures`, which only reads the repository's own documents and
+writes nothing. `CONTRIBUTING.md` asks contributors to keep blocks to `sensisat.facts`
+and names this exception; nothing enforces that rule — cog runs whatever Python a
+block holds — so reading the diff of every block is the actual protection.
 
 <!--[[[cog
 import sensisat.figures as g

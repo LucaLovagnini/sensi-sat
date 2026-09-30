@@ -16,7 +16,12 @@ So **a change to a Markdown file can be a change to what your machine executes.*
 Reviewers: before running the tests on a branch you did not write, read the diff of
 every `[[[cog` block. Contributors: keep cog blocks to calls into `sensisat.facts`;
 a block that imports anything else, touches the filesystem or the network will be
-asked about.
+asked about. The one existing exception is the table in section 3 of
+`docs/design/figure-provenance.md`, which imports `sensisat.figures` to count the
+gate's own surfaces; that module reads files in the repository and writes nothing.
+Nothing mechanical enforces this — `sync_docs.py` pre-imports `sensisat.facts` for
+convenience, but cog executes whatever Python a block contains — so reading the diff
+is the protection, not the convention.
 
 If continuous integration is ever added, workflows triggered by pull requests from
 forks must run with **no secrets and no deploy token** for the same reason.

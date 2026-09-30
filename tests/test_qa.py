@@ -156,3 +156,26 @@ def test_a_layer_without_a_classifier_is_not_tested_against_a_control():
 
     assert LAYERS["covered-agriculture"].commission_risk is False
     assert LAYERS["settlement-era-b"].commission_risk is True
+
+
+def test_a_control_that_lands_on_no_pixel_fails_rather_than_passing():
+    """0 km2 checked is not a clean control. A polygon outside the grid (or moved
+    off it by a CRS mismatch) once gave share 0.0, which passed."""
+    import geopandas as gpd
+    from affine import Affine
+    from shapely.geometry import box
+
+    import sensisat.zones as zones
+
+    far_away = gpd.GeoDataFrame({"name": ["elsewhere"]}, geometry=[box(10, 50, 10.1, 50.1)],
+                                crs="EPSG:4326")
+    original = zones.negative_control_for
+    try:
+        zones.negative_control_for = lambda island: ("a control off the grid", far_away)
+        gate = qa.negative_control("x", "Lanzarote", np.zeros((4, 4), bool),
+                                   Affine(0.0001, 0, -13.8, 0, -0.0001, 29.0))
+    finally:
+        zones.negative_control_for = original
+
+    assert not gate.passed
+    assert not gate.skipped

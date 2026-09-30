@@ -1,8 +1,8 @@
 # M4 — the viewer
 
 **What exists:** an interactive map over M2's seven published layers, running from
-static files with no server of any kind. Built and verified in a browser; **not yet
-deployed** to public hosting.
+static files with no server of any kind. Built and verified in a browser, and **live
+but unannounced** at `https://sensisat.org` (§7). To run it locally:
 
 ```bash
 python viewer/serve.py       # then open http://127.0.0.1:8777/viewer/
@@ -23,8 +23,9 @@ shader applied to pixels already in memory. **No request is made. No tile is
 rendered. Nothing is fetched.**
 
 The alternative — a raster per year — would mean 120 pre-rendered tile sets per
-layer and a server to cut them. Instead there is one file per layer per island, a
-few megabytes, read straight off static hosting by HTTP range request.
+layer and a server to cut them. Instead there is one file per layer, a mosaic covering
+the whole archipelago (`docs/pipeline.md` §7 gives the sizes), read straight off
+static hosting by HTTP range request.
 
 ## 2. Why OpenLayers, finally decided
 
@@ -42,7 +43,7 @@ exists to avoid. OpenLayers' `WebGLTile` does it natively.
 Each of these cost real time, and each is a property of the published data rather
 than of the viewer code — which is why they are written down here.
 
-**A Cloud-Optimized GeoTIFF must not be sparse.** `SPARSE_OK=TRUE` looks ideal for
+**A Cloud-Optimized GeoTIFF (COG) must not be sparse.** `SPARSE_OK=TRUE` looks ideal for
 islands surrounded by ocean: all-nodata blocks cost no bytes. But it writes
 zero-length entries into the tile offset table, and **geotiff.js — the library
 every browser-side COG reader is built on — cannot read them**. It fails with
@@ -63,9 +64,10 @@ a year in which nothing was built.
 
 **The map view must be in the data's projection.** `WebGLTileLayer` does not
 reproject. A GeoTIFF source whose projection differs from the view simply never
-renders, with nothing in the console to say why. So the view is EPSG:4326, the
-projection the COGs are already in, and the *basemap* is the thing reprojected —
-which an ordinary raster tile layer handles fine.
+renders, with nothing in the console to say why. So the view is EPSG:4326 (the
+registry code for plain longitude and latitude), the projection the COGs are already
+in, and the *basemap* is the thing reprojected — which an ordinary raster tile layer
+handles fine.
 
 **Only numbers may be style variables.** OpenLayers compiles `['var', x]` to a
 `uniform float`, so putting a colour in a variable fails shader compilation with
@@ -78,14 +80,17 @@ not — it ignores the `Range` header and returns the whole file with a 200, whi
 geotiff.js treats as a failure. `viewer/serve.py` exists for this, and speaks
 HTTP/1.1 so that connections stay alive for the several parallel range requests a
 COG read needs. This is not a local-only concern: range support is the one thing
-the real host must provide, and every static host we would use (Cloudflare R2,
-S3 + CloudFront, GitHub Pages) provides it.
+the real host must provide, and every static host we would use (Cloudflare's R2 file
+storage, S3 + CloudFront, GitHub Pages) provides it.
 
 ## 4. What the viewer shows
 
-All seven layers, any of the eight islands, read from the STAC catalogue rather
-than from anything hard-coded — the layer picker is populated by what the catalogue
-actually contains.
+All seven layers over the whole archipelago, each drawn from its single mosaic, and
+nothing hard-coded: the layer picker is populated by what the catalogue actually
+contains. The viewer reads `index.json`, a flattened copy of the catalogue that
+`publish.py` writes, in one request; when that file is missing it falls back to
+walking the STAC catalogue (SpatioTemporal Asset Catalog, the standard JSON
+description of each layer), which is slower but never stale (CLAUDE.md #20).
 
 **Two display modes, from day one** (the plan's requirement):
 
@@ -183,7 +188,7 @@ Measured on the published `buildings-dated` mosaic:
 | 12.6 km | 1,317,818 px | 6 | ~280 ms |
 | 50.6 km | 21,085,093 px | 35 | ~2,500 ms |
 
-The middle two rows differ sixteenfold in pixels and cost the same. So the budget is
+The first two rows differ sixteenfold (16×) in pixels and cost the same. So the budget is
 `NEAR_MAX_BLOCKS = 8`, roughly a 25 km view — most of an island, which is the range
 over which a reader expects the number to follow the map. Beyond it the published
 island totals are instant and exact, and counting would buy nothing but seconds of
@@ -203,7 +208,7 @@ may touch one extra row and column, and the budget is set knowing it.
 
 **Both numbers were set by testing, not by argument.** A first attempt used a 2 km
 threshold, and in use the number then sat unchanged on an island total across a
-tenfold zoom range, which reads as a broken panel rather than a design.
+tenfold (10×) zoom range, which reads as a broken panel rather than a design.
 
 ### Decoding runs on workers
 
@@ -213,7 +218,8 @@ tens of millions, so `readRasters` is given a `geotiff.js` worker pool. Measured
 1,013 ms without**. The pool survives bundling because geotiff.js embeds its worker
 source and builds it from a Blob — which is not obvious, and is why the numbers are
 recorded. It is constructed lazily inside a `try`, because worker creation is the
-kind of thing a bundler or a strict CSP can break, and a slower readout beats one
+kind of thing a bundler or a strict CSP (Content Security Policy, the header limiting
+what a page may load) can break, and a slower readout beats one
 that throws.
 
 ### The slider still fetches nothing
@@ -276,7 +282,8 @@ execution.
 ## 7. Deployment
 <!-- figures: scripts/publish.py; scripts/upload_r2.py; measured:curl range-request pre-flight against the live site on 2026-09-20 and against R2 on 2026-09-24; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; external:Cloudflare Workers platform limits (CPU time per request on the Free plan) read 2026-09-23 @ 2026-09-24 -->
 
-Live, unannounced, at **`https://sensisat.org`** (2026-09-20).
+Live, unannounced, at **`https://sensisat.org`** — deployed 2026-09-20, on that
+domain since 2026-09-24.
 
 ```bash
 python scripts/build.py --all     # produce the layers

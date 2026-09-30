@@ -95,9 +95,13 @@ def test_exemption_counts_match_the_baseline() -> None:
     assert EXEMPTIONS_BASELINE.exists(), "tests/fixtures/figure_exemptions.json missing"
     baseline = json.loads(EXEMPTIONS_BASELINE.read_text())
     now = current_exemptions()
-    diffs = [f"  {f}.{k}: baseline {baseline.get(f, {}).get(k)} -> now {v}"
-             for f, counts in now.items() for k, v in counts.items()
-             if baseline.get(f, {}).get(k) != v]
+    # Over the UNION of both sides: a surface or rule that stops producing counts
+    # (a viewer module no longer imported) is a silent loss of coverage, and must
+    # fail just as a changed count does.
+    diffs = [f"  {f}.{k}: baseline {baseline.get(f, {}).get(k)} -> now {now.get(f, {}).get(k)}"
+             for f in sorted(set(baseline) | set(now))
+             for k in sorted(set(baseline.get(f, {})) | set(now.get(f, {})))
+             if baseline.get(f, {}).get(k) != now.get(f, {}).get(k)]
     assert not diffs, (
         "an exception exempts a different number of tokens than it did:\n"
         + "\n".join(diffs)

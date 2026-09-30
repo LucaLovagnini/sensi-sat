@@ -39,7 +39,11 @@ LICENSE = "CC BY 4.0"
 SOURCE_URL = "https://human-settlement.emergency.copernicus.eu/download.php"
 
 EPOCHS = [1975, 1980, 1985, 1990, 1995, 2000, 2005, 2010, 2015, 2020, 2025, 2030]
-OBSERVED_EPOCHS = {1975, 1990, 2000, 2015, 2020}  # see is_observed() for the caveat
+# Epochs with imagery in their own year. 2015 and 2020 are interpolated from the
+# nearest imagery (2014 and 2018), which is what is_observed() calls "near-observed",
+# so they must not be in the set a caller tests for "measured".
+OBSERVED_EPOCHS = {1975, 1990, 2000}
+NEAR_OBSERVED_EPOCHS = {2015, 2020}
 IMAGERY_YEARS = {1975: "Landsat MSS", 1990: "Landsat TM", 2000: "Landsat ETM",
                  2014: "Landsat", 2018: "Sentinel-2 composite"}
 PROJECTED_EPOCHS = {2025, 2030}
@@ -65,9 +69,9 @@ def is_observed(epoch: int) -> str:
     """
     if epoch in PROJECTED_EPOCHS:
         return "projected"
-    if epoch in {1975, 1990, 2000}:
+    if epoch in OBSERVED_EPOCHS:
         return "observed"
-    if epoch in {2015, 2020}:
+    if epoch in NEAR_OBSERVED_EPOCHS:
         return "near-observed"  # nearest imagery 2014 / 2018
     return "interpolated"
 

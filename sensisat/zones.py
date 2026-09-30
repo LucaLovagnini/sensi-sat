@@ -113,11 +113,15 @@ def requests_quote(s: str) -> str:
 
 def islands(names: list[str] | None = None) -> gpd.GeoDataFrame:
     """Boundaries of the Canary Islands, one row per island (cached)."""
-    cached = _load_cached("islands")
-    if cached is not None and (names is None or set(names) <= set(cached["name"])):
-        return cached[cached["name"].isin(names)] if names else cached
-
+    # A cache is only a hit if it holds every island asked for, and "no names"
+    # means all of them. A cache written by `islands(["Tenerife"])`, or by a run
+    # where one Nominatim lookup failed, would otherwise answer for the whole
+    # archipelago with a single row.
     wanted = names or list(ISLAND_BBOX)
+    cached = _load_cached("islands")
+    if cached is not None and set(wanted) <= set(cached["name"]):
+        return cached[cached["name"].isin(wanted)] if names else cached
+
     frames = []
     for island in wanted:
         query = f"{island}, Canary Islands, Spain"
