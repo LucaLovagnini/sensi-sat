@@ -297,7 +297,7 @@ gate (M4c).** Walk it in order; each line is a command or a look.
 
 The remote is **Luca's personal GitHub**, and work credentials must never be used:
 
-```
+```text
 origin  github-personal:LucaLovagnini/sensi-sat.git
 ```
 

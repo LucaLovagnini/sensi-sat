@@ -16,8 +16,8 @@
     "<source>; … @ <date> -->` under its heading; every headline\n    value `facts.py` computes is searched for typed by hand (the collision check).\n    `sensisat/figures.py` is the one definition; `pytest`, `build.py` (exit 4) and\n    `publish.py` (exit 3) run the same tests. Adding a number forces a choice —\n    **generate it, or declare where it came from** — and the failure names the\n    token and the file. The first fail-closed run surfaced 45 figures the old\n    regex had silently exempted, and four viewer figures wrong on the live site.\n23. **A quantity word must carry its digits.** Write \"three in ten (31 %)\", not\n    \"three in ten\"; \"a third (33.8 %)\", not \"a third\". The figure gates are\n    digit-based, so a number written as a word escapes them — which would make\n    dodging the gate easier than satisfying it. This is the one way the whole\n    arrangement could leave the project worse off than before, so it is a writing\n    rule, not a preference, and a lint enforces it (`docs/design/figure-provenance.md` §4).\n24. **Historical measurements must NOT be updated, and must be distinguishable.**\n    Most of the ~1,300 numbers in `docs/` record why a decision was taken — the\n    figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting\n    them to match a later build destroys the reasoning they exist to support. But a\n    reader cannot tell a frozen measurement from a stale one, so every document\n    carries a generated block (`facts.contract()`) stating which is which, and a\n    historical figure names the analysis script that produced it — per token in the\n    registry, per section in the declaration. **The gate cannot judge** whether a\n    generated figure comes from the right fact, whether a registry entry is really\n    a live claim, or whether a declared source fits: that is `/verify-figures`,\n    attested in `docs/figures-review.json`, which `publish.py` and the pre-push\n    hook require to be current.\n25. **Never let an import shadow a JavaScript built-in.** `viewer/app.js` had\n    `import Map from 'ol/Map.js'` for months. The first `new Map()` anyone wrote in\n    that file — a cache for the readout — silently constructed an OpenLayers map, so\n    every counted view failed at `.has()` and fell back to island sums with no error\n    a user could see. Minified it reads `yE.has is not a function`, nowhere near the\n    import. It is `OLMap` now, and `viewer/app.test.js` refuses any import bound to a\n    built-in's name.\n26. **`rasterio.windows.from_bounds` returns a fractional window** whose transform\n    is offset from the array `read()` actually returns. Distances computed that way\n    carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that\n    matter. Take the window in integer pixels around `src.index(lon, lat)`; a point\n    on a built pixel must then measure 0.0 m from one.\n\n## Before the site goes public\n<!-- figures: scripts/build.py; scripts/publish.py @ 2026-09-21"
    ],
    "docs/concepts.md": [
-    "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py @ 2026-09-19",
-    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
+    "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py; scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
+    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; measured:first archipelago totals of WSF Evolution and WSF 2019, 2026-09-19, before analysis 1 — scope not recorded, no script survives @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/extent_vs_surface.py @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/change_view.py @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19",
@@ -65,12 +65,12 @@
     "measured:Chrome DevTools network panel over the local viewer on 2026-09-20 @ 2026-09-20",
     "external:Cloudflare / AWS / Netlify list prices read 2026-09-20; measured:arithmetic on §1's per-visit cost @ 2026-09-20",
     "measured:Chrome DevTools network panel on 2026-09-20 @ 2026-09-20",
-    "scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20",
+    "scripts/publish.py; viewer/package.json; measured:curl range-request pre-flight against the live site on 2026-09-20; measured:Chrome DevTools network panel on the live site on 2026-09-20 (cold-load requests, module count, bundle size) @ 2026-09-20",
     "scripts/publish.py; scripts/upload_r2.py; external:Cloudflare R2 pricing and documentation read 2026-09-20; external:Cloudflare Workers platform limits read 2026-09-23; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; measured:R2 range pre-flight on r2.dev and on data.sensisat.org, 2026-09-24 @ 2026-09-24"
    ],
    "docs/design/seam-harmonization.md": [
     "scripts/analysis_01_totals.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
-    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
+    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19",
     "external:CEOS LPV protocol v1.1 (2025) / Serra Pons & Saurí (2003) / the WSF Evolution GHSL GAIA and GISD30 method papers @ 2026-09-19",
     "scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
     "sensisat/derive.py; sensisat/encoding.py; scripts/analysis_03_seam_factors.py @ 2026-09-19",
@@ -95,7 +95,7 @@
     "scripts/m3_score.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
     "scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
     "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
-    "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
+    "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-20",
     "scripts/m3_recheck.py; docs/figures/data/m3_labels_30m_pass2.json @ 2026-09-20",
     "measured:IGN PNOA historical WMS GetCapabilities queried 2026-09-20; scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv @ 2026-09-20",
     "measured:judgement timestamps written by viewer/label.js; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -450,6 +450,7 @@
    },
    "docs/concepts.md": {
     "## 1. A map frame is two layers: someone else's basemap + our thin overlay": [
+     "1,566 km²",
      "10–30 m",
      "160,000",
      "2",
@@ -460,19 +461,24 @@
      "659",
      "700",
      "77",
+     "793 m²",
      "8 %"
     ],
     "## 2. Pixels and resolution — the same city has different areas at 30 m and at 10 m": [
      "0.00026949",
+     "1",
      "10 m",
      "150 m²",
      "200 m²",
+     "230.4 km²",
      "26.5 m",
      "28",
      "293 km²",
      "30 m",
+     "376.9",
      "455 km²",
      "50 %",
+     "64 %",
      "793 m²",
      "900 m²",
      "900."
@@ -1091,7 +1097,7 @@
      "376.9",
      "4.01",
      "42.1",
-     "50.7 km²",
+     "52.0 km²",
      "53.3",
      "57.9",
      "6.2",
@@ -1371,7 +1377,6 @@
      "0.011 km²",
      "0.017 %",
      "0.052 %",
-     "0.060",
      "0.060 km²",
      "0.084 km²",
      "0.094 km²",
@@ -1406,6 +1411,7 @@
      "6",
      "65.0 km²",
      "67.3 %",
+     "71 %",
      "71.5 %",
      "83.2,",
      "87 %",
@@ -1506,6 +1512,7 @@
     "## 1. The problem in one paragraph": [
      "2.1×",
      "2.2×",
+     "26–52 %",
      "37 %",
      "43 %",
      "5 %",
@@ -1690,8 +1697,10 @@
      "30 m",
      "43 %",
      "48 %",
+     "52.69",
      "57 %",
-     "68 %"
+     "68 %",
+     "92.34 km²"
     ],
     "## 3. What the literature and the producers actually do": [
      "100 m",
@@ -2090,6 +2099,7 @@
      "28.2 %",
      "3 %",
      "30 m",
+     "36.5 %",
      "42.5 %",
      "43 %",
      "60",
@@ -2249,10 +2259,12 @@
      "101.7×",
      "1024",
      "1024 ×",
+     "10×",
      "12",
      "12.6",
      "127 years",
      "16",
+     "16×",
      "2",
      "2 %",
      "2,500",
@@ -2386,12 +2398,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "16d21204f603bf50bf3d5040f723b393ebe624ff2a1e865aa4ce55f6eb757368",
+ "fingerprint": "00f584ce0f3992ff10bd016f795b4b171e60c8334abb93a0a977d724307e2a7b",
  "judgements": {
-  "declarations_plausible": "Change reviewed: '10 m' removed from validation.md 'In plain words' and section 0, where it asserted a placement precision M3 never measured; remaining figures there (30 m unit, 911, 324 km2, 463 km2, 98, 95 %) are produced by the declared m3_sample/m3_score/m3_recheck. Spot-checked m3_sample.py (unit_px coarsening to 30 m), m3_recheck.py (blind second pass) and analysis_19 (bucket shares). Noted, not changed: the plain-words section cites 85 % from section 7b, whose source analysis_19 is declared there, not here.",
-  "generated_from_right_fact": "Read all 22 regions code against sentence: each about-the-data figure (104.33 footprint, 317.91 sealed, 26-52 % seam over five islands with its assert, 37 % undated, 98.8 % dated, 27.06 km2 greenhouse parcels) uses the fact its sentence names, and the pipeline table keeps generated values in the left column only; the only change since 2026-09-25 is prose, no region moved.",
-  "registry_holds_no_live_claim": "The six coincident keys were traced to every use: 2.7 is the 95 % half-width in validation.md, 4.7 the six-product spread, 17 km2 M0's greenhouse figure, 11 % M0's Gran Canaria extent growth, 152.9 the M0 GHSL column, 37 % generated on the page and analysis 19's pre-1981 share elsewhere; none is a hand-typed live value. '10 m' stays registered as the grid pixel size."
+  "declarations_plausible": "seam-harmonization §2 gains 52.69 and 92.34 km2, both read from m0_undated_vs_crops.csv (Gran Canaria: 52.69 dated + 39.65 undated = 92.34 km2, so undated 43 %, dated 57 %); the declaration now names that CSV. La Palma's 68 % remains as recorded and is marked unverified in the text, since no surviving output covers it.",
+  "generated_from_right_fact": "No generated region and no live value changed; the delta is one prose section and its declaration.",
+  "registry_holds_no_live_claim": "No registry entry added or removed; the new tokens are M0 measurements quoted as the evidence for a corrected transcription, not claims about the published layers."
  },
- "reviewed": "2026-09-29",
- "reviewer": "Claude Opus 5.5 (full listing read, at Luca's invocation of /verify-figures)"
+ "reviewed": "2026-09-30",
+ "reviewer": "Claude Opus 5.5 (figure-set delta against the 2026-09-29 attestation, at Luca's invocation of /verify-figures)"
 }

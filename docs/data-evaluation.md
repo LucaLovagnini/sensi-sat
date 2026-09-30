@@ -278,7 +278,9 @@ passes, and the one WSF 2015 → 2019 failed badly:
 1.0 to 3.6 km² per half-year with no spikes — which is what genuine construction
 looks like and what a method change does not. **measured**
 
-**Timanfaya: PASS.** 0.029 km² in 50.7 km² of lava = 0.06 %.
+**Timanfaya: PASS.** 0.029 km² in 52.0 km² of lava = 0.06 %. (The whole park polygon,
+unbuffered. The smaller area in the negative-control table of §2 is the same park
+with its buffered roads and visitor facilities cut out.)
 
 **Tajogaite: the sharpest result in M0.** Tracker reports 0.839 km² of built-up
 inside the 2021 lava field, split by when it was *first* detected:
@@ -554,8 +556,13 @@ Downloaded 2026-09-19 (five products, 41 tiles, 25 MiB, EPSG:3035). Four results
 | Copernicus Impervious Built-Up | 0.909 km² | 0.084 km² | **0.011 km²** | **0.060 km²** |
 | WSF Evolution / WSF 2015 / 2019 / Tracker / GHSL | still there | still there | still there | cannot express loss |
 
-87 % of the 2021 built-up inside the flow is gone by 2024, and 0.060 of the
-archipelago's 0.094 km² of 2021–2024 loss is that lava field. Copernicus is the only
+The purpose-built 2021→2024 change layer records 0.060 km² of "loss of cover" inside
+the flow — about 71 % of the 0.084 km² the 2021 status layer held there — and those
+0.060 km² are most of the archipelago's 0.094 km² of 2021–2024 loss. (An earlier
+version of this paragraph said 87 %: the 2024 status layer's 0.011 km² subtracted from
+the 2021 one's 0.084 km². Those are two releases made by different methods — see the
+next result — so their difference mixes real burial with method change, which is
+trap #1 in CLAUDE.md. Only the change layer measures change.) Copernicus is the only
 product in the stack that records the burial — the curated `loss-events` layer in the
 design now has a measured source. **measured** (The 2021 status already shows most of
 the loss while the 2018→2021 *change* layer showed none on La Palma: the two products
@@ -585,13 +592,15 @@ IBU 2018 against cells with a building dated ≤ 2018: recall Gran Canaria 48.3 
 Tenerife 58.6 %, Fuerteventura 44.9 %, **La Gomera 36.9 %** (WSF Evolution: 10 %);
 precision 57–80 % — the highest of any satellite product tested. On Gran Canaria's 10 m
 grid: Copernicus 2021 = 65.0 km², WSF 2019 = 83.2, Tracker by 2021 = 99.5; Copernicus
-vs Tracker IoU 0.40, with 52.9 km² of Tracker not in Copernicus (greenhouses, yards,
+vs Tracker IoU (intersection over union: the area both built masks share, divided by
+the area either one covers) 0.40, with 52.9 km² of Tracker not in Copernicus (greenhouses, yards,
 roads) and 18.4 km² the other way. **measured**
 
 **Verdict: GO.** Copernicus Impervious Built-Up is the independent accuracy anchor, the
 loss source, and the closest match to our definition; its status layers are per-release
-snapshots, its change layers the time series. Coverage stops at the EU's border and at
-2018.
+snapshots, its change layers the time series. Coverage stops at the EU's border and
+begins in 2018: there is no Impervious Built-Up status or change layer for any earlier
+year, so it cannot help before the seam.
 
 ## 6f. CORINE 2018: the "official ~6 %" measured (analysis 17)
 <!-- figures: docs/figures/data/m0_corine_2018.csv; external:one-off measurement in commit 0694845 — no script survives @ 2026-09-19 -->

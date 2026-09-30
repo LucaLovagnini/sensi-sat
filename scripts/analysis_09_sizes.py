@@ -5,6 +5,22 @@ layer is a few MB. This measures it for every dataset in hand: the raw download 
 (from data/raw/manifest.json) and the size of the Canary window re-encoded the way we
 would publish it (uint8/uint16 GeoTIFF, DEFLATE, SPARSE_OK, overviews).
 
+Frozen: this script records the M0 measurement as it was run on 2026-09-19 and its
+code is deliberately not updated. Two things have changed in the live pipeline since,
+and both explain why its sizes differ slightly from what `build.py` writes now:
+
+- "Sparse COG" was accurate for this run. `raster.write_cog` then set SPARSE_OK,
+  which lets all-empty tiles (the ocean) take no bytes at all. It was removed in
+  f8b3f2b (2026-09-20) because geotiff.js, the library the browser viewer reads
+  rasters with, cannot open such a file, and it bought only a few per cent over
+  DEFLATE compression alone. See CLAUDE.md trap #12.
+- The overviews here (the pre-shrunk, zoomed-out copies stored inside a COG) were
+  built with `write_cog`'s default then, nearest-neighbour. The live pipeline builds
+  categorical layers' overviews with `mode`: the most common value among a block's
+  non-empty pixels, because 0 is the files' nodata value and GDAL leaves nodata out
+  of the vote. A block holding any building therefore keeps a building's value, so
+  scattered buildings do not vanish when zoomed out. See CLAUDE.md trap #13.
+
 Output: docs/figures/data/m0_sizes.csv
     python scripts/analysis_09_sizes.py
 """

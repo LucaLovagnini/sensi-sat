@@ -56,7 +56,7 @@ here, deliberately, and the fact is recorded in their catalogue entry.
 
 | layer | what it shows | resolution | source |
 |---|---|---|---|
-| `buildings-dated` | every registered building and the year it was built, 1900–2020 | 10 m | Spanish cadastre |
+| `buildings-dated` | every registered building and the year it was built or comprehensively rebuilt (the cadastre's own definition, `data-evaluation.md` §11), 1900–2020 | 10 m | Spanish cadastre |
 | `settlement-era-a` | settlement extent including roads, dated 1985–2015 | 10 m | WSF Evolution + WSF Tracker |
 | `settlement-era-b` | settlement extent twice a year, 2016 → 2026 | 10 m | WSF Tracker |
 | `covered-agriculture` | greenhouse parcels | 10 m | Mapa de Cultivos |
@@ -113,11 +113,16 @@ There are three things one could do with it: guess a year from the nearest dated
 pixel, assign it the first epoch, or admit it. The first two manufacture 115 km² of
 history that was never observed. So the encoding has a **third state**:
 
-```
+```text
 0          not built
-1..200     the year it was first built  (1 = 1900, 121 = 2020)
+1..200     the year the pixel is dated to  (1 = 1900, 121 = 2020)
 255        built, but the year is unknown
 ```
+
+What that year means depends on the source. In the settlement layers it is when the
+satellite first saw settlement there; in `buildings-dated` it is the cadastre's year,
+which records when a building was built **or comprehensively rebuilt** — a *reforma
+integral* resets it (`data-evaluation.md` §11).
 
 A time slider never switches the undated class on; the map draws it in its own
 colour. The same code covers the cadastre's 1.3 % of buildings whose date field is
@@ -144,6 +149,13 @@ number with a confidence interval. These catch the failures that are knowable
 | **grid alignment** | two layers of one island silently half a pixel apart |
 | **valid COG / valid STAC** | a file a browser or another person's tools cannot read |
 
+A **COG** (Cloud-Optimised GeoTIFF) is an ordinary GeoTIFF raster whose bytes are laid
+out so that a browser can fetch just the tiles and zoom level it needs with HTTP range
+requests, instead of downloading the whole file. **STAC** (SpatioTemporal Asset
+Catalog) is the standard JSON format for describing such files — what each one
+covers, where, when and in what encoding — so another person's tools can find and
+read them. `docs/concepts.md` explains rasters and pixels from zero.
+
 Each gate reports its **measured value**, not just pass or fail, so a pass leaves a
 number worth reading and a failure says how far off it is.
 
@@ -153,7 +165,9 @@ number worth reading and a failure says how far off it is.
 > evidence of a bug. The bands are M0's measured ratios, widened, so a
 > *definitional* difference passes and a *broken build* does not.
 
-> **Why agreement uses IoU and not plain agreement.** About 95 % of pixels are
+> **Why agreement uses IoU and not plain agreement.** IoU is *intersection over
+> union*: the area two built masks share, divided by the area either one covers.
+> About 95 % of pixels are
 > "neither built". Any two maps of the Canaries agree on those, so plain agreement
 > would score almost anything above 0.9. IoU only looks at the union of what the
 > two maps call built.
