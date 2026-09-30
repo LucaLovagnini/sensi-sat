@@ -146,10 +146,18 @@ def main() -> int:
 
     if args.push:
         # Every remote write below goes to `origin`; make sure that is this project.
-        url = git("remote", "get-url", "origin", check=False).stdout.strip()
-        if not origin_is_ours(url):
-            print(f"origin is {url or 'not set'}, not {REPO_SLUG} — refusing to push",
-                  file=sys.stderr)
+        # A remote can PUSH somewhere other than it fetches from, and to several
+        # places at once, so every push URL is checked, not just the fetch URL.
+        # The fetch URL is checked too: --delete asks it whether a branch exists
+        # before pushing the deletion. `get-url` expands insteadOf/pushInsteadOf,
+        # so these are the addresses git will really use.
+        urls = [u for flag in ((), ("--push",))
+                for u in git("remote", "get-url", "--all", *flag, "origin",
+                             check=False).stdout.split()]
+        foreign = [u for u in urls if not origin_is_ours(u)]
+        if not urls or foreign:
+            print(f"origin reaches {', '.join(foreign) or 'nothing'}, not only {REPO_SLUG}"
+                  " — refusing to push", file=sys.stderr)
             return 1
 
     if args.delete:
