@@ -39,9 +39,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sensisat.config import ROOT  # noqa: E402
 from sensisat.figures import (  # noqa: E402
     COG_REGION,
-    DECLARATION,
     PROSE_SURFACES,
     SECTION_SURFACES,
+    declaration,
     figure_set,
     fingerprint,
     generated_regions,
@@ -93,7 +93,7 @@ def listing() -> str:
     for rel in SECTION_SURFACES:
         md = (ROOT / rel).read_text()
         for heading, body in sections(md):
-            m = DECLARATION.search(body)
+            m = declaration(body)
             if m:
                 out += [f"    {rel} :: {heading[:60]}", f"        {m.group('sources')} @ {m.group('date')}"]
     return "\n".join(out)

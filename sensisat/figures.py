@@ -159,7 +159,9 @@ def normalise(token: str) -> str:
 QUANTITY_WORD = re.compile(
     r"\b(?:a (?:third|quarter|fifth|tenth)|two[- ]thirds|three[- ]quarters"
     r"|(?:one|two|three|four|five|six|seven|eight|nine) in (?:ten|five|four|three)"
-    r"|[a-z]+-fold)\b", re.I)
+    r"|[a-z]+-fold"
+    r"|(?:two|three|four|five|six|seven|eight|nine|ten|twelve|twenty|fifty"
+    r"|hundred|thousand|million)fold)\b", re.I)
 #: Ordinals and idioms that share a spelling with a fraction. Each is here because
 #: it occurred in the prose; extend this list, never loosen the rule above.
 NOT_A_QUANTITY = re.compile(r"third part(?:y|ies)|as a third\b|a third surface", re.I)
@@ -306,6 +308,32 @@ DECLARATION = re.compile(
     r"<!--\s*figures:\s*(?P<sources>.+?)\s*@\s*(?P<date>\d{4}-\d{2}-\d{2})\s*-->", re.S)
 LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
 
+#: A fenced block or an inline-code span. Text inside one is being SHOWN, not used.
+#: This matters because the documents that explain the mechanism print the syntax as
+#: an example: CLAUDE.md #22 quotes `<!-- figures: <source>; … @ <date> -->`, and
+#: `figure-provenance.md` will do the same. A parser that reads those as real
+#: declarations invents a section that nobody wrote and — because the pattern is
+#: non-greedy and spans newlines — swallows the prose after it as far as the next
+#: genuine `@ YYYY-MM-DD ... -->`, which may be several headings away. Match the
+#: fence first so a ``` block is not shredded by the single-backtick alternative.
+CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+
+
+def _without_code(text: str) -> str:
+    """Blank every code span, keeping the offsets so nothing downstream shifts."""
+    return CODE_SPAN.sub(lambda m: " " * len(m.group(0)), text)
+
+
+def declarations(text: str) -> list[re.Match]:
+    """Every declaration that is being USED — never one that is being shown."""
+    return list(DECLARATION.finditer(_without_code(text)))
+
+
+def declaration(text: str) -> re.Match | None:
+    """The first real declaration, or None. `DECLARATION.search` is not a substitute:
+    it cannot tell a live declaration from an example of one."""
+    return next(iter(declarations(text)), None)
+
 
 def sections(md: str) -> list[tuple[str, str]]:
     """(heading, text) per section: the H1 preamble, then each `## ` block with its
@@ -319,7 +347,7 @@ def declaration_problems(md: str, *, root: Path = ROOT) -> list[str]:
     out = []
     for heading, body in sections(md):
         toks = figures_in(body, html=False)
-        decl = DECLARATION.search(body)
+        decl = declaration(body)
         if toks and not decl:
             out.append(f"{heading!r}: {len(toks)} undeclared figures "
                        f"({', '.join(sorted(toks)[:4])}{'…' if len(toks) > 4 else ''})")
@@ -448,7 +476,7 @@ def figure_set(texts: dict[str, str] | None = None) -> dict:
         out["sections"][rel] = {h: sorted(figures_in(b, html=False)) for h, b in sections(md)
                                 if figures_in(b, html=False)}
         out["declarations"][rel] = [m.group("sources") + " @ " + m.group("date")
-                                    for m in DECLARATION.finditer(md)]
+                                    for m in declarations(md)]
     for rel in ["viewer/about-the-data.html", "README.md", *SECTION_SURFACES]:
         regions = generated_regions(read(rel, texts))
         if regions:

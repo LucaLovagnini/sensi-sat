@@ -153,7 +153,7 @@ def main() -> int:
     problems = [p for rel in g.SECTION_SURFACES for p in g.declaration_problems((ROOT / rel).read_text())]
     fx = (g.declaration_problems("## A\n\n12 km²\n") and g.declaration_problems("## A\n<!-- figures: nope.py @ 2026-01-01 -->\n12 km²\n")
           and g.declaration_problems("# T\n\n12 km²\n\n## A\nx\n") and not g.declaration_problems("# T\n<!-- figures: scripts/build.py @ 2026-01-01 -->\n12 km²\n"))
-    n_decl = sum(len(g.DECLARATION.findall((ROOT / rel).read_text())) for rel in g.SECTION_SURFACES)
+    n_decl = sum(len(g.declarations((ROOT / rel).read_text())) for rel in g.SECTION_SURFACES)
     report("14", not problems and bool(fx), f"every section stating a figure declares an existing source ({n_decl} declarations, {len(g.SECTION_SURFACES)} files); undeclared, missing-file and preamble fixtures behave")
 
     css = (ROOT / "viewer" / "about.css").read_text()

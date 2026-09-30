@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import inspect
 from datetime import datetime
 
 import pytest
@@ -60,3 +61,38 @@ def test_greenhouse_masking_applies_to_exactly_the_agreed_layers():
 
 def test_every_island_has_a_box():
     assert len(ISLAND_BBOX) == 8
+
+
+def test_only_the_cadastre_calls_its_year_a_rebuild():
+    """CLAUDE.md §11: a *reforma integral* — a comprehensive renovation — resets the
+    year the Catastro holds, so `buildings-dated` means "built OR comprehensively
+    rebuilt". That is a property of a legal register, not of the layer's shape. WSF
+    Evolution's year is the epoch a satellite first saw settlement on that pixel, and
+    nothing resets when a building is renovated. So the correction belongs to the
+    cadastre alone: copying it onto `settlement-era-a` would publish a cadastral
+    semantic on a radar product, and dropping it from `buildings-dated` restores the
+    mislabel that M3 measured the cost of (24–33 % of "new construction" already
+    standing in 2015)."""
+    cadastre = inspect.getsource(layers._buildings_dated)
+    era_a = inspect.getsource(layers._settlement_era_a)
+    assert "year built or comprehensively rebuilt" in cadastre
+    assert "year first built" not in cadastre, "the wording this replaced is back"
+    assert "year first built" in era_a
+    assert "rebuilt" not in era_a, "a cadastral semantic has spread to WSF Evolution"
+
+
+def test_the_encoding_key_is_dispatch_and_must_not_be_corrected():
+    """`spec.encoding` reads like a description and is not one. It is the key that
+    selects the QA gate (`build.py` -> `qa.growth_only`), the zonal kind, the
+    catalogue's units and `PROVENANCE_CLASSES` — and it is published verbatim as
+    `sensisat:encoding`. The two year layers share it deliberately: they have the same
+    SHAPE (a uint8 year plus a provenance band), which is what the dispatch asks
+    about, even though they do not mean the same thing. So "or comprehensively
+    rebuilt" goes in the band description, which is prose, and NOT here: changing this
+    for one layer breaks dispatch, and changing it for both applies the cadastre's
+    semantics to a satellite product. This test is the note that the shared value is
+    intended, so a later reader does not "fix" it."""
+    from sensisat.catalog import UNITS
+    assert layers.LAYERS["buildings-dated"].encoding == "year first built"
+    assert layers.LAYERS["settlement-era-a"].encoding == "year first built"
+    assert "year first built" in UNITS, "the encoding key is looked up, not read"

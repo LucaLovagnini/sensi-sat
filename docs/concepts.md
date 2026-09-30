@@ -147,6 +147,157 @@ Canaries (partial); Dynamic World's 308 km² is ~20 % of Gran Canaria, and its 2
 has no real-world counterpart — classification flicker. A number like "20 % urban" means nothing without
 its definition.
 
+## 8. Coordinate systems — why "10 m" pixels are not 10 m, and why everything lands on one grid
+<!-- figures: sensisat/grid.py; sensisat/config.py; sensisat/layers.py @ 2026-09-30 -->
+
+A **coordinate reference system** (CRS) is the rule that turns a place on the round
+Earth into a pair of numbers. There are two families, and the difference is the source
+of a whole class of quiet error.
+
+- **Geographic** systems give **degrees** of latitude and longitude. **EPSG:4326** —
+  "EPSG" is just the catalogue the numbers come from — is the familiar one, the
+  lat/lon a phone reports. It covers the whole planet with no seams.
+- **Projected** systems give **metres on a flat sheet**, by choosing how to flatten
+  the curved surface. **EPSG:3035** is one built for Europe, **EPSG:32628** is UTM
+  zone 28 N, the strip the Canaries fall in. Distances behave like distances, but each
+  projection is only accurate over the region it was designed for.
+
+Every flattening distorts something — area, angle, or distance — and no projection
+avoids all three. That is why there are thousands of them rather than one.
+
+**Why this project cares.** Our seven layers come from five producers in *three*
+different systems: WSF is 4326, Copernicus is 3035, the cadastre is 32628. On their
+own grids, two layers of the same island do not line up pixel-for-pixel, so the viewer
+cannot stack them and the quality gates cannot compare them without resampling at every
+comparison — and **resampling a category is how a date nothing happened gets invented**
+(CLAUDE.md #5). So everything is converted **once**, at build time, onto one shared
+grid. Afterwards two layers have byte-identical shapes and `a & b` is a real question
+about one piece of ground.
+
+**Which grid, and what it cost.** WSF Tracker's own grid, unchanged: it is EPSG:4326,
+which four of the seven layers already use, and it is the native grid of era-b, the
+layer carrying 2016 to today — the one we least want to disturb. Web maps expect
+degrees or Web Mercator anyway, so a metric grid would have to be converted for display
+regardless. The price is that Copernicus is reprojected once here rather than never;
+`sensisat/grid.py` records the trade and the STAC item records that it happened.
+
+**The trap that follows from choosing degrees.** A pixel on this grid is a fixed number
+of *degrees* on both axes, and a degree of longitude shrinks as you move away from the
+equator — the meridians converge at the poles. So a "10 m" pixel is not a 10 m square:
+
+<!--[[[cog
+import math
+from sensisat import grid
+from sensisat.config import CANARIES_BBOX, EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG
+
+def pixel(lat):
+    ns = grid.PIXEL_DEG * EARTH_MERIDIONAL_M_PER_DEG
+    ew = grid.PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(lat))
+    return ns, ew, ns * ew
+
+south, north = CANARIES_BBOX[1], CANARIES_BBOX[3]   # the archipelago's own latitude span
+(ns, ew_s, a_s), (_, ew_n, a_n) = pixel(south), pixel(north)
+nominal = grid.NOMINAL_M ** 2
+cog.outl(
+    f"> one pixel = **{grid.PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\n"
+    f"> north–south that is **{ns:.2f} m** at every latitude\n"
+    f"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (El Hierro) and "
+    f"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\n"
+    f"> so one pixel covers **{a_n:.1f}–{a_s:.1f} m²** across the archipelago, "
+    f"never the nominal {nominal:.0f} m²"
+)
+cog.outl(
+    f"\nCall a pixel {nominal:.0f} m² and you claim {nominal:.0f} where "
+    f"{a_n:.1f}–{a_s:.1f} stands, so **every area comes out "
+    f"{(nominal / a_s - 1) * 100:.0f} %–{(nominal / a_n - 1) * 100:.0f} % too large** "
+    f"({nominal:.0f} ÷ {a_s:.1f} = {nominal / a_s:.3f}; {nominal:.0f} ÷ {a_n:.1f} = "
+    f"{nominal / a_n:.3f}), and the error grows the further north you go. Watch the "
+    f"denominator: the same error is {(1 - a_s / nominal) * 100:.0f} %–{(1 - a_n / nominal) * 100:.0f} % "
+    f"of the *claimed* total, which is the smaller-looking way to say the same thing "
+    f"and how CLAUDE.md #2 states it."
+)
+]]]-->
+> one pixel = **8.983e-05 degrees** on each axis — a constant, everywhere
+> north–south that is **9.98 m** at every latitude
+> east–west it is **8.87 m** at 27.5 °N (El Hierro) and **8.69 m** at 29.6 °N (north of Lanzarote)
+> so one pixel covers **86.8–88.6 m²** across the archipelago, never the nominal 100 m²
+
+Call a pixel 100 m² and you claim 100 where 86.8–88.6 stands, so **every area comes out 13 %–15 % too large** (100 ÷ 88.6 = 1.129; 100 ÷ 86.8 = 1.152), and the error grows the further north you go. Watch the denominator: the same error is 11 %–13 % of the *claimed* total, which is the smaller-looking way to say the same thing and how CLAUDE.md #2 states it.
+<!--[[[end]]]-->
+
+## 9. How the data are published: COG and STAC — the reason there is no server
+<!-- figures: sensisat/raster.py; sensisat/layers.py; docs/pipeline.md @ 2026-09-30 -->
+
+A **GeoTIFF** is an ordinary TIFF image carrying, in its header, where on Earth each
+pixel sits and in which CRS (§8). A **Cloud-Optimized GeoTIFF (COG)** is the same
+image with its bytes *deliberately ordered* so a reader that cannot open the file
+locally can still read part of it over the network.
+
+Three properties make that work:
+
+- **Tiling.** The image is stored as independent square blocks rather than row by row,
+  so a reader can fetch one block without the rest. A block is the smallest thing that
+  can be read, so it is also the unit the viewer's cost is paid in — which is why its
+  near/far threshold is counted in blocks, not in pixels (`docs/viewer.md`).
+- **Overviews.** Pre-shrunk copies of the whole image live inside the same file, so a
+  zoomed-out view reads a small overview instead of decoding everything.
+- **Byte order.** Header first, then the overviews, *then* the full-resolution image.
+  A reader fetches the header, learns the layout, and asks for exactly the byte ranges
+  it needs — an HTTP **range request**, the same mechanism that lets a video player
+  seek without downloading the film.
+
+<!--[[[cog
+from sensisat.layers import LAYERS
+by_size = {}
+for name, spec in LAYERS.items():
+    by_size.setdefault(spec.mosaic_blocksize, []).append(name)
+parts = [f"**{n} × {n}**" + (f" (`{'`, `'.join(v)}`)" if len(v) < len(LAYERS) else "")
+         for n, v in sorted(by_size.items(), reverse=True)]
+cog.outl("Our blocks are " + " and ".join(parts) + " pixels.")
+]]]-->
+Our blocks are **1024 × 1024** (`buildings-dated`, `settlement-era-a`, `settlement-era-b`, `covered-agriculture`, `density-current`, `loss-events`) and **256 × 256** (`density-trend`) pixels.
+<!--[[[end]]]-->
+
+**Block size is a balance between two opposite costs**, and it is worth following
+because the same shape recurs. Big blocks keep the *tile-offset table* small — the
+index of where every block starts, which a reader must fetch **in full** before it can
+draw anything: on the archipelago grid that table is 23 KiB at 1024 × 1024 but 334 KiB
+at 256 × 256, paid on every cold visit. Small blocks keep the *decode* small, and that
+matters when a layer has many bands, because a tile stores its bands interleaved — you
+cannot read one band without decoding the whole tile. `density-trend` carries ten
+epochs, so a 1024 tile would decode 20 MB to answer a question about one of them. It
+takes the small block; its image is coarse enough (~92 m) that the bigger header costs
+little. Every other layer takes the large one.
+
+**This is why the site has no backend.** The browser does the reading. There is no
+service converting our rasters into map tiles, nothing to run, nothing to pay for, and
+nothing that can be down independently of the file store. It is also why the readout
+can count real pixels: the same bytes the build measured are the bytes the browser gets.
+
+**A COG is defined by that byte layout, not by having overviews in it** (CLAUDE.md #6).
+Writing a plain GeoTIFF and appending overviews afterwards leaves them at the *end* of
+the file, which `rio cogeo validate --strict` rejects and a range reader cannot use. We
+write through GDAL's COG driver, which is the only reason the order comes out right.
+Two more settings are load-bearing and counter-intuitive: `SPARSE_OK` is refused
+although these islands are mostly ocean, because geotiff.js cannot read the zero-length
+tile entries it writes and the layer silently never renders (CLAUDE.md #12); and
+overviews of the categorical layers use `mode`, not `nearest`, because nearest makes
+sparse buildings vanish when zoomed out (CLAUDE.md #13).
+
+**STAC** — *SpatioTemporal Asset Catalog* — is the other half: a small set of JSON
+files describing what was published. A *collection* describes a layer, an *item* one
+raster, and each item lists its **assets** (the actual files), its footprint, its dates
+and its licence. It is a widely-used convention rather than a format we invented, so
+another tool can discover our layers without being told how we lay files out.
+
+Two things to know about it here. **A valid catalogue is not a usable one** — a schema
+checks that a link is well-formed, never that it resolves, so a separate `assets-resolve`
+gate opens every href (CLAUDE.md #14). And **the viewer does not read the catalogue at
+all**: it fetches `data/processed/index.json`, a flattened runtime index written by
+`publish.py`, one request instead of a catalogue walk. The cost of that shortcut is that
+a rebuild can leave the index stale while every STAC item on disk is correct and every
+gate passes (CLAUDE.md #20).
+
 ## Regenerating the figures
 <!-- figures: docs/figures/src/preview_frame.py; docs/figures/src/m0_results.py @ 2026-09-19 -->
 

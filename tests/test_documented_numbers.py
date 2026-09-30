@@ -39,12 +39,15 @@ from sensisat.figures import (  # noqa: E402
     _prose,
     code_referring_to,
     current_exemptions,
+    declaration,
     declaration_problems,
+    declarations,
     figures_in,
     fingerprint,
     hand_typed_live_figures,
     js_user_facing_strings,
     quantity_words_without_digits,
+    read,
     token_level_figures,
     viewer_js_surfaces,
 )
@@ -176,6 +179,12 @@ def test_quantity_words_carry_their_digits() -> None:
     ('write "three in ten (31 %)", not "three in ten".', True),  # mentioned, not used
     ("six-fold (2,700 m² against 450 m²)", True),
     ("overstates it six-fold.", False),
+    ("the number froze across a tenfold zoom range", False),   # unhyphenated, same claim
+    ("a tenfold (10×) zoom range", True),
+    ("a hundredfold increase", False),
+    ("the manifold of possible grids", True),      # -fold inside a word is not a figure
+    ("wrapped in scaffolding", True),
+    ("unfold the panel", True),
     ("Growth ×7.5 in the table.\n\nOverstates it six-fold.", False),  # not across paragraphs
 ])
 def test_quantity_word_rule_fixtures(text: str, ok: bool) -> None:
@@ -418,6 +427,48 @@ def test_list_marker_rule_is_positional(text: str, exempt: bool) -> None:
     toks = list(TOKEN.finditer(text))
     assert toks, text
     assert (toks[0].start() in exempt_at) is exempt, f"{text!r}: exempt={not exempt} — wrong"
+
+
+def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
+    """Both CLAUDE.md #22 and figure-provenance.md §4 QUOTE the declaration syntax, in
+    backticks, in order to explain it. Parsed literally an example is indistinguishable
+    from a declaration and wins by position: in CLAUDE.md the quoted one SWALLOWED the
+    real declaration of "Before the site goes public", so the whole-file scan recorded
+    a source nobody wrote — "<source>; … @ <date> -->` under its heading; …" — and the
+    real pair, scripts/build.py; scripts/publish.py, was never seen at all. The count
+    was unchanged, which is why it went unnoticed. Masking code spans first fixes it
+    without the documents having to stop explaining themselves."""
+    md = (
+        "## Real\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n\nthe total is 12 km².\n\n"
+        "## How to write one\n"
+        "Every section carries `<!-- figures: <source>; … @ <date> -->` under its heading.\n\n"
+        "## Also real\n<!-- figures: scripts/publish.py @ 2026-09-21 -->\n\n7 layers.\n"
+    )
+    assert [m.group("sources") for m in declarations(md)] == [
+        "scripts/build.py", "scripts/publish.py"]
+    assert declaration(md).group("sources") == "scripts/build.py"
+
+    fenced = "```\n<!-- figures: not-a-real-source.py @ 2026-09-21 -->\n```\n"
+    assert declarations(fenced) == [], "a fenced example is being read as a declaration"
+
+
+def test_no_real_document_declares_a_source_that_is_really_prose():
+    """The regression the test above describes, on the real files: every source a
+    document declares must look like a source list, not like a sentence that a quoted
+    example leaked into."""
+    problems = []
+    for rel in SECTION_SURFACES:
+        for m in declarations(read(rel)):
+            src = m.group("sources")
+            # The leak's signature, measured: no real declaration in the corpus
+            # contains a backtick, a newline or a "-->", and a swallowed one
+            # contains all three. Length does not discriminate — the longest real
+            # declaration is 465 characters.
+            if "`" in src or "\n" in src or "-->" in src:
+                problems.append(f"  {rel}: {src[:80]!r}…")
+    assert not problems, (
+        "a declaration was parsed out of prose rather than out of a declaration:\n"
+        + "\n".join(problems))
 
 
 if __name__ == "__main__":

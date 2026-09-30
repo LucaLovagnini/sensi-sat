@@ -368,6 +368,38 @@ municipalities: **474,292 buildings, 98.92 % carrying a construction year.** The
 all, or `88-01-01`, which could be 1888 or 1988. A two-digit year is ambiguous, so
 those stay in the undated class rather than being resolved by guesswork.
 
+### Two ways a partial build leaves the published folder inconsistent
+<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py @ 2026-09-30 -->
+
+Both were found on 2026-09-30 by changing one layer's band description and watching
+what did *not* follow. Both are the same shape as CLAUDE.md #20 — a build leaves the
+folder in a state every gate calls healthy.
+
+**A per-island STAC item is only rewritten while that island's intermediate COG is on
+disk.** `write_catalog` (`build.py`) walks `PROCESSED/<layer>/<island>.tif` and skips
+any island whose file is absent. Since C2 those per-island COGs are intermediates —
+the published asset is the shared `archipelago.tif` — so on a cleaned tree the walk
+finds nothing and the items on disk are silently kept as they were. Changing one
+island's build therefore left **1 item describing the new band description and 7 still
+describing the old one, all 8 pointing at the same file**. `assets-resolve` cannot see
+it: every href resolves, because they all resolve to the same mosaic. `--catalog-only`
+does not repair it either, for the same reason — it re-runs exactly this walk. The
+repair is a full build of the layer (`--layer <name>` with no `--island`), which
+regenerates all eight intermediates and so all eight items.
+
+**`facts.size_published()` is measured from a tree `build.py` has just made
+incomplete.** It sums everything under `data/processed/` that is not a build
+intermediate, and `index.json` is not one — it is a published file, 52.0 KiB of it.
+But `build.py` *deletes* `index.json` at the end of every run (correctly: it would
+otherwise be stale, CLAUDE.md #20), and then syncs the documents. So the sequence
+`build.py` → `sync_docs` writes a published-size figure measured without a published
+file: **67.8 MiB where the true figure is 67.9**. It is small, it is in a document,
+and nothing downstream disagrees with it, because every check re-measures the same
+incomplete tree. Running `publish.py` restores both the file and the figure. If
+`publish.py` is refusing — it exits 3 while the figure review is stale — the index
+alone can be rewritten with `runtime_index()` from `scripts/publish.py`, which is what
+that step does and nothing more.
+
 ### Size — the one criterion not met as written
 
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is
