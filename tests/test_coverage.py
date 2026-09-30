@@ -14,6 +14,7 @@ import rasterio
 from affine import Affine
 from rasterio.enums import Resampling
 
+from sensisat.config import EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG
 from sensisat.coverage import CELL_DEG, cell_factor, coverage_grid
 from sensisat.raster import row_areas_m2, write_cog
 
@@ -52,9 +53,9 @@ def test_the_cell_size_is_the_one_the_measurements_assume():
     # and about 97 m east-west -- and the east-west side shrinks with latitude, from
     # 97.5 m over El Hierro to 95.8 m over Lanzarote. Saying "~99 m cells" is wrong;
     # the honest description is "about a hectare".
-    ns = fy * PX * 111_320
-    assert ns == pytest.approx(110.0, abs=0.5)
-    ew_28 = fx * PX * 111_320 * np.cos(np.radians(28.1))
+    ns = fy * PX * EARTH_MERIDIONAL_M_PER_DEG
+    assert ns == pytest.approx(109.8, abs=0.1)
+    ew_28 = fx * PX * EARTH_EQUATORIAL_M_PER_DEG * np.cos(np.radians(28.1))
     assert ew_28 == pytest.approx(97.0, abs=0.5)
     assert ns * ew_28 / 1e4 == pytest.approx(1.07, abs=0.02)      # hectares
 

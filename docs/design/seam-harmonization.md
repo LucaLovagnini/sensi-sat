@@ -16,14 +16,18 @@ more importantly, about *which land* is built. Glued naively, the map would show
 decides how the join is made.
 
 ## 2. What we measured (Milestone 0, `docs/data-evaluation.md`)
-<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19 -->
+<!-- figures: scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19 -->
 
 - The 27 % gap is two opposite effects: pixel size (30 m → 10 m shrinks extent ÷ 2.27)
   and definition (Tracker counts more: × 1.66). They partly cancel archipelago-wide
   and will not cancel the same way per island (definitional ratio 1.12× to 2.02×).
 - **43 % of Tracker's 2016 footprint (115 km²) lies on land WSF Evolution never
-  flagged in any year** — 57 % on Gran Canaria, 48 % on Tenerife, 68 % on La Palma.
-  Only 57 % of Tracker's baseline can inherit a year from Evolution at all.
+  flagged in any year** — 43 % on Gran Canaria, 48 % on Tenerife, 68 % on La Palma.
+  Only 57 % of Tracker's baseline can inherit a year from Evolution at all. (Gran
+  Canaria was first written here as 57 %, which is its *dated* share: 52.69 of
+  92.34 km² in `m0_undated_vs_crops.csv`. The La Palma figure has no surviving
+  output — no CSV covers that island's undated share — so it stands as recorded,
+  unverified.)
 - Both products are growth-only by construction; neither can express loss.
 - GHSL (surface, 1975–2020) spans the seam with a single method. Copernicus HRL
   (2006–2024, once downloaded) does too, and publishes an explicit "technical vs
@@ -115,7 +119,7 @@ way Copernicus flags technical change — rather than a smooth line.
 **5.3 One 10 m "history" layer, with three provenance classes.** For the slider's fine
 view of the past we publish Tracker's footprint with, per pixel:
 
-| class | meaning | share (5 islands) |
+| class | meaning | share (5 islands, before the greenhouse mask) |
 |---|---|---:|
 | `dated` | year from the WSF Evolution pixel it falls in (1985–2015) | 57 % |
 | `pre-2016, undated` | Tracker says built by 2016-07; Evolution never flagged it | 43 % |
@@ -124,13 +128,20 @@ view of the past we publish Tracker's footprint with, per pixel:
 plus a provenance band so the UI can badge each pixel's source. The undated class is
 drawn in its own colour and appears only when the slider reaches 2016. This is P2
 applied honestly: the recipe DLR used, minus the part where we would have to invent
-data. *(Our design choice; the class shares are measured.)*
+data. *(Our design choice; the class shares are measured.)* The shares are of
+Tracker's raw July-2016 footprint on the five main islands, measured in M0 before
+greenhouse parcels were masked out (the same footprint as the 115 km² in §2). The
+published layer is masked and clipped to land, so its undated share is smaller; that
+current figure is generated, not typed, in `docs/validation.md` and on the public page.
 
 **5.4 Numbers that must cross the seam use a bridge, not a splice.** Long-run growth
-1985→2026 is reported from products that span the seam with one method: GHSL built
+from 1985 is reported from products that span the seam with one method: GHSL built
 surface (1975–2020, per P2 it is internally consistent) and, once downloaded,
-Copernicus Imperviousness Density (2006–2024). WSF gives the fine geography within an
-era; the bridge gives the trend across it (P3, P4). Where a WSF-only figure across the
+Copernicus Imperviousness Density (2006–2024). Neither reaches 2026, so the bridge
+ends in 2020 or 2024; the stretch after that exists only in WSF Tracker (to 2026-01),
+which is a single method within era-b and is reported beside the bridge, never
+appended to it. WSF gives the fine geography within an era; the bridge gives the
+trend across it (P3, P4). Where a WSF-only figure across the
 seam is unavoidable it is computed on the 100 m fraction grid and shown with the
 per-island offset and its uncertainty (P4).
 

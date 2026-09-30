@@ -387,9 +387,12 @@ export function sumStats(entries) {
 export function addedSince(series, from) {
   const keys = Object.keys(series || {}).map(Number).sort((a, b) => a - b);
   if (!keys.length) return 0;
-  const clamp = (v) => Math.min(Math.max(v, keys[0]), keys[keys.length - 1]);
+  // The running total AT a year is the value of the last key at or before it. An
+  // exact-key lookup would return undefined — and NaN km² — for any year the series
+  // happens not to list; carrying forward is right because the series is cumulative.
+  const at = (v) => series[String(keys.filter((k) => k <= v).pop() ?? keys[0])];
   const total = series[String(keys[keys.length - 1])];
-  return Math.max(0, round6(total - series[String(clamp(from))]));
+  return Math.max(0, round6(total - at(from)));
 }
 
 /* ---------------------------------------------------------------- captions */
@@ -404,11 +407,18 @@ export function addedSince(series, from) {
 export function describe(regime, names, total) {
   if (regime === 'near') return 'in view';
   if (names.length === 0) return 'no island in view';
-  if (names.length === total) return 'all eight islands';
+  if (names.length === total) return allIslands(total);
   if (names.length === 1) return names[0];
   if (names.length === 2) return `${names[0]} and ${names[1]}`;
   if (names.length === 3) return `${names[0]}, ${names[1]} and ${names[2]}`;
   return `${names.length} islands`;
+}
+
+/** "all eight islands", with the count taken from the catalogue rather than assumed. */
+export function allIslands(total) {
+  const words = ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight',
+                 'nine', 'ten'];
+  return `all ${words[total] ?? total} islands`;
 }
 
 /** Nothing in view is a real answer, not a missing one: the sea holds no buildings. */

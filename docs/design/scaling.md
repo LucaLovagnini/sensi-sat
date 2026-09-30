@@ -13,7 +13,8 @@ re-checked before committing.
 <!-- figures: measured:Chrome DevTools network panel over the local viewer on 2026-09-20 @ 2026-09-20 -->
 
 The important correction first: **the per-island file sizes are not what a visitor
-downloads.** A Cloud-Optimized GeoTIFF is read by HTTP range request — the client
+downloads.** A Cloud-Optimized GeoTIFF (COG — a raster file laid out so a client can
+read just the part it needs) is read by HTTP range request — the client
 fetches a header, learns the layout, and then asks only for the overview level and
 tiles on screen. Tenerife's building layer is a 1.5 MiB file; rendering it at
 island zoom cost **64 KiB** `[measured]`.
@@ -23,7 +24,7 @@ A cold visit — first time, nothing cached — measured on this build:
 | | requests | bytes (gzipped) |
 |---|---|---|
 | app shell (HTML + CSS + JS) | 3 | 11 KiB |
-| STAC catalogue walk | **64** | 77 KiB |
+| STAC catalogue walk (SpatioTemporal Asset Catalog: the JSON files describing each layer) | **64** | 77 KiB |
 | COG range reads (one layer, island + one city zoom) | ~2 | ~64 KiB |
 | **total from our origin** | **~70** | **~150 KiB** |
 
@@ -48,13 +49,14 @@ Against hosts, at the 4 TB row — the "it went genuinely viral" case `[list pri
 
 | host | egress cost at 4 TB/month | note |
 |---|---|---|
-| **Cloudflare Pages / R2** | **$0** | egress is free by design, not by allowance |
+| **Cloudflare Pages / R2** (R2: Cloudflare's file storage, like Amazon S3) | **$0** | egress is free by design, not by allowance |
 | S3 + CloudFront | ~$255 | 1 TB/month free, then ~$0.085/GB |
 | GitHub Pages | — | 100 GB/month soft limit; not for this |
 | Netlify | ~$2,145 | 100 GB free, then ~$55 per 100 GB |
 
 Request costs land differently: R2 bills reads (~$0.36/million after 10 M free),
-but a CDN in front collapses origin reads to near zero because every visitor wants
+but a CDN (content delivery network: copies of the files cached in data centres near
+each visitor) in front collapses origin reads to near zero because every visitor wants
 the same handful of files. CloudFront bills requests too, and at 1.2 B they would
 dominate the bill.
 
@@ -68,7 +70,8 @@ Everywhere else, cost is a function of popularity and must be watched.
 At a million visitors our own bandwidth is free and our origin is nearly idle. The
 things that actually break are **other people's servers**:
 
-- **IGN's PNOA WMS.** The aerial basemaps are a public service run by the Spanish
+- **IGN's PNOA WMS.** PNOA is Spain's national aerial-photography programme, and WMS
+  (Web Map Service) the standard protocol for asking a server for map images. The aerial basemaps are a public service run by the Spanish
   national mapping agency. They have no contract with us and no reason to absorb a
   traffic spike. Hammering them is a courtesy and terms-of-use problem, and the
   realistic outcome is being blocked — which breaks the feature for everyone.
@@ -81,13 +84,13 @@ things that actually break are **other people's servers**:
 None of these bill us. All of them can take the site down.
 
 ## 4. Guardrails
-<!-- figures: scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20 -->
+<!-- figures: scripts/publish.py; viewer/package.json; measured:curl range-request pre-flight against the live site on 2026-09-20; measured:Chrome DevTools network panel on the live site on 2026-09-20 (cold-load requests, module count, bundle size) @ 2026-09-20 -->
 
 Ordered by how much they protect, not by effort.
 
 **G1 — Host where egress is free.** Cloudflare. This is the only guardrail that
 removes the failure mode instead of bounding it: there is no bandwidth meter to run
-away. **Status: DONE — deployed 2026-09-20 to `sensisat.org`.**
+away. **Status: DONE — deployed 2026-09-20, on `sensisat.org` since 2026-09-24.**
 
 > **A platform limitation worth knowing before anyone repeats this.** Cloudflare's
 > Workers Assets platform **ignores the `Range` header**: measured on the live
@@ -235,12 +238,13 @@ All three were re-verified on `data.sensisat.org` after the real upload.
    "Upload complete" either way. Pass `--remote`. Eight uploads went into a directory
    on the laptop before `bucket info` reading `object_count: 0` gave it away — and
    that field is itself eventually consistent, so verify by fetching an object.
-2. **R2's CORS document is `{"rules": [...]}`**, not S3's top-level array, and the
+2. **R2's CORS (Cross-Origin Resource Sharing) document is `{"rules": [...]}`**, not S3's top-level array, and the
    default is *no* CORS: the OPTIONS preflight returns `403` until configured.
    `content-range` must be listed in `exposeHeaders`. Note that CORS is a browser
    policy and **never access control** — a client sending no `Origin` still receives
    every byte.
-3. **The CSP in `viewer/_headers` must name the data origin in `connect-src`**, or
+3. **The CSP (Content Security Policy, the header listing where a page may load
+   from) in `viewer/_headers` must name the data origin in `connect-src`**, or
    the browser blocks every raster fetch and the map stays empty with no network
    error any test would catch.
 4. **`viewer/app.js` fetches `<data>/statistics/layers.json` with `.catch(() => null)`** —
@@ -249,8 +253,9 @@ All three were re-verified on `data.sensisat.org` after the real upload.
 
 ### What is still open
 
-Putting the **site itself** on `sensisat.org` is a separate change: the canonical URL
-appears in the page's "How to cite" block, in `LICENSE-DATA.md`'s attribution, and in
-`verify_m4b.py`'s live link checks, so it is a deliberate edit with a re-attestation,
-not a DNS switch. The **WAF rate-limiting rule** from the security review is now
-possible too, since it also needed a zone.
+The **site itself** moved to `sensisat.org` on 2026-09-24: the page's
+"How to cite" block, `LICENSE-DATA.md`'s attribution and the README name it, the old
+`workers.dev` address is switched off, and the site is live there but unannounced.
+What remains is the **WAF (web application firewall) rate-limiting rule** from the
+security review, which became possible once the domain gave the project a Cloudflare
+zone.

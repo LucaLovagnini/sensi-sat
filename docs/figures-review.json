@@ -16,8 +16,8 @@
     "<source>; … @ <date> -->` under its heading; every headline\n    value `facts.py` computes is searched for typed by hand (the collision check).\n    `sensisat/figures.py` is the one definition; `pytest`, `build.py` (exit 4) and\n    `publish.py` (exit 3) run the same tests. Adding a number forces a choice —\n    **generate it, or declare where it came from** — and the failure names the\n    token and the file. The first fail-closed run surfaced 45 figures the old\n    regex had silently exempted, and four viewer figures wrong on the live site.\n23. **A quantity word must carry its digits.** Write \"three in ten (31 %)\", not\n    \"three in ten\"; \"a third (33.8 %)\", not \"a third\". The figure gates are\n    digit-based, so a number written as a word escapes them — which would make\n    dodging the gate easier than satisfying it. This is the one way the whole\n    arrangement could leave the project worse off than before, so it is a writing\n    rule, not a preference, and a lint enforces it (`docs/design/figure-provenance.md` §4).\n24. **Historical measurements must NOT be updated, and must be distinguishable.**\n    Most of the ~1,300 numbers in `docs/` record why a decision was taken — the\n    figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting\n    them to match a later build destroys the reasoning they exist to support. But a\n    reader cannot tell a frozen measurement from a stale one, so every document\n    carries a generated block (`facts.contract()`) stating which is which, and a\n    historical figure names the analysis script that produced it — per token in the\n    registry, per section in the declaration. **The gate cannot judge** whether a\n    generated figure comes from the right fact, whether a registry entry is really\n    a live claim, or whether a declared source fits: that is `/verify-figures`,\n    attested in `docs/figures-review.json`, which `publish.py` and the pre-push\n    hook require to be current.\n25. **Never let an import shadow a JavaScript built-in.** `viewer/app.js` had\n    `import Map from 'ol/Map.js'` for months. The first `new Map()` anyone wrote in\n    that file — a cache for the readout — silently constructed an OpenLayers map, so\n    every counted view failed at `.has()` and fell back to island sums with no error\n    a user could see. Minified it reads `yE.has is not a function`, nowhere near the\n    import. It is `OLMap` now, and `viewer/app.test.js` refuses any import bound to a\n    built-in's name.\n26. **`rasterio.windows.from_bounds` returns a fractional window** whose transform\n    is offset from the array `read()` actually returns. Distances computed that way\n    carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that\n    matter. Take the window in integer pixels around `src.index(lon, lat)`; a point\n    on a built pixel must then measure 0.0 m from one.\n\n## Before the site goes public\n<!-- figures: scripts/build.py; scripts/publish.py @ 2026-09-21"
    ],
    "docs/concepts.md": [
-    "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py @ 2026-09-19",
-    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
+    "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py; scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
+    "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; measured:first archipelago totals of WSF Evolution and WSF 2019, 2026-09-19, before analysis 1 — scope not recorded, no script survives @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/extent_vs_surface.py @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/src/change_view.py @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19",
@@ -65,12 +65,12 @@
     "measured:Chrome DevTools network panel over the local viewer on 2026-09-20 @ 2026-09-20",
     "external:Cloudflare / AWS / Netlify list prices read 2026-09-20; measured:arithmetic on §1's per-visit cost @ 2026-09-20",
     "measured:Chrome DevTools network panel on 2026-09-20 @ 2026-09-20",
-    "scripts/publish.py; measured:curl range-request pre-flight against the live site on 2026-09-20 @ 2026-09-20",
+    "scripts/publish.py; viewer/package.json; measured:curl range-request pre-flight against the live site on 2026-09-20; measured:Chrome DevTools network panel on the live site on 2026-09-20 (cold-load requests, module count, bundle size) @ 2026-09-20",
     "scripts/publish.py; scripts/upload_r2.py; external:Cloudflare R2 pricing and documentation read 2026-09-20; external:Cloudflare Workers platform limits read 2026-09-23; measured:Worker CPU per invocation from wrangler tail and the Workers dashboard on 2026-09-23; measured:R2 range pre-flight on r2.dev and on data.sensisat.org, 2026-09-24 @ 2026-09-24"
    ],
    "docs/design/seam-harmonization.md": [
     "scripts/analysis_01_totals.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
-    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
+    "scripts/analysis_03_seam_factors.py; scripts/analysis_11_undated_roads.py; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_seam_factors.csv; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-19",
     "external:CEOS LPV protocol v1.1 (2025) / Serra Pons & Saurí (2003) / the WSF Evolution GHSL GAIA and GISD30 method papers @ 2026-09-19",
     "scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
     "sensisat/derive.py; sensisat/encoding.py; scripts/analysis_03_seam_factors.py @ 2026-09-19",
@@ -95,7 +95,7 @@
     "scripts/m3_score.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
     "scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
     "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
-    "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
+    "scripts/m3_score.py; scripts/m3_diagnose.py; docs/figures/data/m3_labels_30m.json; scripts/analysis_12_undated_vs_crops.py; docs/figures/data/m0_undated_vs_crops.csv @ 2026-09-20",
     "scripts/m3_recheck.py; docs/figures/data/m3_labels_30m_pass2.json @ 2026-09-20",
     "measured:IGN PNOA historical WMS GetCapabilities queried 2026-09-20; scripts/analysis_19_cadastre_placeholder_years.py; docs/figures/data/m0_cadastre_spike_years.csv @ 2026-09-20",
     "measured:judgement timestamps written by viewer/label.js; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -133,8 +133,8 @@
      "**About the numbers in this document.** Figures fall into two kinds.\n\n*Live figures* are generated from the current build — the same `data/processed/statistics/layers.json` that produced the 7 published layers — by `scripts/sync_docs.py`. They cannot be stale: `scripts/build.py` regenerates them, `pytest` checks them, and `scripts/publish.py` refuses to assemble the site while any disagrees.\n\n*Historical measurements* are recorded as they were when they were taken, and are deliberately NOT updated. They are the evidence for a decision — the number that disqualified a dataset, or justified a threshold — and rewriting them to match a later build would destroy the reasoning they exist to support. Where one is reported, its analysis script is named, so it can be re-run and compared rather than trusted."
     ],
     [
-     "# Left column: this build. Right column: M0's own measurement of the same quantity,\n# typed here from docs/figures/data/m0_totals.csv, m0_imd_2024.csv and\n# m0_undated_vs_crops.csv — historical by design, so a rebuild moves only the left.\nbd = area_by(\"buildings-dated\", 2020)\ndc, dc_all = area(\"density-current\"), f.prop_sum(\"density-current\", \"sealed_km2_including_greenhouses\")\neb, eb_all = area(\"settlement-era-b\"), area(\"settlement-era-b\") + f.prop_sum(\"settlement-era-b\", \"greenhouse_removed_km2\")\nrows = [\n    (\"buildings-dated\", f\"**{km2(bd)} km²** (by 2020)\", f\"100.3 km² — agrees to **{bd / 100.3:.3f}×**\"),\n    (\"density-trend\", f\"**{km2(area('density-trend'))} km²** (2020)\",\n     f\"152.9 km² — differs by {abs(area('density-trend') - 152.9):.2f} km²\"),\n    (\"density-current\", f\"{km2(dc, 1)} km² masked / {km2(dc_all, 1)} incl. greenhouses\", \"341.5 km² sealed\"),\n    (\"settlement-era-a\", f\"{km2(area('settlement-era-a'), 1)} km² (2016 baseline, masked)\",\n     \"per-island extents reproduce M0 **exactly**\"),\n    (\"settlement-era-b\", f\"{km2(eb, 1)} km² (masked)\",\n     f\"{km2(eb_all, 1)} km² unmasked — the {km2(eb_all - eb, 1)} km² gap is the greenhouses\"),\n    (\"covered-agriculture\", f\"{km2(area('covered-agriculture'), 1)} km²\",\n     f\"{km2(area('covered-agriculture', 'Gran Canaria'), 1)} km² on Gran Canaria alone\"),\n    (\"loss-events\", f\"{km2(area('loss-events'), 1)} km² of change-layer built-up\", \"—\"),\n]\ncog.outl(\"| layer | archipelago | independent M0 figure |\")\ncog.outl(\"|---|---|---|\")\nfor name, ours, m0 in rows:\n    cog.outl(f\"| `{name}` | {ours} | {m0} |\")",
-     "| layer | archipelago | independent M0 figure |\n|---|---|---|\n| `buildings-dated` | **101.98 km²** (by 2020) | 100.3 km² — agrees to **1.017×** |\n| `density-trend` | **152.87 km²** (2020) | 152.9 km² — differs by 0.03 km² |\n| `density-current` | 317.9 km² masked / 338.8 incl. greenhouses | 341.5 km² sealed |\n| `settlement-era-a` | 239.1 km² (2016 baseline, masked) | per-island extents reproduce M0 **exactly** |\n| `settlement-era-b` | 262.5 km² (masked) | 305.2 km² unmasked — the 42.8 km² gap is the greenhouses |\n| `covered-agriculture` | 63.3 km² | 27.1 km² on Gran Canaria alone |\n| `loss-events` | 167.2 km² of change-layer built-up | — |"
+     "# Left column: this build. Right column: M0's own measurement of the same quantity,\n# typed here from docs/figures/data/m0_totals.csv, m0_imd_2024.csv and\n# m0_undated_vs_crops.csv — historical by design, so a rebuild moves only the left.\n# Two layers have no comparable M0 total, so their right cell is \"—\" and what used\n# to sit there (our own Gran Canaria greenhouse figure, our own unmasked era-b\n# total) has moved left, where it belongs. A generated number in a column headed\n# \"independent M0 figure\" reads as corroboration and is not.\nbd = area_by(\"buildings-dated\", 2020)\ndc, dc_all = area(\"density-current\"), f.prop_sum(\"density-current\", \"sealed_km2_including_greenhouses\")\neb, eb_all = area(\"settlement-era-b\"), area(\"settlement-era-b\") + f.prop_sum(\"settlement-era-b\", \"greenhouse_removed_km2\")\nrows = [\n    (\"buildings-dated\", f\"**{km2(bd)} km²** (by 2020)\", f\"100.3 km² — agrees to **{bd / 100.3:.3f}×**\"),\n    (\"density-trend\", f\"**{km2(area('density-trend'))} km²** (2020)\",\n     f\"152.9 km² — differs by {abs(area('density-trend') - 152.9):.2f} km²\"),\n    (\"density-current\", f\"{km2(dc, 1)} km² masked / {km2(dc_all, 1)} incl. greenhouses\", \"341.5 km² sealed\"),\n    (\"settlement-era-a\", f\"{km2(area('settlement-era-a'), 1)} km² (2016 baseline, masked)\",\n     \"per-island extents reproduce M0 **exactly**\"),\n    (\"settlement-era-b\",\n     f\"{km2(eb, 1)} km² masked / {km2(eb_all, 1)} unmasked — the \"\n     f\"{km2(eb_all - eb, 1)} km² gap is the greenhouses\", \"—\"),\n    (\"covered-agriculture\",\n     f\"{km2(area('covered-agriculture'), 1)} km² \"\n     f\"({km2(area('covered-agriculture', 'Gran Canaria'), 1)} on Gran Canaria alone)\", \"—\"),\n    (\"loss-events\", f\"{km2(area('loss-events'), 1)} km² of change-layer built-up\", \"—\"),\n]\ncog.outl(\"| layer | archipelago | independent M0 figure |\")\ncog.outl(\"|---|---|---|\")\nfor name, ours, m0 in rows:\n    cog.outl(f\"| `{name}` | {ours} | {m0} |\")",
+     "| layer | archipelago | independent M0 figure |\n|---|---|---|\n| `buildings-dated` | **101.98 km²** (by 2020) | 100.3 km² — agrees to **1.017×** |\n| `density-trend` | **152.87 km²** (2020) | 152.9 km² — differs by 0.03 km² |\n| `density-current` | 317.9 km² masked / 338.8 incl. greenhouses | 341.5 km² sealed |\n| `settlement-era-a` | 239.1 km² (2016 baseline, masked) | per-island extents reproduce M0 **exactly** |\n| `settlement-era-b` | 262.5 km² masked / 305.2 unmasked — the 42.8 km² gap is the greenhouses | — |\n| `covered-agriculture` | 63.3 km² (27.1 on Gran Canaria alone) | — |\n| `loss-events` | 167.2 km² of change-layer built-up | — |"
     ],
     [
      "excess = f\"{100 * (area_by('buildings-dated', 2020) / 100.3 - 1):.1f} %\"\ncog.outl(f\"The cadastre's {excess} excess over M0 is not an error in either: M0 used HISDAC-ES, \"\n         \"which sums exact polygon areas, while this rasterises polygons onto 10 m pixels. \"\n         \"A small building narrower than a pixel still lights the whole pixel. The two measure \"\n         f\"slightly different things and agreeing to {excess} is what should happen.\")",
@@ -450,6 +450,7 @@
    },
    "docs/concepts.md": {
     "## 1. A map frame is two layers: someone else's basemap + our thin overlay": [
+     "1,566 km²",
      "10–30 m",
      "160,000",
      "2",
@@ -460,19 +461,24 @@
      "659",
      "700",
      "77",
+     "793 m²",
      "8 %"
     ],
     "## 2. Pixels and resolution — the same city has different areas at 30 m and at 10 m": [
      "0.00026949",
+     "1",
      "10 m",
      "150 m²",
      "200 m²",
+     "230.4 km²",
      "26.5 m",
      "28",
      "293 km²",
      "30 m",
+     "376.9",
      "455 km²",
      "50 %",
+     "64 %",
      "793 m²",
      "900 m²",
      "900."
@@ -1091,7 +1097,7 @@
      "376.9",
      "4.01",
      "42.1",
-     "50.7 km²",
+     "52.0 km²",
      "53.3",
      "57.9",
      "6.2",
@@ -1371,7 +1377,6 @@
      "0.011 km²",
      "0.017 %",
      "0.052 %",
-     "0.060",
      "0.060 km²",
      "0.084 km²",
      "0.094 km²",
@@ -1406,6 +1411,7 @@
      "6",
      "65.0 km²",
      "67.3 %",
+     "71 %",
      "71.5 %",
      "83.2,",
      "87 %",
@@ -1506,6 +1512,7 @@
     "## 1. The problem in one paragraph": [
      "2.1×",
      "2.2×",
+     "26–52 %",
      "37 %",
      "43 %",
      "5 %",
@@ -1690,8 +1697,10 @@
      "30 m",
      "43 %",
      "48 %",
+     "52.69",
      "57 %",
-     "68 %"
+     "68 %",
+     "92.34 km²"
     ],
     "## 3. What the literature and the producers actually do": [
      "100 m",
@@ -1957,7 +1966,6 @@
      "911"
     ],
     "## 0. What was measured, and what was not": [
-     "10 m",
      "30 m"
     ],
     "## 1. The design": [
@@ -2091,6 +2099,7 @@
      "28.2 %",
      "3 %",
      "30 m",
+     "36.5 %",
      "42.5 %",
      "43 %",
      "60",
@@ -2201,7 +2210,6 @@
     ],
     "## In plain words, before any numbers": [
      "10",
-     "10 m",
      "100.",
      "2 %",
      "24–33 %",
@@ -2251,10 +2259,12 @@
      "101.7×",
      "1024",
      "1024 ×",
+     "10×",
      "12",
      "12.6",
      "127 years",
      "16",
+     "16×",
      "2",
      "2 %",
      "2,500",
@@ -2388,12 +2398,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "bd8098d4e87120caede5debb0ea2079bebd3571421585a552ec32cf5874101e4",
+ "fingerprint": "00f584ce0f3992ff10bd016f795b4b171e60c8334abb93a0a977d724307e2a7b",
  "judgements": {
-  "declarations_plausible": "No section declaration changed. One exemption did, and it is the right direction: viewer/app.js's url exemption falls from 1 to 0 because R2_DATA no longer contains a v2 prefix, so the digit that was exempted as URL structure is simply gone. Commit 37c1210 predicted exactly this when it introduced the prefix ('reverts with the URL at cutover').",
-  "generated_from_right_fact": "One live value moved and two printed figures with it: index.json gained the per-island asset hrefs (56 of them, ~2.4 KB), so size_published() crossed a rounding boundary and docs/pipeline.md now reads 67.9 MiB rather than 67.8, in both the sentence and the size table's total row. Checked the sentence still says something true — it is about the published output exceeding M2's single-digit-MiB target, which 67.9 does exactly as 67.8 did — and that the table still adds up: 28.8 + 12.7 + 25.5 = 67.0 against a 67.9 total, the remainder being the STAC and index JSON, which is the part that grew. No other generated region changed.",
-  "registry_holds_no_live_claim": "Unchanged, 63 entries."
+  "declarations_plausible": "seam-harmonization §2 gains 52.69 and 92.34 km2, both read from m0_undated_vs_crops.csv (Gran Canaria: 52.69 dated + 39.65 undated = 92.34 km2, so undated 43 %, dated 57 %); the declaration now names that CSV. La Palma's 68 % remains as recorded and is marked unverified in the text, since no surviving output covers it.",
+  "generated_from_right_fact": "No generated region and no live value changed; the delta is one prose section and its declaration.",
+  "registry_holds_no_live_claim": "No registry entry added or removed; the new tokens are M0 measurements quoted as the evidence for a corrected transcription, not claims about the published layers."
  },
- "reviewed": "2026-09-25",
- "reviewer": "Claude Opus 5 (session) — dual-shape index, no flag day; Luca's own first-hand reading of the full listing is still outstanding"
+ "reviewed": "2026-09-30",
+ "reviewer": "Claude Opus 5.5 (figure-set delta against the 2026-09-29 attestation, at Luca's invocation of /verify-figures)"
 }
