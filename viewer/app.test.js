@@ -97,3 +97,86 @@ test('the published data root carries no branch-only prefix', () => {
                `R2_DATA points at "${url.pathname}", not the bucket root`);
   assert.ok(!/BRANCH ONLY/i.test(SRC), 'app.js still carries a BRANCH ONLY marker');
 });
+
+test('the decode runs off the main thread', () => {
+  // A 25 km view inflates tens of millions of pixels out of the COG's compressed
+  // blocks. On the main thread that is a visibly frozen page: 616, 878 and 1,013 ms
+  // measured without the worker pool against 533 and 601 with it.
+  //
+  // Nothing else in the suite would notice if `pool: pool()` were dropped. Every
+  // number stays correct — the page merely stops responding for a second — and node
+  // cannot observe a freeze at all. So the wiring is asserted in the source, which
+  // is the only place it is visible outside a browser.
+  assert.ok(/import\s*\{[^}]*\bPool\b[^}]*\}\s*from\s*'geotiff'/.test(CODE),
+            "app.js must import geotiff's Pool");
+  assert.equal(CODE.split('.readRasters(').length - 1, 1,
+               'a second decode call has appeared; this test checks only the first');
+  const call = CODE.slice(CODE.indexOf('.readRasters('));
+  assert.ok(/\bpool:\s*pool\(\)/.test(call.slice(0, call.indexOf('})'))),
+            'readRasters decodes on the main thread, freezing the page for ~1 s');
+});
+
+test('the decode pool is built lazily and survives failing to be built', () => {
+  // Two separate ways this goes wrong, neither of them a wrong number.
+  //
+  // At module scope, `new Pool()` spawns workers on every page load — including the
+  // far-only layers, and including a reader who never zooms in far enough to count
+  // anything.
+  //
+  // Unguarded, it takes the readout down with it. Worker construction is exactly
+  // what a bundler or a strict CSP breaks, and the R2 migration has already shown
+  // how a CSP failure looks from the outside: nothing, until the number is missing.
+  // A readout that is merely slower is better than no readout.
+  assert.ok(!/^\s*(const|let|var)\s+\w+\s*=\s*new Pool\(/m.test(CODE),
+            'the pool is constructed at module scope, so every page load spawns workers');
+  const fn = CODE.slice(CODE.indexOf('function pool()'));
+  const body = fn.slice(0, fn.indexOf('\n}'));
+  assert.ok(/try\s*\{[\s\S]*new Pool\(\)[\s\S]*\}\s*catch/.test(body),
+            'new Pool() is unguarded; if it throws the reader gets no number at all');
+});
+
+test('era-b cannot be asked for growth from before its July-2016 baseline', () => {
+  // WSF Tracker's epoch 1 is July 2016 — the settlement ALREADY STANDING when the
+  // series opens, not growth. "Added since" subtracts the running total at an
+  // epoch, so asking from epoch 1 answers with epochs 2..n, which is the intent.
+  // Asking from epoch 0 would answer with the whole stock and label it new
+  // construction. On Gran Canaria that is the difference between a few km² and
+  // essentially the entire built island.
+  //
+  // The only thing between the two is the Math.max(1, ...) in toEpoch, and this is
+  // the one rule in app.js that is pure arithmetic — so it is extracted from the
+  // file this test already reads and run, rather than pattern-matched. If it stops
+  // being a one-line expression, this fails and says so.
+  const m = CODE.match(/const toEpoch = (\(\w+\) => [^;]+);/);
+  assert.ok(m, 'toEpoch is no longer the one-line rule this test knows how to read');
+  const toEpoch = new Function('return ' + m[1])();
+
+  assert.equal(toEpoch(1900), 1, 'a year before the series clamps to the baseline');
+  assert.equal(toEpoch(2016), 1, 'the baseline itself is epoch 1');
+  assert.equal(toEpoch(2016.5), 1);
+  assert.equal(toEpoch(2017), 2, 'the first epoch that can hold growth');
+  assert.equal(toEpoch(2026), 20, 'the last published epoch');
+  assert.equal(toEpoch(2100), 20, 'and it does not run off the end either');
+  // The step is half a year, the layer's own cadence: epoch 6 is 2019.0 and epoch 7
+  // is 2019.5. It ROUNDS rather than truncating, so a slider sitting between two
+  // epochs picks the nearer one instead of always the older.
+  assert.equal(toEpoch(2019), 6);
+  assert.equal(toEpoch(2019.4), 7);
+});
+
+test('the island sum is taken from one layer, never across the two eras', () => {
+  // Decision 13: era-a (WSF Evolution, 1985-2015) and era-b (WSF Tracker, 2016-2026)
+  // SHARE the 2016 baseline, so their extents must never be added — era-b's epoch 1
+  // is era-a's 2015 total over again, and a sum counts most of the archipelago twice.
+  //
+  // No path can do it today, and that is the point of pinning it: sumStats is called
+  // once, over the islands of ONE catalogue entry, and the eras are separate entries.
+  // This is a regression guard, not a defect to go and find.
+  assert.equal(CODE.split('sumStats(').length - 1, 1,
+               'sumStats now has more than one call site; each needs checking');
+  const line = CODE.slice(CODE.indexOf('sumStats('));
+  assert.ok(/^sumStats\(\w+\.map\(\(\w+\) => entry\.islands\[\w+\]\.stats\)\)/.test(line),
+            'the sum no longer draws its islands from a single catalogue entry');
+  assert.ok(/const entry = state\.catalog\?\.\[state\.layer\]/.test(CODE),
+            '`entry` is no longer one layer, so "one entry" no longer means one era');
+});
