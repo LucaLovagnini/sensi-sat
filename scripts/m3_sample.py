@@ -156,7 +156,9 @@ def survey(islands: list[str], unit_px: int = 1) -> tuple[dict[str, float], dict
             areas[name] += float((mask * cell).sum() / 1e6)
             rows, cols = np.nonzero(mask)
             if len(rows):
-                pools[name].append((island, transform, rows, cols))
+                # The stored value at each candidate too, so a drawn point can record
+                # the year the map claims for it.
+                pools[name].append((island, transform, rows, cols, year[rows, cols]))
     return areas, pools
 
 
@@ -214,7 +216,7 @@ def main() -> int:
     print(f"\n{'stratum':22s} {'km2':>10s} {'share':>8s} {'pixels':>12s} "
           f"{'usable':>7s} {'draw':>6s}")
     for s in sorted(areas, key=lambda k: -areas[k]):
-        px = sum(len(r) for _, _, r, _ in pools[s])
+        px = sum(len(r) for _, _, r, _, _ in pools[s])
         print(f"{s:22s} {areas[s]:10.2f} {100 * d['W'][s]:7.2f} % {px:12,d} "
               f"{d['usable'][s]:7d} {d['draw'][s]:6d}")
     print(f"{'TOTAL':22s} {total_area:10.2f} {'':9s} {'':12s} "
@@ -238,13 +240,19 @@ def main() -> int:
     rng = np.random.default_rng(args.seed)
     points, truth, counter = [], [], 0
     for s, want in d["draw"].items():
-        avail = [(isl, tr, r, c) for isl, tr, r, c in pools[s]]
-        sizes = np.array([len(r) for _, _, r, _ in avail], dtype=float)
+        avail = pools[s]
+        sizes = np.array([len(r) for _, _, r, _, _ in avail], dtype=float)
         if sizes.sum() == 0:
             continue
         # Spread the stratum's points across islands in proportion to where it occurs.
         per = rng.multinomial(want, sizes / sizes.sum())
-        for (island, transform, rows, cols), take in zip(avail, per, strict=True):
+        # The multinomial can give an island more points than it has cells; those are
+        # capped, and the stratum then ends up short of its design. Say so.
+        lost = int(sum(max(0, int(t) - len(r)) for (_, _, r, _, _), t in zip(avail, per, strict=True)))
+        if lost:
+            print(f"  ! {s}: {lost} of {want} points lost to the per-island cap "
+                  f"(an island had fewer cells than its multinomial share)")
+        for (island, transform, rows, cols, vals), take in zip(avail, per, strict=True):
             take = min(int(take), len(rows))
             if not take:
                 continue
@@ -256,13 +264,14 @@ def main() -> int:
                 points.append({"id": pid, "lon": round(lon, 7), "lat": round(lat, 7)})
                 truth.append({"id": pid, "island": island, "stratum": s,
                               "stratum_km2": round(areas[s], 3),
-                              "map_year": int(enc.decode_year(np.array([0]))[0])})
+                              # calendar year; 0 not built, -1 built but undated
+                              "map_year": int(enc.decode_year(vals[k:k + 1])[0])})
 
     rng.shuffle(points)
     out = Path(args.out)
     out.mkdir(parents=True, exist_ok=True)
     (out / "points.json").write_text(json.dumps(
-        {"island": "Canary Islands", "pixel_m": 10,
+        {"island": "Canary Islands", "pixel_m": 10 * args.unit_px,   # the assessment unit's side
          "imagery_years": [2015, 2024], "points": points}, indent=1))
     (out / "map_claims.json").write_text(json.dumps(
         {"strata": STRATA, "design": {k: v for k, v in d.items() if k != "W"},

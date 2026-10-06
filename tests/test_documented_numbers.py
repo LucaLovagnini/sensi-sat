@@ -37,14 +37,18 @@ from sensisat.figures import (  # noqa: E402
     TOKEN,
     YEAR,
     _prose,
+    _without_code,
     code_referring_to,
     current_exemptions,
+    declaration,
     declaration_problems,
+    declarations,
     figures_in,
     fingerprint,
     hand_typed_live_figures,
     js_user_facing_strings,
     quantity_words_without_digits,
+    read,
     token_level_figures,
     viewer_js_surfaces,
 )
@@ -95,9 +99,13 @@ def test_exemption_counts_match_the_baseline() -> None:
     assert EXEMPTIONS_BASELINE.exists(), "tests/fixtures/figure_exemptions.json missing"
     baseline = json.loads(EXEMPTIONS_BASELINE.read_text())
     now = current_exemptions()
-    diffs = [f"  {f}.{k}: baseline {baseline.get(f, {}).get(k)} -> now {v}"
-             for f, counts in now.items() for k, v in counts.items()
-             if baseline.get(f, {}).get(k) != v]
+    # Over the UNION of both sides: a surface or rule that stops producing counts
+    # (a viewer module no longer imported) is a silent loss of coverage, and must
+    # fail just as a changed count does.
+    diffs = [f"  {f}.{k}: baseline {baseline.get(f, {}).get(k)} -> now {now.get(f, {}).get(k)}"
+             for f in sorted(set(baseline) | set(now))
+             for k in sorted(set(baseline.get(f, {})) | set(now.get(f, {})))
+             if baseline.get(f, {}).get(k) != now.get(f, {}).get(k)]
     assert not diffs, (
         "an exception exempts a different number of tokens than it did:\n"
         + "\n".join(diffs)
@@ -172,6 +180,19 @@ def test_quantity_words_carry_their_digits() -> None:
     ('write "three in ten (31 %)", not "three in ten".', True),  # mentioned, not used
     ("six-fold (2,700 m² against 450 m²)", True),
     ("overstates it six-fold.", False),
+    ("the number froze across a tenfold zoom range", False),   # unhyphenated, same claim
+    ("a tenfold (10×) zoom range", True),
+    ("a hundredfold increase", False),
+    ("the manifold of possible grids", True),      # -fold inside a word is not a figure
+    ("wrapped in scaffolding", True),
+    ("unfold the panel", True),
+    # CodeRabbit on PR #11: hand-enumerating the number words left eleven of them
+    # out, so these three walked through the gate carrying a claim and no digits.
+    ("an elevenfold increase", False),
+    ("a thirteenfold rise", False),
+    ("a thirtyfold jump", False),
+    ("a twenty-twofold rise", False),
+    ("an elevenfold (11x) increase", True),
     ("Growth ×7.5 in the table.\n\nOverstates it six-fold.", False),  # not across paragraphs
 ])
 def test_quantity_word_rule_fixtures(text: str, ok: bool) -> None:
@@ -414,6 +435,120 @@ def test_list_marker_rule_is_positional(text: str, exempt: bool) -> None:
     toks = list(TOKEN.finditer(text))
     assert toks, text
     assert (toks[0].start() in exempt_at) is exempt, f"{text!r}: exempt={not exempt} — wrong"
+
+
+def test_data_version_ignores_hook_environment(monkeypatch: pytest.MonkeyPatch,
+                                               tmp_path: Path) -> None:
+    """Git exports GIT_DIR to the pre-push hook. Inherited, it made `data_version()`'s
+    `git log` come back empty, and the mtime fallback supplied the checkout date —
+    so the hook passed only in a clone old enough for the two to coincide.
+
+    The statistics live in a throwaway repository committed on a date no file
+    modification time can match, so the fallback cannot pass by coincidence."""
+    import os
+
+    from sensisat import facts
+    clean = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
+    stats = tmp_path / "data" / "processed" / "statistics" / "layers.json"
+    stats.parent.mkdir(parents=True)
+    stats.write_text("{}\n")
+    dated = clean | {"GIT_AUTHOR_DATE": "2000-01-02T00:00:00Z",
+                     "GIT_COMMITTER_DATE": "2000-01-02T00:00:00Z"}
+    for cmd in (["init", "-q"], ["add", "."],
+                ["-c", "user.name=t", "-c", "user.email=t@t", "commit", "-q", "-m", "stats"]):
+        subprocess.run(["git", *cmd], cwd=tmp_path, env=dated, check=True, capture_output=True)
+    monkeypatch.setattr(facts, "STATS", stats)
+    # What a hook sees: GIT_DIR pointing at the repository whose hook is running.
+    git_dir = subprocess.run(["git", "rev-parse", "--absolute-git-dir"], cwd=ROOT, env=clean,
+                             capture_output=True, text=True, check=True).stdout.strip()
+    monkeypatch.setenv("GIT_DIR", git_dir)
+    assert facts.data_version().endswith("data of 2000-01-02")
+
+
+#: Every way a document can SHOW the declaration syntax instead of using it. Four
+#: variants of one bug have been found here, three of them by review after the fix
+#: that was meant to close it — so the list is the test, and a new construct is one
+#: row rather than one more assertion buried in a function.
+#:
+#: What makes this family dangerous: NONE of the four ever changed the declaration
+#: COUNT. A quoted example that is read as real either adds an entry nobody wrote or,
+#: because DECLARATION is non-greedy and spans newlines, swallows the real one that
+#: follows and takes its place. The total looks right either way, which is how the
+#: first variant survived two attestations of CLAUDE.md and figure-provenance.md.
+#: So every row asserts the CONSEQUENCE — the section fails the gate — and not just
+#: that the parse came back empty.
+DECL = "<!-- figures: scripts/build.py @ 2026-09-21 -->"
+SHOWN_NOT_USED = [
+    ("inline span, one backtick", f"`{DECL}`"),
+    # Variant 4 (CodeRabbit, PR #11): a code span is a run of N backticks closed by a
+    # run of N. The pattern assumed N was 1, so only the delimiters were blanked.
+    ("inline span, two backticks", f"``{DECL}``"),
+    ("inline span, three backticks", f"```{DECL}```"),
+    ("fenced block, backticks", f"```\n{DECL}\n```"),
+    # Variant 2: Markdown fences with ``` or ~~~; the first fix masked only ```.
+    ("fenced block, tildes", f"~~~\n{DECL}\n~~~"),
+    ("fenced block, with an info string", f"~~~python\n{DECL}\n~~~"),
+    # Variant 3: the mask closed on ANY later run of the same character, so a fence
+    # that is only a PREFIX of a longer word ended it and exposed what followed.
+    ("closing fence is only a prefix of a word",
+     f"~~~python\nx = 1\n~~~notaclosingfence\n{DECL}\n~~~"),
+    ("a ``` block is not closed by ~~~", f"```\n{DECL}\n~~~"),
+    ("closing fence longer than the opener", f"~~~\n{DECL}\n~~~~~"),
+    ("fence indented up to three spaces", f"   ~~~\n{DECL}\n   ~~~"),
+]
+
+
+@pytest.mark.parametrize("name,shown", SHOWN_NOT_USED, ids=[n for n, _ in SHOWN_NOT_USED])
+def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one(name: str, shown: str):
+    """A document that explains the syntax must not thereby declare itself."""
+    md = f"## A section\n\nWrite it like this:\n\n{shown}\n\nThe total is 12 km².\n"
+    assert declarations(md) == [], f"{name}: the example was read as a declaration"
+    assert declaration_problems(md), (
+        f"{name}: the section passed the gate on an example as its source")
+    assert len(_without_code(md)) == len(md), f"{name}: masking shifted the offsets"
+
+
+def test_masking_examples_does_not_hide_a_real_declaration():
+    """The other direction, and the one that would be caught late: mask too much and a
+    real declaration disappears, which reads as "undeclared figures" — fail-closed and
+    noisy. Mask too little and an example stands in for it — fail-open and silent. The
+    gate is only useful if both hold, so both are asserted."""
+    real = f"## Real\n{DECL}\n\nthe total is 12 km².\n"
+    assert [m.group("sources") for m in declarations(real)] == ["scripts/build.py"]
+    assert not declaration_problems(real), "a real declaration stopped being read"
+
+    # The original 2026-09-30 finding, end to end: in CLAUDE.md the quoted example
+    # SWALLOWED the real declaration of "Before the site goes public", so the scan
+    # recorded a source nobody wrote and the real pair was never seen. Both real
+    # declarations must survive an example sitting between them.
+    md = (
+        f"## Real\n{DECL}\n\nthe total is 12 km².\n\n"
+        "## How to write one\n"
+        "Every section carries `<!-- figures: <source>; … @ <date> -->` under its heading.\n\n"
+        "## Also real\n<!-- figures: scripts/publish.py @ 2026-09-21 -->\n\n7 layers.\n"
+    )
+    assert [m.group("sources") for m in declarations(md)] == [
+        "scripts/build.py", "scripts/publish.py"]
+    assert declaration(md).group("sources") == "scripts/build.py"
+
+
+def test_no_real_document_declares_a_source_that_is_really_prose():
+    """The regression the test above describes, on the real files: every source a
+    document declares must look like a source list, not like a sentence that a quoted
+    example leaked into."""
+    problems = []
+    for rel in SECTION_SURFACES:
+        for m in declarations(read(rel)):
+            src = m.group("sources")
+            # The leak's signature, measured: no real declaration in the corpus
+            # contains a backtick, a newline or a "-->", and a swallowed one
+            # contains all three. Length does not discriminate — the longest real
+            # declaration is 465 characters.
+            if "`" in src or "\n" in src or "-->" in src:
+                problems.append(f"  {rel}: {src[:80]!r}…")
+    assert not problems, (
+        "a declaration was parsed out of prose rather than out of a declaration:\n"
+        + "\n".join(problems))
 
 
 if __name__ == "__main__":

@@ -96,24 +96,29 @@ def main() -> int:
                 isl["properties"]["pre-2016, undated"] *= 1.5          # one fact moves…
             perturbed.write_text(json.dumps(stats))
             env = {"SENSISAT_STATS": str(perturbed)}
-            js_moved = run(sys.executable, "-c", "from sync_docs import render_facts_js; print(render_facts_js())",
-                           env={**env, "PYTHONPATH": f"{ROOT}/scripts:{ROOT}"}).stdout != render_facts_js()
-            page_moved = run(sys.executable, "-m", "cogapp", "-p", PRELUDE, "--check", str(PAGE), env=env).returncode != 0
-            stac_moved = run(sys.executable, "-c",
-                             "import json,sys; from sensisat import catalog, layers, facts; "
-                             "spec=layers.LAYERS['settlement-era-a']; "
-                             "st=facts.stats(); isl=st['settlement-era-a']['Gran Canaria']; "
-                             "print(catalog._description_values(spec, isl['properties'], st)['undated_pct'])",
-                             env={**env, "PYTHONPATH": str(ROOT)}).stdout.strip()
-            real = run(sys.executable, "-c",
-                       "import json,sys; from sensisat import catalog, layers, facts; "
-                       "spec=layers.LAYERS['settlement-era-a']; "
-                       "st=facts.stats(); isl=st['settlement-era-a']['Gran Canaria']; "
-                       "print(catalog._description_values(spec, isl['properties'], st)['undated_pct'])",
-                       env={"PYTHONPATH": str(ROOT)}).stdout.strip()
-        report("7", js_moved and page_moved and stac_moved != real and stac_moved != "",
+            # Each subprocess must exit as expected before its output counts: a crash
+            # also prints something different, and must not pass for "the fact moved".
+            # sys.stdout.write, not print: print's trailing newline made the output
+            # differ from render_facts_js() whether or not anything had moved.
+            js = run(sys.executable, "-c", "import sys; from sync_docs import render_facts_js; "
+                     "sys.stdout.write(render_facts_js())",
+                     env={**env, "PYTHONPATH": f"{ROOT}/scripts:{ROOT}"})
+            cog = run(sys.executable, "-m", "cogapp", "-p", PRELUDE, "--check", str(PAGE), env=env)
+            undated_pct = ("from sensisat import catalog, layers, facts; "
+                           "spec=layers.LAYERS['settlement-era-a']; "
+                           "st=facts.stats(); isl=st['settlement-era-a']['Gran Canaria']; "
+                           "print(catalog._description_values(spec, isl['properties'], st)['undated_pct'])")
+            stac = run(sys.executable, "-c", undated_pct, env={**env, "PYTHONPATH": str(ROOT)})
+            base = run(sys.executable, "-c", undated_pct, env={"PYTHONPATH": str(ROOT)})
+        crashed = [name for name, r, want in (("js", js, 0), ("cog --check", cog, 5), ("stac", stac, 0),
+                                              ("stac baseline", base, 0)) if r.returncode != want]
+        js_moved = js.returncode == 0 and js.stdout != render_facts_js()
+        page_moved = cog.returncode == 5                    # 5 = cog found a stale region
+        stac_moved, real = stac.stdout.strip(), base.stdout.strip()
+        report("7", not crashed and js_moved and page_moved and stac_moved != real and stac_moved != "",
                f"one perturbed statistics file moves the page (cog --check stale: {page_moved}), the viewer module "
-               f"({js_moved}) and the STAC template (Gran Canaria {real} % -> {stac_moved} %) together")
+               f"({js_moved}) and the STAC template (Gran Canaria {real} % -> {stac_moved} %) together"
+               + (f"; UNEXPECTED EXIT from {', '.join(crashed)}" if crashed else ""))
     else:
         report("7", False, "no statistics on disk — run scripts/build.py --all")
 
@@ -153,7 +158,7 @@ def main() -> int:
     problems = [p for rel in g.SECTION_SURFACES for p in g.declaration_problems((ROOT / rel).read_text())]
     fx = (g.declaration_problems("## A\n\n12 km²\n") and g.declaration_problems("## A\n<!-- figures: nope.py @ 2026-01-01 -->\n12 km²\n")
           and g.declaration_problems("# T\n\n12 km²\n\n## A\nx\n") and not g.declaration_problems("# T\n<!-- figures: scripts/build.py @ 2026-01-01 -->\n12 km²\n"))
-    n_decl = sum(len(g.DECLARATION.findall((ROOT / rel).read_text())) for rel in g.SECTION_SURFACES)
+    n_decl = sum(len(g.declarations((ROOT / rel).read_text())) for rel in g.SECTION_SURFACES)
     report("14", not problems and bool(fx), f"every section stating a figure declares an existing source ({n_decl} declarations, {len(g.SECTION_SURFACES)} files); undeclared, missing-file and preamble fixtures behave")
 
     css = (ROOT / "viewer" / "about.css").read_text()

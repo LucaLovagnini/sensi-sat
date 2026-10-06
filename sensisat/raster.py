@@ -144,7 +144,7 @@ def write_cog(path: Path, arr: np.ndarray, transform: Affine, crs, *,
               nodata=0, compress: str = "deflate", predictor: int = 2,
               band_descriptions: list[str] | None = None, tags: dict | None = None,
               resampling: Resampling = Resampling.nearest) -> Path:
-    """Write a sparse, tiled, overview-bearing Cloud-Optimized GeoTIFF.
+    """Write a dense (never sparse), tiled, overview-bearing Cloud-Optimized GeoTIFF.
 
     Accepts a 2D array (one band) or a 3D array shaped (bands, height, width), so a
     year layer can ship its provenance band, and a trend layer its epochs, inside

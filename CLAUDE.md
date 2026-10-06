@@ -84,6 +84,9 @@ as history. Nothing in `sensisat/` touches GEE, and no new work should add it.
 | `sensisat/figures.py`, `tests/test_documented_numbers.py` | the figure gate: what a figure is, and the tests that every one is accounted for |
 | `scripts/review_figures.py`, `.claude/skills/verify-figures/` | the three judgements the gate cannot make, and their attestation `docs/figures-review.json` |
 | `.githooks/pre-push` | refuses to push while the review is stale; enable per clone with `git config core.hooksPath .githooks` |
+| `.coderabbit.yaml` | the second reviewer's instructions — points it at the traps below, per path |
+| `.claude/skills/triage-review/` | how every review thread is answered: verify, then fixed / rejected / parked, reply, resolve |
+| `scripts/review_sweep.py` | put existing code in front of the reviewer, which only ever sees diffs |
 | `data/` | gitignored: `raw/` downloads (~13 GiB), `processed/` published layers |
 
 ### The documentation, and which question each file answers
@@ -293,6 +296,55 @@ gate (M4c).** Walk it in order; each line is a command or a look.
     unavailable and share-alike unnecessary. The STAC collections say `CC-BY-4.0`
     (`python scripts/build.py --catalog-only` rewrites the catalogue from disk).
 
+## Review lifecycle
+
+**Every change reaches `main` through a pull request reviewed by a second model.**
+Adopted 2026-09-27. The reviewer is **CodeRabbit**, a GitHub App that is free for
+public repositories, configured by `.coderabbit.yaml` and reading this file as its
+guidelines. It is a different *system* from the Claude sessions that write most of
+the code — its own prompts, retrieval and linters — but not a guaranteed different
+model family: CodeRabbit states that code is sent to "OpenAI and/or Anthropic".
+
+1. Work on a branch, never on `main`; push it and open a pull request.
+2. CodeRabbit reviews automatically and posts a commit status.
+3. Answer every thread with `/triage-review <PR>`: verify the claim, then **fixed**
+   (with the commit), **rejected** (with the evidence) or **parked** (with the issue),
+   reply, and only then resolve.
+4. Merge. Branch protection on `main` refuses the merge until CodeRabbit's status has
+   run and every conversation is resolved. **It never requires CodeRabbit to approve**:
+   an advisory model that can block at random trains everyone to click past it. The
+   requirement is that the review *ran* and every comment was *answered* — a skipped
+   review must not read as a passed one (#11).
+
+Why the server enforces it and not a hook: a hook runs on one clone and is bypassed
+by `--no-verify`, so it can only catch "forgot". Branch protection is the one place a
+requirement can live. The pre-push hook stays, for the figure review.
+
+**Existing code** is never in a diff, so it is never reviewed by the above.
+`scripts/review_sweep.py` builds, per part (package, scripts, viewer, docs), an
+orphan base without the part and a tip with it, so the pull request between them adds
+exactly that part. Those pull requests are triaged and closed, never merged.
+
+**Parked, with the reason:**
+- *Gemini Code Assist* — its free consumer GitHub app was withdrawn in the summer of
+  2026. *Copilot code review* — not included in Copilot Free. Both fail "free".
+- *GitHub Models in an Action* — free and rate-limited through the workflow's own
+  token, and able to pin a non-Anthropic model; the fallback if model-family
+  independence becomes the requirement. Costs a workflow to maintain, and fork pull
+  requests may not get the model permission.
+- *A check that every resolved thread carries a reply* — GitHub Actions has no event
+  for a thread being resolved, so the check would go stale between runs. Until then
+  "reply before resolve" is the skill's rule, not a gate.
+
+**Setup — done.** Luca installed the CodeRabbit app in the browser. Branch protection
+on `main` was set through the API at his request on 2026-09-30, with the personal
+token: a pull request is required with no approvals, the status context `CodeRabbit`
+must pass, every conversation must be resolved, administrators are included, and
+force-pushes and deletion are refused. Merged head branches delete themselves
+(`delete_branch_on_merge`). Changing any of this is a repository-security setting:
+it is Luca's decision, never a session's own initiative. Read the rule back with
+`gh api repos/LucaLovagnini/sensi-sat/branches/main/protection`, token prefixed.
+
 ## Git
 
 The remote is **Luca's personal GitHub**, and work credentials must never be used:
@@ -303,3 +355,28 @@ origin  github-personal:LucaLovagnini/sensi-sat.git
 
 `github-personal` is an SSH host alias in `~/.ssh/config` using
 `~/.ssh/id_ed25519_personal`. The repo-local git identity is `lucalova91@gmail.com`.
+
+**`gh` is not safe by default here:** the machine's active `gh` account is a work
+account. Before any `gh` command that writes to this repository, run
+`gh api user --jq .login` and continue only if it prints `LucaLovagnini`. Reading
+needs no login — the repository is public — so read with `curl` against
+`api.github.com` when in doubt.
+
+The personal account sits in the same `gh` keyring, not active. Use it per command,
+never by switching the default — switching would change the work account for every
+other shell on the machine. And never `export` it: an exported token is inherited by
+everything that shell runs next, including the tests and the pre-push hook, which
+execute a branch's code. Prefix each `gh` write instead, so only that one process
+holds it:
+
+```bash
+GH_TOKEN=$(gh auth token --user LucaLovagnini) gh api user --jq .login   # must print LucaLovagnini
+GH_TOKEN=$(gh auth token --user LucaLovagnini) gh pr create …
+```
+
+On Luca's machine that prefix is also a command, `ghp` (`~/.local/bin/ghp`, a short
+script): `ghp api user --jq .login`, `ghp pr view <N>`. It is a script on
+`PATH` rather than a shell function because Claude Code's `!` commands and tool calls
+run in fresh non-interactive shells, which never load functions. Anywhere else — a
+fresh clone, another machine — use the explicit prefix above. Opening a pull request
+needs no `gh` at all: use the link `git push` prints for a new branch.

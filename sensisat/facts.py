@@ -210,6 +210,48 @@ def seam_drop_range(min_km2: float = SEAM_MAIN_ISLAND_KM2) -> tuple[float, float
     return min(drops), max(drops), len(rows)
 
 
+def pixel_metres(lat: float) -> tuple[float, float, float]:
+    """One grid pixel at `lat`, as (north-south m, east-west m, m2).
+
+    The grid is defined in DEGREES, so a pixel is a constant number of degrees on
+    both axes and a varying number of metres. North-south a degree is the same
+    length everywhere; east-west it shrinks by cos(latitude) as the meridians
+    converge, so a "10 m" pixel is never 100 m2 here (CLAUDE.md #2). Lives in
+    facts.py rather than inline in a cog block so that the arithmetic a document
+    publishes is the arithmetic a test can check.
+    """
+    import math
+
+    from .config import EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG
+    from .grid import PIXEL_DEG
+    ns = PIXEL_DEG * EARTH_MERIDIONAL_M_PER_DEG
+    ew = PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(lat))
+    return ns, ew, ns * ew
+
+
+def pixel_area_range() -> tuple[float, float]:
+    """(smallest, largest) pixel area in m2 across the archipelago's latitude span.
+
+    Smallest in the north, where the east-west side is shortest.
+    """
+    from .config import CANARIES_BBOX
+    south, north = CANARIES_BBOX[1], CANARIES_BBOX[3]
+    return pixel_metres(north)[2], pixel_metres(south)[2]
+
+
+def pixel_area_overstatement() -> tuple[float, float]:
+    """How many per cent too large an area comes out if a pixel is called 100 m2.
+
+    Returned (low, high) as a share of the TRUE area — 100/a - 1, the denominator
+    that answers "overstates by". CLAUDE.md #2 quotes the other one, (100-a)/100,
+    which is the same error measured against the claimed total and reads smaller.
+    """
+    from .grid import NOMINAL_M
+    lo_area, hi_area = pixel_area_range()
+    nominal = NOMINAL_M ** 2
+    return (nominal / hi_area - 1) * 100, (nominal / lo_area - 1) * 100
+
+
 def reload() -> None:
     """Forget cached statistics — for a process that writes them and then reads them."""
     stats.cache_clear()
@@ -229,9 +271,15 @@ def data_version() -> str:
         v = version("sensisat")
     except PackageNotFoundError:
         v = "0.1.0"
+    # Git exports GIT_DIR (and friends) to hooks; inherited, it makes `git` treat the
+    # cwd as the work-tree root, the log comes back empty, and the mtime fallback
+    # below silently supplies the checkout date instead. Let git find the repo itself.
+    import os
+    env = {k: v for k, v in os.environ.items() if not k.startswith("GIT_")}
     try:
         date = subprocess.run(["git", "log", "-1", "--format=%cs", "--", str(STATS)],
-                              cwd=STATS.parents[2], capture_output=True, text=True, check=True).stdout.strip()
+                              cwd=STATS.parents[2], env=env,
+                              capture_output=True, text=True, check=True).stdout.strip()
     except (subprocess.CalledProcessError, FileNotFoundError):
         date = ""
     if not date:

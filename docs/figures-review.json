@@ -1,9 +1,9 @@
 {
  "counts": {
-  "declarations": 83,
-  "generated_regions": 22,
+  "declarations": 86,
+  "generated_regions": 24,
   "registry_entries": 63,
-  "sections_with_figures": 80,
+  "sections_with_figures": 82,
   "token_level_figures": 74
  },
  "figures": {
@@ -13,7 +13,7 @@
     "docs/validation.md; docs/data-evaluation.md @ 2026-09-21",
     "scripts/build.py; scripts/fetch_m0.py; docs/pipeline.md @ 2026-09-21",
     "docs/data-evaluation.md; docs/validation.md; docs/pipeline.md; docs/design/seam-harmonization.md; docs/viewer.md @ 2026-09-21",
-    "<source>; … @ <date> -->` under its heading; every headline\n    value `facts.py` computes is searched for typed by hand (the collision check).\n    `sensisat/figures.py` is the one definition; `pytest`, `build.py` (exit 4) and\n    `publish.py` (exit 3) run the same tests. Adding a number forces a choice —\n    **generate it, or declare where it came from** — and the failure names the\n    token and the file. The first fail-closed run surfaced 45 figures the old\n    regex had silently exempted, and four viewer figures wrong on the live site.\n23. **A quantity word must carry its digits.** Write \"three in ten (31 %)\", not\n    \"three in ten\"; \"a third (33.8 %)\", not \"a third\". The figure gates are\n    digit-based, so a number written as a word escapes them — which would make\n    dodging the gate easier than satisfying it. This is the one way the whole\n    arrangement could leave the project worse off than before, so it is a writing\n    rule, not a preference, and a lint enforces it (`docs/design/figure-provenance.md` §4).\n24. **Historical measurements must NOT be updated, and must be distinguishable.**\n    Most of the ~1,300 numbers in `docs/` record why a decision was taken — the\n    figure that disqualified Dynamic World, the recall that rejected GAIA. Rewriting\n    them to match a later build destroys the reasoning they exist to support. But a\n    reader cannot tell a frozen measurement from a stale one, so every document\n    carries a generated block (`facts.contract()`) stating which is which, and a\n    historical figure names the analysis script that produced it — per token in the\n    registry, per section in the declaration. **The gate cannot judge** whether a\n    generated figure comes from the right fact, whether a registry entry is really\n    a live claim, or whether a declared source fits: that is `/verify-figures`,\n    attested in `docs/figures-review.json`, which `publish.py` and the pre-push\n    hook require to be current.\n25. **Never let an import shadow a JavaScript built-in.** `viewer/app.js` had\n    `import Map from 'ol/Map.js'` for months. The first `new Map()` anyone wrote in\n    that file — a cache for the readout — silently constructed an OpenLayers map, so\n    every counted view failed at `.has()` and fell back to island sums with no error\n    a user could see. Minified it reads `yE.has is not a function`, nowhere near the\n    import. It is `OLMap` now, and `viewer/app.test.js` refuses any import bound to a\n    built-in's name.\n26. **`rasterio.windows.from_bounds` returns a fractional window** whose transform\n    is offset from the array `read()` actually returns. Distances computed that way\n    carry a ~2.6 m floor, which silently hides exactly the sub-pixel cases that\n    matter. Take the window in integer pixels around `src.index(lon, lat)`; a point\n    on a built pixel must then measure 0.0 m from one.\n\n## Before the site goes public\n<!-- figures: scripts/build.py; scripts/publish.py @ 2026-09-21"
+    "scripts/build.py; scripts/publish.py @ 2026-09-21"
    ],
    "docs/concepts.md": [
     "scripts/analysis_09_sizes.py; docs/figures/data/m0_sizes.csv; docs/figures/src/preview_frame.py; scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv @ 2026-09-19",
@@ -23,6 +23,8 @@
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19",
     "scripts/analysis_01_totals.py; external:JRC GHSL Data Package 2023 @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_corine_2018.csv; geeLocalTesting @ 2026-09-19",
+    "sensisat/grid.py; sensisat/config.py; sensisat/layers.py; external:the UTM zone scheme and the ±180° antimeridian, EPSG/OGC definitions — general reference, not measured here @ 2026-10-06",
+    "sensisat/raster.py; sensisat/layers.py; docs/pipeline.md @ 2026-09-30",
     "docs/figures/src/preview_frame.py; docs/figures/src/m0_results.py @ 2026-09-19"
    ],
    "docs/data-evaluation.md": [
@@ -51,9 +53,9 @@
     "sensisat/figures.py; tests/test_documented_numbers.py; scripts/review_figures.py; measured:the runs of this mechanism on 2026-09-21, recorded in the M4c commits @ 2026-09-21",
     "sensisat/facts.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-21",
     "sensisat/figures.py; tests/fixtures/figure_exemptions.json @ 2026-09-21",
-    "… @ date -->` declaration\n  (section-level surfaces);\n- **excepted** — a year or a year range, a date, a Markdown list marker *by\n  position* (the shape rule `^\\d{1,2}\\.$` once exempted \"reached 12.\").\n\n**The exceptions are the fail-open surface**, so what they do is pinned: the number\nof tokens each pattern removes, per file, is recorded in\n`tests/fixtures/figure_exemptions.json` and any change fails until the fixture is\nrewritten on purpose and its diff reviewed. No exception may match a token\ncarrying a unit.\n\n## 3. The surfaces, and the burden each carries\n<!-- figures: sensisat/figures.py; scripts/review_figures.py; docs/figures/data/manifest.json @ 2026-09-21",
+    "sensisat/figures.py; scripts/review_figures.py; docs/figures/data/manifest.json @ 2026-09-21",
     "sensisat/facts.py; sensisat/catalog.py; scripts/sync_docs.py; sensisat/figures.py; measured:the runs of this mechanism on 2026-09-21 @ 2026-09-21",
-    "<source>[; <source>…] @ <YYYY-MM-DD> -->`\nunder a heading; a section needs one iff it holds a token that is neither\ngenerated nor excepted; the H1 preamble is a section. A source is a repository\nfile that must exist, or `external:<what>` (a price list, a paper) or\n`measured:<how>` (a browser's network panel) for a number that has no file — the\nhonest form, counted and shown by the review. Sources are separated by `;` so a\nlabel may contain commas. A declaration records **origin, not correctness**.\n\n**The collision check** is what closes the drift hole in `docs/` without a registry\nentry per number: every headline value `facts.py` computes — areas per layer and\nisland, sizes, shares, the sealed-to-built ratio, growth, the construction crash —\nis searched for in all prose outside generated regions, **with its unit attached**,\nat one and two decimals. A hit is a live figure someone typed, which the next\nbuild orphans. It is fail-closed: every hit must be generated instead, or\nallow-listed in `tests/fixtures/figure_collisions.json` as a historical\nmeasurement that coincides with the current build, with the reason written down.\nValues below 1 are skipped (at two decimals they collide by coincidence —\n`$0.36/million` matched La Graciosa's extent) and the seam record's per-island\nfields are not searched (the M2 seam reproduces M0's CSV to the published decimal,\nso every one collides by construction).\n\n**The quantity-word lint** closes the perverse incentive a digit-based gate\ncreates: a number written as words is invisible to it. A narrow list — \"a third\",\n\"a quarter\", \"a fifth\", \"a tenth\", \"two thirds\", \"three quarters\", \"N in ten\",\n\"N-fold\"; deliberately not \"half\", \"twice\", \"double\" or \"most\", which are ordinary\nEnglish — must have a figure within 60 characters in the same paragraph; a year\ndoes not count; a quoted phrase is a mention, not a use (which is why this\nparagraph passes); three ordinals that share a spelling (\"a third party\",\n\"as a third\", \"a third surface\") are listed by name.\nCLAUDE.md #23 is the writing rule; this is its enforcement.\n\n**Section numbers on the page are CSS counters** (`about.css`), so the source\nholds no typed heading number and the list-marker exception is Markdown-only.\n\n**The data-file manifest** (`docs/figures/data/manifest.json`) records, for every\ntable no code names, the commit that introduced it and what it is. \"Named by\ncode\" is the mechanical notion of *produced by*; grep cannot tell a read from a\nwrite, so the CORINE band — read by `qa.py`, written by nothing — is listed too.\n\n## 5. The judgements the gate cannot make\n<!-- figures: scripts/review_figures.py; docs/figures-review.json; .githooks/pre-push @ 2026-09-21",
+    "scripts/review_figures.py; docs/figures-review.json; .githooks/pre-push @ 2026-09-21",
     ".githooks/pre-push; scripts/publish.py @ 2026-09-21",
     "measured:the runs of this mechanism on 2026-09-21 @ 2026-09-21",
     "measured:the runs of this mechanism on 2026-09-21, recorded in the M4c commits @ 2026-09-21",
@@ -84,7 +86,8 @@
     "scripts/analysis_03_seam_factors.py; sensisat/encoding.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-19",
     "sensisat/qa.py @ 2026-09-19",
     "sensisat/datasets/cadastre.py @ 2026-09-19",
-    "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24"
+    "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24",
+    "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06"
    ],
    "docs/validation.md": [
     "scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -111,6 +114,16 @@
    ]
   },
   "generated": {
+   "docs/concepts.md": [
+    [
+     "from sensisat import facts as f\nfrom sensisat.config import CANARIES_BBOX\nfrom sensisat.grid import NOMINAL_M, PIXEL_DEG\n\nsouth, north = CANARIES_BBOX[1], CANARIES_BBOX[3]   # the archipelago's own latitude span\nns, ew_s, _ = f.pixel_metres(south)\n_, ew_n, _ = f.pixel_metres(north)\na_n, a_s = f.pixel_area_range()\nlo_pct, hi_pct = f.pixel_area_overstatement()\nnominal = NOMINAL_M ** 2\ncog.outl(\n    f\"> one pixel = **{PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\\n\"\n    f\"> north–south that is **{ns:.2f} m** at every latitude\\n\"\n    f\"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (south of El Hierro) and \"\n    f\"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\\n\"\n    f\"> so one pixel covers **{a_n:.1f}–{a_s:.1f} m²** across the archipelago, \"\n    f\"never the nominal {nominal:.0f} m²\"\n)\ncog.outl(\n    f\"\\nCall a pixel {nominal:.0f} m² and you claim {nominal:.0f} where \"\n    f\"{a_n:.1f}–{a_s:.1f} stands, so **every area comes out \"\n    f\"{lo_pct:.0f} %–{hi_pct:.0f} % too large** \"\n    f\"({nominal:.0f} ÷ {a_s:.1f} = {nominal / a_s:.3f}; {nominal:.0f} ÷ {a_n:.1f} = \"\n    f\"{nominal / a_n:.3f}), and the error grows the further north you go. Watch the \"\n    f\"denominator: the same error is {(1 - a_s / nominal) * 100:.0f} %–{(1 - a_n / nominal) * 100:.0f} % \"\n    f\"of the *claimed* total, which is the smaller-looking way to say the same thing \"\n    f\"and how CLAUDE.md #2 states it.\"\n)",
+     "> one pixel = **8.983e-05 degrees** on each axis — a constant, everywhere\n> north–south that is **9.98 m** at every latitude\n> east–west it is **8.87 m** at 27.5 °N (south of El Hierro) and **8.69 m** at 29.6 °N (north of Lanzarote)\n> so one pixel covers **86.8–88.6 m²** across the archipelago, never the nominal 100 m²\n\nCall a pixel 100 m² and you claim 100 where 86.8–88.6 stands, so **every area comes out 13 %–15 % too large** (100 ÷ 88.6 = 1.129; 100 ÷ 86.8 = 1.152), and the error grows the further north you go. Watch the denominator: the same error is 11 %–13 % of the *claimed* total, which is the smaller-looking way to say the same thing and how CLAUDE.md #2 states it."
+    ],
+    [
+     "from sensisat.layers import LAYERS\nby_size = {}\nfor name, spec in LAYERS.items():\n    by_size.setdefault(spec.mosaic_blocksize, []).append(name)\nparts = [f\"**{n} × {n}**\" + (f\" (`{'`, `'.join(v)}`)\" if len(v) < len(LAYERS) else \"\")\n         for n, v in sorted(by_size.items(), reverse=True)]\ncog.outl(\"Our blocks are \" + \" and \".join(parts) + \" pixels.\")",
+     "Our blocks are **1024 × 1024** (`buildings-dated`, `settlement-era-a`, `settlement-era-b`, `covered-agriculture`, `density-current`, `loss-events`) and **256 × 256** (`density-trend`) pixels."
+    ]
+   ],
    "docs/data-evaluation.md": [
     [
      "cog.outl(f.contract())",
@@ -124,7 +137,7 @@
     ],
     [
      "import sensisat.figures as g\nfs = g.figure_set()\ntok = fs[\"tokens\"]\nn_sections = sum(len(v) for v in fs[\"sections\"].values())\nn_decl = sum(len(v) for v in fs[\"declarations\"].values())\nn_gen = sum(len(v) for v in fs[\"generated\"].values())\ncog.outl(\"| surface | unit of accounting | today |\")\ncog.outl(\"|---|---|---|\")\ncog.outl(f\"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |\")\nfor _rel in sorted(k for k in tok if k.startswith(\"viewer/\") and k.endswith(\".js\")):\n    cog.outl(f\"| `{_rel}` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok[_rel])} declared tokens |\")\ncog.outl(f\"| `README.md` | every token | {len(tok['README.md'])} declared tokens |\")\ncog.outl(f\"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\")\ncog.outl(f\"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |\")\ncog.outl(f\"| generated regions, all prose | `cog` from `facts.py` | {n_gen} |\")\ncog.outl(f\"| `sensisat/provenance.HISTORICAL` | the registry | {len(fs['registry'])} entries |\")\ncog.outl(f\"| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |\")",
-     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 80 sections carrying figures, 83 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 22 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
+     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 82 sections carrying figures, 86 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 24 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
     ]
    ],
    "docs/pipeline.md": [
@@ -555,6 +568,28 @@
      "43–49 km²",
      "6 %",
      "6×"
+    ],
+    "## 8. Coordinate systems — why \"10 m\" pixels are not 10 m, and why everything lands on one grid": [
+     "10 m",
+     "13.2",
+     "18.5",
+     "180",
+     "28",
+     "3035,",
+     "32628.",
+     "4326,",
+     "6",
+     "60"
+    ],
+    "## 9. How the data are published: COG and STAC — the reason there is no server": [
+     "1024",
+     "1024 ×",
+     "20",
+     "23",
+     "256 ×",
+     "256,",
+     "334",
+     "92 m"
     ],
     "## Regenerating the figures": [
      "1.4",
@@ -1878,6 +1913,7 @@
      "88"
     ],
     "## 7. What M2 actually produced": [
+     "0,",
      "0.000 %",
      "0.002–0.083 %",
      "0.004 %",
@@ -1916,6 +1952,7 @@
      "24.5 %",
      "240",
      "247.3",
+     "27.2",
      "299",
      "3",
      "3.6 MiB",
@@ -1923,6 +1960,7 @@
      "32",
      "33.9",
      "35",
+     "353",
      "39.5",
      "4.3",
      "41.5 MiB",
@@ -1931,6 +1969,7 @@
      "50.7",
      "51",
      "52",
+     "52.0",
      "539",
      "54.1 MiB",
      "55 %",
@@ -1940,8 +1979,11 @@
      "60.2 MiB",
      "63.3",
      "66–68 %",
+     "67.8 MiB",
+     "67.9",
      "7",
      "78.9 %",
+     "79.2",
      "8",
      "8.04 MiB",
      "81.0",
@@ -2398,12 +2440,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "00f584ce0f3992ff10bd016f795b4b171e60c8334abb93a0a977d724307e2a7b",
+ "fingerprint": "0bb03ed4639709890470fc9eda471e2303453391e8b4574023a93f7d87ac670b",
  "judgements": {
-  "declarations_plausible": "seam-harmonization §2 gains 52.69 and 92.34 km2, both read from m0_undated_vs_crops.csv (Gran Canaria: 52.69 dated + 39.65 undated = 92.34 km2, so undated 43 %, dated 57 %); the declaration now names that CSV. La Palma's 68 % remains as recorded and is marked unverified in the text, since no surviving output covers it.",
-  "generated_from_right_fact": "No generated region and no live value changed; the delta is one prose section and its declaration.",
-  "registry_holds_no_live_claim": "No registry entry added or removed; the new tokens are M0 measurements quoted as the evidence for a corrected transcription, not claims about the published layers."
+  "declarations_plausible": "concepts §8 gained external: for the UTM zone scheme and the antimeridian (not measured here); pipeline §7's subsection now names the 2026-10-06 measurements (size_published with and without index.json, and the two index serialisations) and carries that date.",
+  "generated_from_right_fact": "concepts §8's block moved to facts.pixel_metres/pixel_area_range/pixel_area_overstatement; rendered output is byte-identical to the 2026-10-06 attestation, and test_grid.py now recomputes it from the constants.",
+  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set, same six live-value collisions."
  },
- "reviewed": "2026-09-30",
- "reviewer": "Claude Opus 5.5 (figure-set delta against the 2026-09-29 attestation, at Luca's invocation of /verify-figures)"
+ "reviewed": "2026-10-06",
+ "reviewer": "Luca Lovagnini (read the delta)"
 }

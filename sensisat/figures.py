@@ -156,10 +156,27 @@ def normalise(token: str) -> str:
 #: "double" and "most" are ordinary English far more often than they are numbers
 #: (measured: 14 false hits on the real prose), and a lint that cries wolf gets
 #: switched off. These six shapes are almost always a measurement in disguise.
+#: Every number word that can precede "fold". Enumerated rather than matched as
+#: `[a-z]+fold`, which would flag "manifold", "scaffolding" and "unfold" — but
+#: enumerating by hand left ELEVEN of them out (eleven, thirteen…nineteen, thirty,
+#: forty, sixty…ninety), so "an elevenfold increase" carried a claim with no digits
+#: straight through the gate. Built from the parts instead, so the list cannot be
+#: partial again: a tens word, a units word, or a tens word joined to a units word.
+_UNITS = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+_TEENS = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+          "sixteen", "seventeen", "eighteen", "nineteen"]
+_TENS = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+_SCALES = ["hundred", "thousand", "million", "billion"]
+NUMBER_WORDS = sorted(
+    {*_UNITS, *_TEENS, *_TENS, *_SCALES,
+     *(f"{t}{sep}{u}" for t in _TENS for u in _UNITS for sep in ("", "-"))},
+    key=len, reverse=True)          # longest first, so "twenty-two" beats "two"
+
 QUANTITY_WORD = re.compile(
     r"\b(?:a (?:third|quarter|fifth|tenth)|two[- ]thirds|three[- ]quarters"
     r"|(?:one|two|three|four|five|six|seven|eight|nine) in (?:ten|five|four|three)"
-    r"|[a-z]+-fold)\b", re.I)
+    r"|[a-z]+-fold"
+    r"|(?:" + "|".join(NUMBER_WORDS) + r")fold)\b", re.I)
 #: Ordinals and idioms that share a spelling with a fraction. Each is here because
 #: it occurred in the prose; extend this list, never loosen the rule above.
 NOT_A_QUANTITY = re.compile(r"third part(?:y|ies)|as a third\b|a third surface", re.I)
@@ -306,6 +323,65 @@ DECLARATION = re.compile(
     r"<!--\s*figures:\s*(?P<sources>.+?)\s*@\s*(?P<date>\d{4}-\d{2}-\d{2})\s*-->", re.S)
 LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
 
+#: Code, fenced or inline. Text inside it is being SHOWN, not used.
+#: This matters because the documents that explain the mechanism print the syntax as
+#: an example: CLAUDE.md #22 quotes `<!-- figures: <source>; … @ <date> -->`, and
+#: `figure-provenance.md` does the same. A parser that reads those as real
+#: declarations invents a section that nobody wrote and — because DECLARATION is
+#: non-greedy and spans newlines — swallows the prose after it as far as the next
+#: genuine `@ YYYY-MM-DD ... -->`, which may be several headings away.
+#:
+#: Three variants of this bug have now been found, each one a narrower reading of
+#: "fenced": only ``` was masked, then ``` and ~~~ but with any later run of the
+#: same character closing the block — so `~~~notaclosingfence` ended the mask and
+#: exposed the declaration inside. Hence a line scanner rather than one regex, and
+#: CommonMark's actual rule: a closing fence sits at the start of its line (at most
+#: three spaces in), uses the same character, is at least as long as the opener, and
+#: carries nothing after it but whitespace. An unclosed fence runs to the end of the
+#: document, which is both CommonMark's rule and the safe direction to err in.
+FENCE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
+#: An inline code span: a run of N backticks, content, then a run of exactly N.
+#: `[^`\n]*` assumed N is 1, so ``<!-- figures: … -->`` had only its delimiters
+#: blanked and the declaration inside stayed visible — the fourth variant of this
+#: bug, and the second to reach a real document's own explanation of the syntax.
+INLINE_SPAN = re.compile(r"(?P<ticks>`+)[^\n]*?(?P=ticks)(?!`)")
+
+
+def _blank(line: str) -> str:
+    """The line with every character but its newline replaced by a space."""
+    body = line.rstrip("\n")
+    return " " * len(body) + line[len(body):]
+
+
+def _without_code(text: str) -> str:
+    """Blank every code span, keeping the offsets so nothing downstream shifts."""
+    out, open_fence = [], ""
+    for line in text.splitlines(keepends=True):
+        if open_fence:
+            out.append(_blank(line))
+            close = re.match(rf"^ {{0,3}}{re.escape(open_fence[0])}{{{len(open_fence)},}}[ \t]*$",
+                             line.rstrip("\n"))
+            if close:
+                open_fence = ""
+            continue
+        if m := FENCE.match(line):
+            open_fence = m.group("fence")
+            out.append(_blank(line))
+            continue
+        out.append(INLINE_SPAN.sub(lambda s: " " * len(s.group(0)), line))
+    return "".join(out)
+
+
+def declarations(text: str) -> list[re.Match]:
+    """Every declaration that is being USED — never one that is being shown."""
+    return list(DECLARATION.finditer(_without_code(text)))
+
+
+def declaration(text: str) -> re.Match | None:
+    """The first real declaration, or None. `DECLARATION.search` is not a substitute:
+    it cannot tell a live declaration from an example of one."""
+    return next(iter(declarations(text)), None)
+
 
 def sections(md: str) -> list[tuple[str, str]]:
     """(heading, text) per section: the H1 preamble, then each `## ` block with its
@@ -319,7 +395,7 @@ def declaration_problems(md: str, *, root: Path = ROOT) -> list[str]:
     out = []
     for heading, body in sections(md):
         toks = figures_in(body, html=False)
-        decl = DECLARATION.search(body)
+        decl = declaration(body)
         if toks and not decl:
             out.append(f"{heading!r}: {len(toks)} undeclared figures "
                        f"({', '.join(sorted(toks)[:4])}{'…' if len(toks) > 4 else ''})")
@@ -448,7 +524,7 @@ def figure_set(texts: dict[str, str] | None = None) -> dict:
         out["sections"][rel] = {h: sorted(figures_in(b, html=False)) for h, b in sections(md)
                                 if figures_in(b, html=False)}
         out["declarations"][rel] = [m.group("sources") + " @ " + m.group("date")
-                                    for m in DECLARATION.finditer(md)]
+                                    for m in declarations(md)]
     for rel in ["viewer/about-the-data.html", "README.md", *SECTION_SURFACES]:
         regions = generated_regions(read(rel, texts))
         if regions:
