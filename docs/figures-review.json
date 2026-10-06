@@ -23,7 +23,7 @@
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; external:GHSL P2016 BUILT_LDSMT_GLOBE_V1 read in Earth Engine during the prototype, 2026-09-18 — no output was kept, so the 71 / +0.0 / +3.4 km² figures are not reproducible from this repository @ 2026-09-19",
     "scripts/analysis_01_totals.py; external:JRC GHSL Data Package 2023 @ 2026-09-19",
     "scripts/analysis_01_totals.py; docs/figures/data/m0_totals.csv; docs/figures/data/m0_corine_2018.csv; geeLocalTesting @ 2026-09-19",
-    "sensisat/grid.py; sensisat/config.py; sensisat/layers.py @ 2026-09-30",
+    "sensisat/grid.py; sensisat/config.py; sensisat/layers.py; external:the UTM zone scheme and the ±180° antimeridian, EPSG/OGC definitions — general reference, not measured here @ 2026-10-06",
     "sensisat/raster.py; sensisat/layers.py; docs/pipeline.md @ 2026-09-30",
     "docs/figures/src/preview_frame.py; docs/figures/src/m0_results.py @ 2026-09-19"
    ],
@@ -87,7 +87,7 @@
     "sensisat/qa.py @ 2026-09-19",
     "sensisat/datasets/cadastre.py @ 2026-09-19",
     "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24",
-    "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py @ 2026-09-30"
+    "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06"
    ],
    "docs/validation.md": [
     "scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -116,7 +116,7 @@
   "generated": {
    "docs/concepts.md": [
     [
-     "import math\nfrom sensisat import grid\nfrom sensisat.config import CANARIES_BBOX, EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG\n\ndef pixel(lat):\n    ns = grid.PIXEL_DEG * EARTH_MERIDIONAL_M_PER_DEG\n    ew = grid.PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(lat))\n    return ns, ew, ns * ew\n\nsouth, north = CANARIES_BBOX[1], CANARIES_BBOX[3]   # the archipelago's own latitude span\n(ns, ew_s, a_s), (_, ew_n, a_n) = pixel(south), pixel(north)\nnominal = grid.NOMINAL_M ** 2\ncog.outl(\n    f\"> one pixel = **{grid.PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\\n\"\n    f\"> north–south that is **{ns:.2f} m** at every latitude\\n\"\n    f\"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (south of El Hierro) and \"\n    f\"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\\n\"\n    f\"> so one pixel covers **{a_n:.1f}–{a_s:.1f} m²** across the archipelago, \"\n    f\"never the nominal {nominal:.0f} m²\"\n)\ncog.outl(\n    f\"\\nCall a pixel {nominal:.0f} m² and you claim {nominal:.0f} where \"\n    f\"{a_n:.1f}–{a_s:.1f} stands, so **every area comes out \"\n    f\"{(nominal / a_s - 1) * 100:.0f} %–{(nominal / a_n - 1) * 100:.0f} % too large** \"\n    f\"({nominal:.0f} ÷ {a_s:.1f} = {nominal / a_s:.3f}; {nominal:.0f} ÷ {a_n:.1f} = \"\n    f\"{nominal / a_n:.3f}), and the error grows the further north you go. Watch the \"\n    f\"denominator: the same error is {(1 - a_s / nominal) * 100:.0f} %–{(1 - a_n / nominal) * 100:.0f} % \"\n    f\"of the *claimed* total, which is the smaller-looking way to say the same thing \"\n    f\"and how CLAUDE.md #2 states it.\"\n)",
+     "from sensisat import facts as f\nfrom sensisat.config import CANARIES_BBOX\nfrom sensisat.grid import NOMINAL_M, PIXEL_DEG\n\nsouth, north = CANARIES_BBOX[1], CANARIES_BBOX[3]   # the archipelago's own latitude span\nns, ew_s, _ = f.pixel_metres(south)\n_, ew_n, _ = f.pixel_metres(north)\na_n, a_s = f.pixel_area_range()\nlo_pct, hi_pct = f.pixel_area_overstatement()\nnominal = NOMINAL_M ** 2\ncog.outl(\n    f\"> one pixel = **{PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\\n\"\n    f\"> north–south that is **{ns:.2f} m** at every latitude\\n\"\n    f\"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (south of El Hierro) and \"\n    f\"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\\n\"\n    f\"> so one pixel covers **{a_n:.1f}–{a_s:.1f} m²** across the archipelago, \"\n    f\"never the nominal {nominal:.0f} m²\"\n)\ncog.outl(\n    f\"\\nCall a pixel {nominal:.0f} m² and you claim {nominal:.0f} where \"\n    f\"{a_n:.1f}–{a_s:.1f} stands, so **every area comes out \"\n    f\"{lo_pct:.0f} %–{hi_pct:.0f} % too large** \"\n    f\"({nominal:.0f} ÷ {a_s:.1f} = {nominal / a_s:.3f}; {nominal:.0f} ÷ {a_n:.1f} = \"\n    f\"{nominal / a_n:.3f}), and the error grows the further north you go. Watch the \"\n    f\"denominator: the same error is {(1 - a_s / nominal) * 100:.0f} %–{(1 - a_n / nominal) * 100:.0f} % \"\n    f\"of the *claimed* total, which is the smaller-looking way to say the same thing \"\n    f\"and how CLAUDE.md #2 states it.\"\n)",
      "> one pixel = **8.983e-05 degrees** on each axis — a constant, everywhere\n> north–south that is **9.98 m** at every latitude\n> east–west it is **8.87 m** at 27.5 °N (south of El Hierro) and **8.69 m** at 29.6 °N (north of Lanzarote)\n> so one pixel covers **86.8–88.6 m²** across the archipelago, never the nominal 100 m²\n\nCall a pixel 100 m² and you claim 100 where 86.8–88.6 stands, so **every area comes out 13 %–15 % too large** (100 ÷ 88.6 = 1.129; 100 ÷ 86.8 = 1.152), and the error grows the further north you go. Watch the denominator: the same error is 11 %–13 % of the *claimed* total, which is the smaller-looking way to say the same thing and how CLAUDE.md #2 states it."
     ],
     [
@@ -571,10 +571,15 @@
     ],
     "## 8. Coordinate systems — why \"10 m\" pixels are not 10 m, and why everything lands on one grid": [
      "10 m",
+     "13.2",
+     "18.5",
+     "180",
      "28",
      "3035,",
      "32628.",
-     "4326,"
+     "4326,",
+     "6",
+     "60"
     ],
     "## 9. How the data are published: COG and STAC — the reason there is no server": [
      "1024",
@@ -1908,6 +1913,7 @@
      "88"
     ],
     "## 7. What M2 actually produced": [
+     "0,",
      "0.000 %",
      "0.002–0.083 %",
      "0.004 %",
@@ -1946,6 +1952,7 @@
      "24.5 %",
      "240",
      "247.3",
+     "27.2",
      "299",
      "3",
      "3.6 MiB",
@@ -1953,6 +1960,7 @@
      "32",
      "33.9",
      "35",
+     "353",
      "39.5",
      "4.3",
      "41.5 MiB",
@@ -1975,6 +1983,7 @@
      "67.9",
      "7",
      "78.9 %",
+     "79.2",
      "8",
      "8.04 MiB",
      "81.0",
@@ -2431,12 +2440,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "afc4d2bd65e8afdcf4d05a6d9b1bacd1755c80f6296ce78952bcfd4b3fd3291b",
+ "fingerprint": "0bb03ed4639709890470fc9eda471e2303453391e8b4574023a93f7d87ac670b",
  "judgements": {
-  "declarations_plausible": "grid.py has the EPSG codes; layers.py has 334/23 KiB and the 20 MB decode; CLAUDE.md's 5th declaration is now the real one.",
-  "generated_from_right_fact": "concepts.md's pixel arithmetic and block sizes come from grid.py / LayerSpec; provenance counts and 67.9 MiB are computed with index.json present.",
-  "registry_holds_no_live_claim": "Nothing added. '11 %' is typed in data-evaluation §12 but filled live from crash_pct() in the STAC description — they agree today, and a rebuild could split them."
+  "declarations_plausible": "concepts §8 gained external: for the UTM zone scheme and the antimeridian (not measured here); pipeline §7's subsection now names the 2026-10-06 measurements (size_published with and without index.json, and the two index serialisations) and carries that date.",
+  "generated_from_right_fact": "concepts §8's block moved to facts.pixel_metres/pixel_area_range/pixel_area_overstatement; rendered output is byte-identical to the 2026-10-06 attestation, and test_grid.py now recomputes it from the constants.",
+  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set, same six live-value collisions."
  },
  "reviewed": "2026-10-06",
- "reviewer": "Luca Lovagnini (read the listing delta)"
+ "reviewer": "Luca Lovagnini (read the delta)"
 }
