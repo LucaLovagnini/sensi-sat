@@ -323,24 +323,49 @@ DECLARATION = re.compile(
     r"<!--\s*figures:\s*(?P<sources>.+?)\s*@\s*(?P<date>\d{4}-\d{2}-\d{2})\s*-->", re.S)
 LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
 
-#: A fenced block or an inline-code span. Text inside one is being SHOWN, not used.
+#: Code, fenced or inline. Text inside it is being SHOWN, not used.
 #: This matters because the documents that explain the mechanism print the syntax as
 #: an example: CLAUDE.md #22 quotes `<!-- figures: <source>; … @ <date> -->`, and
-#: `figure-provenance.md` will do the same. A parser that reads those as real
-#: declarations invents a section that nobody wrote and — because the pattern is
+#: `figure-provenance.md` does the same. A parser that reads those as real
+#: declarations invents a section that nobody wrote and — because DECLARATION is
 #: non-greedy and spans newlines — swallows the prose after it as far as the next
-#: genuine `@ YYYY-MM-DD ... -->`, which may be several headings away. Match the
-#: fence first so a fenced block is not shredded by the single-backtick alternative,
-#: and match BOTH fence characters: Markdown fences with ``` or ~~~, and masking only
-#: the first left a ~~~ example standing in as a section's real declaration.
-CODE_SPAN = re.compile(
-    r"(?P<fence>`{3,}|~{3,}).*?(?P=fence)"      # a fenced block, EITHER fence character
-    r"|`[^`\n]*`", re.S)                        # or an inline span
+#: genuine `@ YYYY-MM-DD ... -->`, which may be several headings away.
+#:
+#: Three variants of this bug have now been found, each one a narrower reading of
+#: "fenced": only ``` was masked, then ``` and ~~~ but with any later run of the
+#: same character closing the block — so `~~~notaclosingfence` ended the mask and
+#: exposed the declaration inside. Hence a line scanner rather than one regex, and
+#: CommonMark's actual rule: a closing fence sits at the start of its line (at most
+#: three spaces in), uses the same character, is at least as long as the opener, and
+#: carries nothing after it but whitespace. An unclosed fence runs to the end of the
+#: document, which is both CommonMark's rule and the safe direction to err in.
+FENCE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
+INLINE_SPAN = re.compile(r"`[^`\n]*`")
+
+
+def _blank(line: str) -> str:
+    """The line with every character but its newline replaced by a space."""
+    body = line.rstrip("\n")
+    return " " * len(body) + line[len(body):]
 
 
 def _without_code(text: str) -> str:
     """Blank every code span, keeping the offsets so nothing downstream shifts."""
-    return CODE_SPAN.sub(lambda m: " " * len(m.group(0)), text)
+    out, open_fence = [], ""
+    for line in text.splitlines(keepends=True):
+        if open_fence:
+            out.append(_blank(line))
+            close = re.match(rf"^ {{0,3}}{re.escape(open_fence[0])}{{{len(open_fence)},}}[ \t]*$",
+                             line.rstrip("\n"))
+            if close:
+                open_fence = ""
+            continue
+        if m := FENCE.match(line):
+            open_fence = m.group("fence")
+            out.append(_blank(line))
+            continue
+        out.append(INLINE_SPAN.sub(lambda s: " " * len(s.group(0)), line))
+    return "".join(out)
 
 
 def declarations(text: str) -> list[re.Match]:

@@ -37,6 +37,7 @@ from sensisat.figures import (  # noqa: E402
     TOKEN,
     YEAR,
     _prose,
+    _without_code,
     code_referring_to,
     current_exemptions,
     declaration,
@@ -496,6 +497,32 @@ def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
     section = "## A\n" + tilde + "\nThe total is 12 km².\n"
     assert declaration_problems(section), (
         "a section whose only declaration is a ~~~ example passes the gate")
+
+    # Third variant, CodeRabbit on PR #11 again: the fix above closed the mask at
+    # ANY later run of the same character, so `~~~notaclosingfence` ended it and
+    # exposed the declaration inside the block. CommonMark says a closing fence is
+    # at line start, same character, at least as long, nothing after but whitespace.
+    for name, md in {
+        "closing fence is only a prefix":
+            "## A\n~~~python\nx = 1\n~~~notaclosingfence\n"
+            "<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~\n\n12 km².\n",
+        "a ``` block is not closed by ~~~":
+            "## A\n```\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~\n\n12 km².\n",
+        "closing fence may be longer than the opener":
+            "## A\n~~~\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~~~\n\n12 km².\n",
+        "a fence may be indented up to three spaces":
+            "## A\n   ~~~\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n   ~~~\n\n12 km².\n",
+    }.items():
+        assert declarations(md) == [], f"{name}: example read as a declaration"
+        assert declaration_problems(md), f"{name}: section passed on an example"
+
+    # The masking must not move anything: every downstream offset depends on it.
+    for md in (fenced, tilde, section):
+        assert len(_without_code(md)) == len(md), "masking shifted the offsets"
+
+    real = "## A\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n\n12 km².\n"
+    assert [m.group("sources") for m in declarations(real)] == ["scripts/build.py"]
+    assert not declaration_problems(real), "a real declaration stopped being read"
 
 
 def test_no_real_document_declares_a_source_that_is_really_prose():
