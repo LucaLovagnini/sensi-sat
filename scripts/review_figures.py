@@ -39,9 +39,9 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from sensisat.config import ROOT  # noqa: E402
 from sensisat.figures import (  # noqa: E402
     COG_REGION,
-    DECLARATION,
     PROSE_SURFACES,
     SECTION_SURFACES,
+    declaration,
     figure_set,
     figures_in,
     fingerprint,
@@ -94,7 +94,7 @@ def listing() -> str:
     for rel in SECTION_SURFACES:
         md = (ROOT / rel).read_text()
         for heading, body in sections(md):
-            m = DECLARATION.search(body)
+            m = declaration(body)
             if m:
                 # The section's figures beside its sources: judgement 3 asks whether
                 # these sources could produce THESE numbers, so both must be in view.

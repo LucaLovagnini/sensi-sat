@@ -368,6 +368,64 @@ municipalities: **474,292 buildings, 98.92 % carrying a construction year.** The
 all, or `88-01-01`, which could be 1888 or 1988. A two-digit year is ambiguous, so
 those stay in the undated class rather than being resolved by guesswork.
 
+### Two ways a partial build leaves the published folder inconsistent
+<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06 -->
+
+Both were found on 2026-09-30 by changing one layer's band description and watching
+what did *not* follow. Both are the same shape as CLAUDE.md #20 — a build leaves the
+folder in a state every gate calls healthy.
+
+**A per-island STAC item is only rewritten while that island's intermediate COG is on
+disk.** `write_catalog` (`build.py`) walks `PROCESSED/<layer>/<island>.tif` and skips
+any island whose file is absent. Since C2 those per-island COGs are intermediates —
+the published asset is the shared `archipelago.tif` — so on a cleaned tree the walk
+finds nothing and the items on disk are silently kept as they were. Changing one
+island's build therefore left **1 item describing the new band description and 7 still
+describing the old one, all 8 pointing at the same file**. `assets-resolve` cannot see
+it: every href resolves, because they all resolve to the same mosaic. `--catalog-only`
+does not repair it either, for the same reason — it re-runs exactly this walk. The
+repair is a full build of the layer (`--layer <name>` with no `--island`), which
+regenerates all eight intermediates and so all eight items — but only if all eight
+succeed: `build.py` prints a failure and *continues* to the next island, so a layer
+build that fails on one island leaves that island's item stale and still exits having
+rebuilt the catalogue. Read the per-island FAILED lines, not just the exit code.
+
+**`facts.size_published()` is measured from a tree `build.py` has just made
+incomplete.** It sums everything under `data/processed/` that is not a build
+intermediate, and `index.json` is not one — it is a published file, 52.0 KiB of it.
+`build.py` *deletes* `index.json` at the end of every run (correctly: it would
+otherwise be stale, CLAUDE.md #20) — but it deletes it **after** syncing the
+documents, not before. So a single build measures the index it inherited and is
+right. **The undercount needs two builds**: the first deletes the index, nothing
+republishes it, and the second syncs the documents against a tree that is already
+missing a published file. That is the state this repository was in on 2026-09-30,
+and it wrote **67.8 MiB where the true figure was 67.9**. It is small, it is in a
+document, and nothing downstream disagrees with it, because every check re-measures
+the same incomplete tree. The order matters for the fix as much as for the diagnosis:
+no amount of care *within* one build closes it, because the run that writes the wrong
+figure is not the run that removed the file.
+
+Running `publish.py` restores both the file and the figure. If `publish.py` is
+refusing — it exits 3 at the figure checks, which it reaches *before* the code that
+writes any file — then nothing has been written and the index must be restored by
+hand. `runtime_index()` only builds the dictionary; `publish.py` serialises it to two
+paths, `data/processed/index.json` (which `size_published()` counts) and the copy
+inside `dist/`. Restoring the first and re-running `sync_docs.py` is what returns the
+figure to 67.9:
+
+```python
+import json, sys; sys.path.insert(0, "scripts")
+from publish import runtime_index
+from sensisat.config import PROCESSED
+# Compact, exactly as publish.py:353 writes it. The serialisation is not cosmetic:
+# size_published() counts these bytes, and indent=1 would write 79.2 KiB where
+# publish.py writes 52.0 — a 27.2 KiB difference, enough to move the figure this
+# whole paragraph is about.
+(PROCESSED / "index.json").write_text(json.dumps(runtime_index(), separators=(",", ":")))
+```
+
+then `python scripts/sync_docs.py`, and re-attest if the figure moved.
+
 ### Size — the one criterion not met as written
 
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is

@@ -5,13 +5,18 @@ entry declares what it measures, at what resolution, in what encoding, and from
 which sources — and then builds itself from the adapters in `datasets/` and the
 operations in `derive.py`. `scripts/build.py` is only a command line over this.
 
-    buildings-dated       cadastre           10 m   year first built   + provenance
-    settlement-era-a      WSF Evolution      10 m   year first built   + provenance
+    buildings-dated       cadastre           10 m   year built/rebuilt  + provenance
+    settlement-era-a      WSF Evolution      10 m   year first built    + provenance
     settlement-era-b      WSF Tracker        10 m   epoch first built
     covered-agriculture   Mapa de Cultivos   10 m   binary
-    density-current       Copernicus IMD     10 m   % sealed           + confidence
+    density-current       Copernicus IMD     10 m   % sealed            + confidence
     density-trend         GHSL               ~92 m  m2 built per cell, 10 epochs
-    loss-events           Copernicus IBUC    20 m   change classes,    2 periods
+    loss-events           Copernicus IBUC    20 m   change classes,     2 periods
+
+The first two rows carry the same `encoding` key but do NOT mean the same thing.
+The cadastre's year is the year of a *declaration*, which a reforma integral resets;
+WSF Evolution's is the epoch a satellite first saw settlement there, which no
+renovation touches. Only the first is "or comprehensively rebuilt".
 
 **Why two settlement layers rather than one merged timeline.** The 2015/2016 join
 is a change of instrument, resolution and definition all at once: crossing it, the
@@ -152,7 +157,8 @@ def _buildings_dated(island: str) -> Built:
     return Built(
         data=np.stack([years, provenance]),
         transform=transform, crs=crs,
-        band_descriptions=["year first built (uint8, year-1899; 255 = undated)", "provenance"],
+        band_descriptions=["year built or comprehensively rebuilt "
+                           "(uint8, year-1899; 255 = undated)", "provenance"],
         properties={
             "municipalities": len(codes),
             "footprint_km2": round(area_km2(years > 0, transform), 3),
