@@ -31,6 +31,10 @@ curl -s "https://api.github.com/repos/LucaLovagnini/sensi-sat/pulls/<N>/comments
 In that case write every reply into `<scratchpad>/pr-<N>-replies.md` (thread URL,
 verdict, reply text) and hand it to Luca to post.
 
+On Luca's machine `ghp` is the same prefix as a command (`~/.local/bin/ghp`):
+`ghp api user --jq .login` is the check above. Where `ghp` is not installed, spell
+the prefix out.
+
 ## 1. Read everything before answering anything
 
 **Read every page.** A read that stops at the first page silently drops findings, and

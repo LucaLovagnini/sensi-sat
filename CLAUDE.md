@@ -373,3 +373,10 @@ holds it:
 GH_TOKEN=$(gh auth token --user LucaLovagnini) gh api user --jq .login   # must print LucaLovagnini
 GH_TOKEN=$(gh auth token --user LucaLovagnini) gh pr create …
 ```
+
+On Luca's machine that prefix is also a command, `ghp` (`~/.local/bin/ghp`, a short
+script): `ghp api user --jq .login`, `ghp pr view <N>`. It is a script on
+`PATH` rather than a shell function because Claude Code's `!` commands and tool calls
+run in fresh non-interactive shells, which never load functions. Anywhere else — a
+fresh clone, another machine — use the explicit prefix above. Opening a pull request
+needs no `gh` at all: use the link `git push` prints for a new branch.
