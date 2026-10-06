@@ -465,17 +465,64 @@ def test_data_version_ignores_hook_environment(monkeypatch: pytest.MonkeyPatch,
     assert facts.data_version().endswith("data of 2000-01-02")
 
 
-def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
-    """Both CLAUDE.md #22 and figure-provenance.md §4 QUOTE the declaration syntax, in
-    backticks, in order to explain it. Parsed literally an example is indistinguishable
-    from a declaration and wins by position: in CLAUDE.md the quoted one SWALLOWED the
-    real declaration of "Before the site goes public", so the whole-file scan recorded
-    a source nobody wrote — "<source>; … @ <date> -->` under its heading; …" — and the
-    real pair, scripts/build.py; scripts/publish.py, was never seen at all. The count
-    was unchanged, which is why it went unnoticed. Masking code spans first fixes it
-    without the documents having to stop explaining themselves."""
+#: Every way a document can SHOW the declaration syntax instead of using it. Four
+#: variants of one bug have been found here, three of them by review after the fix
+#: that was meant to close it — so the list is the test, and a new construct is one
+#: row rather than one more assertion buried in a function.
+#:
+#: What makes this family dangerous: NONE of the four ever changed the declaration
+#: COUNT. A quoted example that is read as real either adds an entry nobody wrote or,
+#: because DECLARATION is non-greedy and spans newlines, swallows the real one that
+#: follows and takes its place. The total looks right either way, which is how the
+#: first variant survived two attestations of CLAUDE.md and figure-provenance.md.
+#: So every row asserts the CONSEQUENCE — the section fails the gate — and not just
+#: that the parse came back empty.
+DECL = "<!-- figures: scripts/build.py @ 2026-09-21 -->"
+SHOWN_NOT_USED = [
+    ("inline span, one backtick", f"`{DECL}`"),
+    # Variant 4 (CodeRabbit, PR #11): a code span is a run of N backticks closed by a
+    # run of N. The pattern assumed N was 1, so only the delimiters were blanked.
+    ("inline span, two backticks", f"``{DECL}``"),
+    ("inline span, three backticks", f"```{DECL}```"),
+    ("fenced block, backticks", f"```\n{DECL}\n```"),
+    # Variant 2: Markdown fences with ``` or ~~~; the first fix masked only ```.
+    ("fenced block, tildes", f"~~~\n{DECL}\n~~~"),
+    ("fenced block, with an info string", f"~~~python\n{DECL}\n~~~"),
+    # Variant 3: the mask closed on ANY later run of the same character, so a fence
+    # that is only a PREFIX of a longer word ended it and exposed what followed.
+    ("closing fence is only a prefix of a word",
+     f"~~~python\nx = 1\n~~~notaclosingfence\n{DECL}\n~~~"),
+    ("a ``` block is not closed by ~~~", f"```\n{DECL}\n~~~"),
+    ("closing fence longer than the opener", f"~~~\n{DECL}\n~~~~~"),
+    ("fence indented up to three spaces", f"   ~~~\n{DECL}\n   ~~~"),
+]
+
+
+@pytest.mark.parametrize("name,shown", SHOWN_NOT_USED, ids=[n for n, _ in SHOWN_NOT_USED])
+def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one(name: str, shown: str):
+    """A document that explains the syntax must not thereby declare itself."""
+    md = f"## A section\n\nWrite it like this:\n\n{shown}\n\nThe total is 12 km².\n"
+    assert declarations(md) == [], f"{name}: the example was read as a declaration"
+    assert declaration_problems(md), (
+        f"{name}: the section passed the gate on an example as its source")
+    assert len(_without_code(md)) == len(md), f"{name}: masking shifted the offsets"
+
+
+def test_masking_examples_does_not_hide_a_real_declaration():
+    """The other direction, and the one that would be caught late: mask too much and a
+    real declaration disappears, which reads as "undeclared figures" — fail-closed and
+    noisy. Mask too little and an example stands in for it — fail-open and silent. The
+    gate is only useful if both hold, so both are asserted."""
+    real = f"## Real\n{DECL}\n\nthe total is 12 km².\n"
+    assert [m.group("sources") for m in declarations(real)] == ["scripts/build.py"]
+    assert not declaration_problems(real), "a real declaration stopped being read"
+
+    # The original 2026-09-30 finding, end to end: in CLAUDE.md the quoted example
+    # SWALLOWED the real declaration of "Before the site goes public", so the scan
+    # recorded a source nobody wrote and the real pair was never seen. Both real
+    # declarations must survive an example sitting between them.
     md = (
-        "## Real\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n\nthe total is 12 km².\n\n"
+        f"## Real\n{DECL}\n\nthe total is 12 km².\n\n"
         "## How to write one\n"
         "Every section carries `<!-- figures: <source>; … @ <date> -->` under its heading.\n\n"
         "## Also real\n<!-- figures: scripts/publish.py @ 2026-09-21 -->\n\n7 layers.\n"
@@ -483,46 +530,6 @@ def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
     assert [m.group("sources") for m in declarations(md)] == [
         "scripts/build.py", "scripts/publish.py"]
     assert declaration(md).group("sources") == "scripts/build.py"
-
-    fenced = "```\n<!-- figures: not-a-real-source.py @ 2026-09-21 -->\n```\n"
-    assert declarations(fenced) == [], "a fenced example is being read as a declaration"
-
-    # Markdown fences with ``` OR ~~~, and the first fix masked only the first.
-    # CodeRabbit found it on PR #11: a ~~~ example stands in as the section's own
-    # declaration, so the section's figures are accounted for by a source nobody
-    # wrote — the exact defect this function exists to prevent, one fence along.
-    tilde = "~~~\n<!-- figures: not-a-real-source.py @ 2026-09-21 -->\n~~~\n"
-    assert declarations(tilde) == [], "a ~~~ example is being read as a declaration"
-
-    section = "## A\n" + tilde + "\nThe total is 12 km².\n"
-    assert declaration_problems(section), (
-        "a section whose only declaration is a ~~~ example passes the gate")
-
-    # Third variant, CodeRabbit on PR #11 again: the fix above closed the mask at
-    # ANY later run of the same character, so `~~~notaclosingfence` ended it and
-    # exposed the declaration inside the block. CommonMark says a closing fence is
-    # at line start, same character, at least as long, nothing after but whitespace.
-    for name, md in {
-        "closing fence is only a prefix":
-            "## A\n~~~python\nx = 1\n~~~notaclosingfence\n"
-            "<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~\n\n12 km².\n",
-        "a ``` block is not closed by ~~~":
-            "## A\n```\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~\n\n12 km².\n",
-        "closing fence may be longer than the opener":
-            "## A\n~~~\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n~~~~~\n\n12 km².\n",
-        "a fence may be indented up to three spaces":
-            "## A\n   ~~~\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n   ~~~\n\n12 km².\n",
-    }.items():
-        assert declarations(md) == [], f"{name}: example read as a declaration"
-        assert declaration_problems(md), f"{name}: section passed on an example"
-
-    # The masking must not move anything: every downstream offset depends on it.
-    for md in (fenced, tilde, section):
-        assert len(_without_code(md)) == len(md), "masking shifted the offsets"
-
-    real = "## A\n<!-- figures: scripts/build.py @ 2026-09-21 -->\n\n12 km².\n"
-    assert [m.group("sources") for m in declarations(real)] == ["scripts/build.py"]
-    assert not declaration_problems(real), "a real declaration stopped being read"
 
 
 def test_no_real_document_declares_a_source_that_is_really_prose():

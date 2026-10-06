@@ -340,7 +340,11 @@ LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
 #: carries nothing after it but whitespace. An unclosed fence runs to the end of the
 #: document, which is both CommonMark's rule and the safe direction to err in.
 FENCE = re.compile(r"^ {0,3}(?P<fence>`{3,}|~{3,})")
-INLINE_SPAN = re.compile(r"`[^`\n]*`")
+#: An inline code span: a run of N backticks, content, then a run of exactly N.
+#: `[^`\n]*` assumed N is 1, so ``<!-- figures: … -->`` had only its delimiters
+#: blanked and the declaration inside stayed visible — the fourth variant of this
+#: bug, and the second to reach a real document's own explanation of the syntax.
+INLINE_SPAN = re.compile(r"(?P<ticks>`+)[^\n]*?(?P=ticks)(?!`)")
 
 
 def _blank(line: str) -> str:
