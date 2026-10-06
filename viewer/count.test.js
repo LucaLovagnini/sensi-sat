@@ -402,3 +402,59 @@ test('a per-period series is NOT carried forward', () => {
   assert.deepEqual(out.change_km2,
                    {'2018-2021': {new_cover_km2: 1}, '2021-2024': {new_cover_km2: 2}});
 });
+
+/* ------------------------------------------------ era-b, and decision 13 */
+
+test('"since" in era-b starts at epoch 2, because epoch 1 is stock and not growth', () => {
+  // WSF Tracker opens in July 2016 and its epoch 1 is everything ALREADY STANDING
+  // then. Only epochs 2 onward are construction. So "added since epoch 1" is the
+  // increments after the baseline — 1.00 + 1.50 + 0.50 = 3.00 here — and not the
+  // 33.00 km² standing at the end, which is 30.00 of 2016 stock plus 3.00 of growth.
+  //
+  // This differs from the year layers by an order of magnitude, which is why it gets
+  // its own test: era-a's series opens in 1985 with almost nothing, so mistaking its
+  // first value for growth barely moves the number. Era-b's first value is nearly
+  // the whole layer.
+  const eraB = {1: 30.0, 2: 31.0, 3: 32.5, 4: 33.0};
+  close(addedSince(eraB, 1), 3.0);
+  assert.notEqual(addedSince(eraB, 1), eraB[4]);
+
+  // A `from` below the series still subtracts the baseline rather than returning the
+  // whole stock. app.js clamps to epoch 1 before it ever gets here (toEpoch, pinned
+  // in app.test.js); this is the second half of the same defence, in the one place
+  // that can be run.
+  close(addedSince(eraB, 0), 3.0);
+  close(addedSince(eraB, -5), 3.0);
+
+  // Later positions subtract later baselines, and the last epoch adds nothing.
+  close(addedSince(eraB, 2), 2.0);
+  close(addedSince(eraB, 4), 0.0);
+});
+
+test('a summed scope carries one era, never era-a and era-b added together', () => {
+  // Decision 13: the two settlement layers SHARE the 2016 baseline. Era-b's epoch 1
+  // is era-a's 2015 total measured again by a different instrument, so adding their
+  // extents counts most of the archipelago twice.
+  //
+  // Nothing can do it today — sumStats is called once, over the islands of one
+  // catalogue entry, and the eras are separate entries (pinned in app.test.js). This
+  // is the behavioural half: whatever a scope holds, two cumulative time series in
+  // one object is the signature of two layers having met.
+  const eraB = [
+    {extent_by_epoch: {1: 20.0, 2: 21.0}, footprint_km2: 21.0},
+    {extent_by_epoch: {1: 10.0, 2: 12.0}, footprint_km2: 12.0},
+  ];
+  const summed = sumStats(eraB);
+  close(summed.extent_by_epoch['1'], 30.0);
+  close(summed.extent_by_epoch['2'], 33.0);
+  assert.ok(!('extent_by_year' in summed),
+            'a scope carrying both series means two layers were summed into one');
+
+  // What it would cost, so the guard is not an article of faith: era-a's 2015 total
+  // is the same 30.00 km² of ground as era-b's epoch 1, and a reader adding the two
+  // headline figures is told 63.00 km² where 33.00 stands.
+  const mixed = sumStats([...eraB, {extent_by_year: {2015: 30.0}}]);
+  assert.ok('extent_by_year' in mixed && 'extent_by_epoch' in mixed);
+  close(mixed.extent_by_epoch['2'] + mixed.extent_by_year['2015'], 63.0);
+  close(mixed.extent_by_epoch['2'], 33.0);
+});
