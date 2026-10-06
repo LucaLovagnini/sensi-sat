@@ -393,7 +393,7 @@ intermediate, and `index.json` is not one — it is a published file, 52.0 KiB o
 But `build.py` *deletes* `index.json` at the end of every run (correctly: it would
 otherwise be stale, CLAUDE.md #20), and then syncs the documents. So the sequence
 `build.py` → `sync_docs` writes a published-size figure measured without a published
-file: **67.8 MiB where the true figure is 67.9**. It is small, it is in a document,
+file: **67.8 MiB where the true figure was 67.9** (on 2026-09-30). It is small, it is in a document,
 and nothing downstream disagrees with it, because every check re-measures the same
 incomplete tree. Running `publish.py` restores both the file and the figure. If
 `publish.py` is refusing — it exits 3 while the figure review is stale — the index

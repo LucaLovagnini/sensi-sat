@@ -201,7 +201,7 @@ nominal = grid.NOMINAL_M ** 2
 cog.outl(
     f"> one pixel = **{grid.PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\n"
     f"> north–south that is **{ns:.2f} m** at every latitude\n"
-    f"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (El Hierro) and "
+    f"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (south of El Hierro) and "
     f"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\n"
     f"> so one pixel covers **{a_n:.1f}–{a_s:.1f} m²** across the archipelago, "
     f"never the nominal {nominal:.0f} m²"
@@ -219,7 +219,7 @@ cog.outl(
 ]]]-->
 > one pixel = **8.983e-05 degrees** on each axis — a constant, everywhere
 > north–south that is **9.98 m** at every latitude
-> east–west it is **8.87 m** at 27.5 °N (El Hierro) and **8.69 m** at 29.6 °N (north of Lanzarote)
+> east–west it is **8.87 m** at 27.5 °N (south of El Hierro) and **8.69 m** at 29.6 °N (north of Lanzarote)
 > so one pixel covers **86.8–88.6 m²** across the archipelago, never the nominal 100 m²
 
 Call a pixel 100 m² and you claim 100 where 86.8–88.6 stands, so **every area comes out 13 %–15 % too large** (100 ÷ 88.6 = 1.129; 100 ÷ 86.8 = 1.152), and the error grows the further north you go. Watch the denominator: the same error is 11 %–13 % of the *claimed* total, which is the smaller-looking way to say the same thing and how CLAUDE.md #2 states it.
