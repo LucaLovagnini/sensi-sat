@@ -381,8 +381,16 @@ any island whose file is absent. Since C2 those per-island COGs are intermediate
 the published asset is the shared `archipelago.tif` — so on a cleaned tree the walk
 finds nothing and the items on disk are silently kept as they were. Changing one
 island's build therefore left **1 item describing the new band description and 7 still
-describing the old one, all 8 pointing at the same file**. `assets-resolve` cannot see
-it: every href resolves, because they all resolve to the same mosaic. `--catalog-only`
+describing the old one**. `assets-resolve` cannot see it, because that gate asks only
+whether an href points at a file that exists, never whether what it says is still
+true — and all eight files existed throughout.
+
+**Corrected 2026-10-06.** This paragraph first said the eight items "all point at the
+same file". They do not: each names its own island's intermediate, `../tenerife.tif`.
+The correction matters because it reverses a conclusion — the per-island COGs are not
+spare copies left behind by the mosaic, they are what the published catalogue links
+to, and deleting them as orphans breaks every item. See §"The catalogue links to files
+the publisher does not ship" below. `--catalog-only`
 does not repair it either, for the same reason — it re-runs exactly this walk. The
 repair is a full build of the layer (`--layer <name>` with no `--island`), which
 regenerates all eight intermediates and so all eight items — but only if all eight
@@ -399,7 +407,13 @@ documents, not before. So a single build measures the index it inherited and is
 right. **The undercount needs two builds**: the first deletes the index, nothing
 republishes it, and the second syncs the documents against a tree that is already
 missing a published file. That is the state this repository was in on 2026-09-30,
-and it wrote **67.8 MiB where the true figure was 67.9**. It is small, it is in a
+and it wrote **67.8 MiB where the true figure was 67.9**. (Those two numbers are
+frozen at that date. Read them beside the size table above with care: the published
+total has since moved, because the contract step of 2026-10-06 took the per-island
+assets out of `index.json` and 2.2 KiB with them, so today's true figure and that
+day's wrong one coincide. The collision is recorded in
+`tests/fixtures/figure_collisions.json` rather than resolved by rewriting either —
+CLAUDE.md #24.) It is small, it is in a
 document, and nothing downstream disagrees with it, because every check re-measures
 the same incomplete tree. The order matters for the fix as much as for the diagnosis:
 no amount of care *within* one build closes it, because the run that writes the wrong
@@ -426,12 +440,39 @@ from sensisat.config import PROCESSED
 
 then `python scripts/sync_docs.py`, and re-attest if the figure moved.
 
+### The catalogue links to files the publisher does not ship
+<!-- figures: sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-06 -->
+
+Found 2026-10-06, while preparing to prune what was believed to be dead weight.
+
+Every STAC item names its own island's intermediate — `buildings-dated-tenerife`
+carries `href: ../tenerife.tif` — while `publish.py` ships **one** raster per layer,
+`archipelago.tif`. So the published items link to files the published tree does not
+contain. On the live bucket those links answer 200 only because the per-island objects
+uploaded before the archipelago migration were never deleted. **All 56 were verified
+present by HEAD request**, and the pruning that was about to remove them would have
+404'd every item in the catalogue at once.
+
+`catalog.py` carries the fix already written and never wired in: `_asset_href(layer,
+island)` returns `f"{layer}/{MOSAIC}.tif"`, and the module docstring states the design
+— "the asset gets the archipelago, and the item's bbox says which part is that item's".
+Nothing calls it. The href comes from `Path(path).resolve()`, which is the per-island
+file the statistics were computed from.
+
+**Why no gate caught it, and this is the general lesson.** `assets-resolve` runs
+inside `build.py`, against `data/processed/`, where the per-island intermediates are
+present by construction — they were just written. Nothing resolves hrefs against
+`dist/`, which is the tree a reader actually gets. The gate proves the catalogue is
+usable *where it was built*, and that is not the claim anyone needs. CLAUDE.md #14
+says a valid catalogue is not a usable one; this adds that a catalogue usable in the
+source tree is not a published one.
+
 ### Size — the one criterion not met as written
 
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is
 
 <!--[[[cog cog.out("**" + km2(f.size_published(), 1) + " MiB**") ]]]-->
-**67.9 MiB**
+**67.8 MiB**
 <!--[[[end]]]-->
 
 That target was set before the sealing layer had been measured, and it is worth
@@ -451,7 +492,7 @@ cog.outl(f"| **total published** | **{km2(f.size_published(), 1)}** |")
 | six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |
 | `density-current` — the sealing map itself | 12.7 |
 | `density-current` — the per-pixel confidence companion | 25.5 |
-| **total published** | **67.9** |
+| **total published** | **67.8** |
 <!--[[[end]]]-->
 
 **It was 54.1 MiB when M2 closed and 60.2 MiB when the figure gate shipped.** Two

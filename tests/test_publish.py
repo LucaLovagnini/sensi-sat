@@ -114,56 +114,71 @@ def test_every_published_running_total_rises():
     assert not problems, "a published running total decreases:\n" + "\n".join(problems)
 
 
-def test_the_index_serves_both_viewers_so_there_is_no_flag_day():
-    """index.json sits at ONE URL that every viewer fetches, whatever its vintage.
+def test_the_per_island_asset_is_gone_and_the_per_island_statistics_are_not():
+    """The CONTRACT of expand-migrate-contract, done 2026-10-06.
 
-    The deployed viewer reads `layers[id].islands[island].asset`; the archipelago
-    viewer reads `layers[id].asset`. A file carrying only one of those breaks
-    whichever side is deployed second, and breaks it SILENTLY — the page still
-    answers 200 and the layers simply never draw. That happened on 2026-09-24, and
-    the mitigation at the time was a `v2/` prefix plus a constant in app.js marked
-    BRANCH ONLY, which is a note rather than a defence.
+    This test replaces `test_the_index_serves_both_viewers_so_there_is_no_flag_day`,
+    whose docstring said deleting it is how this decision gets made deliberately.
+    So: it was made. index.json sits at ONE URL every viewer fetches, and between
+    2026-09-25 and 2026-10-06 it carried BOTH shapes — `layers[id].asset` for the
+    archipelago viewer and `layers[id].islands[island].asset` for the one deployed
+    before it — so the data and the bundle could be deployed in either order. On
+    2026-10-06 production was verified serving the archipelago viewer (bundle
+    byte-identical to the build, `allIslands` present in it and absent from the
+    previous one), which left the per-island asset with no reader.
 
-    Emitting both shapes means the data and the bundle can be deployed in either
-    order, or weeks apart. Verified in a browser: `main`'s bundle drives all seven
-    layers and all eight islands off this file, and so does the new one.
-
-    This is the EXPAND of expand-migrate-contract. The per-island keys go once
-    production is verified on the archipelago viewer and the old objects are pruned;
-    deleting this test is how that decision gets made deliberately.
+    The DANGEROUS half of this test is the second assertion, not the first. The
+    per-island `bbox` and `stats` are not compatibility shims: the far regime sums
+    the published figures of the islands a view touches, so deleting the islands
+    dict along with the asset would silently empty every zoomed-out readout — the
+    2026-09-24 failure again, in the other direction. Asset out, statistics in.
     """
     from publish import runtime_index
 
     from sensisat.layers import LAYERS
     index = runtime_index()
-    assert index["shape"] == "both"
+    assert index["shape"] == "archipelago", "the shape field still advertises the shim"
 
-    missing = []
+    stray, missing = [], []
     for name in LAYERS:
         layer = index["layers"].get(name)
         if layer is None:
             continue                      # not built in this checkout
         if not layer.get("asset"):
-            missing.append(f"  {name}: no layer-level asset (archipelago viewer)")
+            missing.append(f"  {name}: no layer-level asset — the viewer draws nothing")
         for island, entry in layer["islands"].items():
-            if not entry.get("asset"):
-                missing.append(f"  {name}/{island}: no per-island asset (deployed viewer)")
-    assert not missing, "index.json would break a viewer:\n" + "\n".join(missing)
+            if "asset" in entry:
+                stray.append(f"  {name}/{island}: per-island asset survived the contract")
+            if "bbox" not in entry or "stats" not in entry:
+                missing.append(f"  {name}/{island}: lost bbox or stats — the far regime needs both")
+    assert not stray, "\n".join(stray)
+    assert not missing, "\n".join(missing)
 
+def test_one_rule_decides_the_island_slug():
+    """"Gran Canaria" is stored as gran-canaria.tif, and ONE rule must decide that.
 
-def test_the_per_island_href_is_the_slug_the_catalogue_writes():
-    """"Gran Canaria" is stored as gran-canaria.tif, and one rule must decide that.
+    A second naming rule resolves for the islands whose name happens to match and
+    404s for the rest — which is how this was first written, and it gave three of
+    eight.
 
-    A second naming rule here would resolve for the islands whose name happens to
-    match and 404 for the rest — which is how this was first written, and it gave
-    three of eight.
+    It used to be asserted on the per-island asset href in index.json. The contract
+    of 2026-10-06 removed that href, and the `_slug` import from publish.py with it,
+    so the duplication cannot recur there. The rule still decides where the
+    catalogue writes items, so that is where it is checked now.
     """
-    from publish import runtime_index
-
     from sensisat.catalog import _slug
-    layer = runtime_index()["layers"].get("buildings-dated")
-    if layer is None:
+    from sensisat.config import ISLAND_BBOX
+
+    layer_dir = PROCESSED / "buildings-dated"
+    if not layer_dir.exists():
         pytest.skip("buildings-dated is not built in this checkout")
-    for island, entry in layer["islands"].items():
-        assert entry["asset"].endswith(f"/{_slug(island)}.tif"), (
-            f"{island} -> {entry['asset']}")
+
+    slugs = {_slug(i) for i in ISLAND_BBOX}
+    found = {d.name.removeprefix("buildings-dated-")
+             for d in layer_dir.iterdir() if d.is_dir()}
+    assert found, "no per-island item directories on disk"
+    assert found <= slugs, f"item directories no island slug explains: {sorted(found - slugs)}"
+
+    # publish.py must not grow its own copy of the rule again.
+    assert "_slug" not in (ROOT / "scripts" / "publish.py").read_text(), (
+        "publish.py imports _slug again — it has no per-island paths left to build")

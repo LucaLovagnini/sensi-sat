@@ -200,7 +200,7 @@ def runtime_index() -> dict:
     Deliberately small and flat. Everything richer — provenance, lineage, licences,
     band descriptions — stays in the STAC items, which ship alongside.
     """
-    from sensisat.catalog import MOSAIC, _slug
+    from sensisat.catalog import MOSAIC
     from sensisat.config import ISLAND_BBOX
 
     stats_path = PROCESSED / "statistics" / "layers.json"
@@ -220,25 +220,20 @@ def runtime_index() -> dict:
                 "stats": entry.get("properties", {}),
                 "headline_km2": entry.get("headline_km2"),
             }
-            # COMPATIBILITY, and the reason there is no flag day.
+            # CONTRACTED 2026-10-06. Each island used to carry its own `asset`
+            # here, because the then-deployed viewer read `islands[island].asset`
+            # while the archipelago viewer reads `layers[id].asset`, and index.json
+            # sits at ONE well-known URL that both fetch — so changing the shape
+            # would have broken whichever side was deployed second, SILENTLY, with
+            # the page still answering 200 and the layers simply never drawing.
+            # That happened on 2026-09-24. Emitting both let the data and the
+            # bundle be deployed in either order; that was the EXPAND.
             #
-            # The deployed viewer reads `islands[island].asset`; this one reads
-            # `layers[id].asset`. index.json sits at ONE well-known URL that both
-            # fetch, so a change of shape breaks whichever side moves second — and
-            # it breaks it SILENTLY, with the page still returning 200 and the
-            # layers simply never drawing. That is what happened on 2026-09-24.
-            #
-            # Emitting both keys means the file satisfies both viewers at once, so
-            # the data and the bundle can be deployed in either order, or weeks
-            # apart. Drop this once production is verified on the archipelago
-            # viewer and the per-island objects are pruned — expand, migrate,
-            # contract, and this is the expand.
-            # The filename is the island's slug, the same one catalog.py writes —
-            # "Gran Canaria" is stored as gran-canaria.tif. Deriving it any other
-            # way here would be a second naming rule waiting to disagree.
-            per_island = PROCESSED / name / f"{_slug(island)}.tif"
-            if per_island.exists():
-                island_entry["asset"] = f"{name}/{_slug(island)}.tif"
+            # Production has served the archipelago viewer since 2026-09-25 and was
+            # re-verified live on 2026-10-06, so the per-island asset has no reader
+            # left. What stays is bbox and stats: the far regime sums the published
+            # figures of the islands a view touches, so those are load-bearing and
+            # always were.
             islands[island] = island_entry
         headline = [v["headline_km2"] for v in islands.values() if v["headline_km2"] is not None]
         layers[name] = {
@@ -255,10 +250,13 @@ def runtime_index() -> dict:
             "islands": islands,
         }
     return {"generated": "sensisat",
-            # Names what a consumer should expect to find. "both" means this file
-            # carries the per-layer archipelago asset AND the per-island assets the
-            # older viewer reads, so either can be served from it.
-            "shape": "both",
+            # Names what a consumer should expect to find. "archipelago" means one
+            # asset per LAYER, covering all eight islands; the per-island entries
+            # carry bbox and statistics but no asset of their own. It read "both"
+            # between 2026-09-25 and 2026-10-06, while two viewer vintages shared
+            # this file; a reader that still expects "both" is reading a file
+            # written before the contract.
+            "shape": "archipelago",
             "stac": "catalog.json",
             "pixel_area_m2": pixel_area_table(), "layers": layers}
 

@@ -42,7 +42,7 @@ PARTS: dict[str, list[str]] = {
     "package": ["sensisat", "tests", "pyproject.toml", ".githooks", ".claude",
                 ".coderabbit.yaml", ".gitignore"],
     "scripts": ["scripts"],
-    "viewer": ["viewer", "wrangler.jsonc", "wrangler.preview.jsonc"],
+    "viewer": ["viewer", "wrangler.jsonc"],
     "docs": ["docs", "CLAUDE.md", "README.md", "CONTRIBUTING.md", "LICENSE",
              "LICENSE-DATA.md"],
 }

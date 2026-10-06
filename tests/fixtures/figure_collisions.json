@@ -28,5 +28,10 @@
     "file": "docs/design/figure-provenance.md",
     "figure": "42.8 km²",
     "why": "the greenhouse gap as generated on 2026-09-21, recorded against the 42.7 that had been typed from a rounded subtraction; coincides with Tenerife's building footprint"
+  },
+  {
+    "file": "docs/pipeline.md",
+    "figure": "67.8 MiB",
+    "why": "the WRONG published-size figure a second build wrote on 2026-09-30, recorded against the 67.9 that was true that day — a record of the defect, not a live claim. It collided with size_published() on 2026-10-06, when the contract step removed the per-island assets from index.json and took 2.2 KiB off the published total; the sentence names its date, and the paragraph says the agreement is a coincidence"
   }
 ]
