@@ -148,7 +148,7 @@ has no real-world counterpart — classification flicker. A number like "20 % ur
 its definition.
 
 ## 8. Coordinate systems — why "10 m" pixels are not 10 m, and why everything lands on one grid
-<!-- figures: sensisat/grid.py; sensisat/config.py; sensisat/layers.py @ 2026-09-30 -->
+<!-- figures: sensisat/grid.py; sensisat/config.py; sensisat/layers.py; external:the UTM zone scheme and the ±180° antimeridian, EPSG/OGC definitions — general reference, not measured here @ 2026-10-06 -->
 
 A **coordinate reference system** (CRS) is the rule that turns a place on the round
 Earth into a pair of numbers. There are two families, and the difference is the source
@@ -156,10 +156,15 @@ of a whole class of quiet error.
 
 - **Geographic** systems give **degrees** of latitude and longitude. **EPSG:4326** —
   "EPSG" is just the catalogue the numbers come from — is the familiar one, the
-  lat/lon a phone reports. It covers the whole planet with no seams.
+  lat/lon a phone reports. One system covers the whole planet, with no zone
+  boundaries to cross — though longitude still wraps at the antimeridian (the
+  ±180° line), which anything crossing the Pacific must handle explicitly and the
+  Canaries, at 18.5°W to 13.2°W, never approach.
 - **Projected** systems give **metres on a flat sheet**, by choosing how to flatten
   the curved surface. **EPSG:3035** is one built for Europe, **EPSG:32628** is UTM
-  zone 28 N, the strip the Canaries fall in. Distances behave like distances, but each
+  zone 28 N — *Universal Transverse Mercator* slices the globe into 60 north–south
+  strips, each 6° of longitude wide, and flattens each one separately; 28 N is the
+  strip the Canaries fall in. Distances behave like distances, but each
   projection is only accurate over the region it was designed for.
 
 Every flattening distorts something — area, angle, or distance — and no projection
@@ -168,8 +173,10 @@ avoids all three. That is why there are thousands of them rather than one.
 **Why this project cares.** Our seven layers come from five producers in *three*
 different systems: WSF is 4326, Copernicus is 3035, the cadastre is 32628. On their
 own grids, two layers of the same island do not line up pixel-for-pixel, so the viewer
-cannot stack them and the quality gates cannot compare them without resampling at every
-comparison — and **resampling a category is how a date nothing happened gets invented**
+cannot stack them and the quality gates cannot compare them without *resampling* at
+every comparison — recomputing a raster's values onto a different grid, which has to
+invent a value wherever the new cell does not line up with an old one. And
+**resampling a category is how a date nothing happened gets invented**
 (CLAUDE.md #5). So everything is converted **once**, at build time, onto one shared
 grid. Afterwards two layers have byte-identical shapes and `a & b` is a real question
 about one piece of ground.
@@ -183,23 +190,22 @@ regardless. The price is that Copernicus is reprojected once here rather than ne
 
 **The trap that follows from choosing degrees.** A pixel on this grid is a fixed number
 of *degrees* on both axes, and a degree of longitude shrinks as you move away from the
-equator — the meridians converge at the poles. So a "10 m" pixel is not a 10 m square:
+equator, because the meridians (the lines of longitude, which run pole to pole)
+converge as they approach the poles. So a "10 m" pixel is not a 10 m square:
 
 <!--[[[cog
-import math
-from sensisat import grid
-from sensisat.config import CANARIES_BBOX, EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG
-
-def pixel(lat):
-    ns = grid.PIXEL_DEG * EARTH_MERIDIONAL_M_PER_DEG
-    ew = grid.PIXEL_DEG * EARTH_EQUATORIAL_M_PER_DEG * math.cos(math.radians(lat))
-    return ns, ew, ns * ew
+from sensisat import facts as f
+from sensisat.config import CANARIES_BBOX
+from sensisat.grid import NOMINAL_M, PIXEL_DEG
 
 south, north = CANARIES_BBOX[1], CANARIES_BBOX[3]   # the archipelago's own latitude span
-(ns, ew_s, a_s), (_, ew_n, a_n) = pixel(south), pixel(north)
-nominal = grid.NOMINAL_M ** 2
+ns, ew_s, _ = f.pixel_metres(south)
+_, ew_n, _ = f.pixel_metres(north)
+a_n, a_s = f.pixel_area_range()
+lo_pct, hi_pct = f.pixel_area_overstatement()
+nominal = NOMINAL_M ** 2
 cog.outl(
-    f"> one pixel = **{grid.PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\n"
+    f"> one pixel = **{PIXEL_DEG:.3e} degrees** on each axis — a constant, everywhere\n"
     f"> north–south that is **{ns:.2f} m** at every latitude\n"
     f"> east–west it is **{ew_s:.2f} m** at {south:.1f} °N (south of El Hierro) and "
     f"**{ew_n:.2f} m** at {north:.1f} °N (north of Lanzarote)\n"
@@ -209,7 +215,7 @@ cog.outl(
 cog.outl(
     f"\nCall a pixel {nominal:.0f} m² and you claim {nominal:.0f} where "
     f"{a_n:.1f}–{a_s:.1f} stands, so **every area comes out "
-    f"{(nominal / a_s - 1) * 100:.0f} %–{(nominal / a_n - 1) * 100:.0f} % too large** "
+    f"{lo_pct:.0f} %–{hi_pct:.0f} % too large** "
     f"({nominal:.0f} ÷ {a_s:.1f} = {nominal / a_s:.3f}; {nominal:.0f} ÷ {a_n:.1f} = "
     f"{nominal / a_n:.3f}), and the error grows the further north you go. Watch the "
     f"denominator: the same error is {(1 - a_s / nominal) * 100:.0f} %–{(1 - a_n / nominal) * 100:.0f} % "
@@ -277,12 +283,18 @@ can count real pixels: the same bytes the build measured are the bytes the brows
 **A COG is defined by that byte layout, not by having overviews in it** (CLAUDE.md #6).
 Writing a plain GeoTIFF and appending overviews afterwards leaves them at the *end* of
 the file, which `rio cogeo validate --strict` rejects and a range reader cannot use. We
-write through GDAL's COG driver, which is the only reason the order comes out right.
+write through **`raster.write_cog`**, which is the project's only sanctioned way to
+write one; it calls the COG driver of GDAL (the *Geospatial Data Abstraction Library*,
+the C library almost every geospatial tool reads and writes formats with), and that
+driver is the only reason the byte order comes out right. Calling the driver directly,
+or writing a plain GeoTIFF and adding overviews after, is how the layout breaks.
 Two more settings are load-bearing and counter-intuitive: `SPARSE_OK` is refused
 although these islands are mostly ocean, because geotiff.js cannot read the zero-length
 tile entries it writes and the layer silently never renders (CLAUDE.md #12); and
-overviews of the categorical layers use `mode`, not `nearest`, because nearest makes
-sparse buildings vanish when zoomed out (CLAUDE.md #13).
+overviews of the categorical layers use `mode` — the most frequent value among the
+pixels being combined — rather than `nearest`, which simply takes whichever single
+pixel the new grid lands on and so makes sparse buildings vanish when zoomed out
+(CLAUDE.md #13).
 
 **STAC** — *SpatioTemporal Asset Catalog* — is the other half: a small set of JSON
 files describing what was published. A *collection* describes a layer, an *item* one

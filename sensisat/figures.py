@@ -156,12 +156,27 @@ def normalise(token: str) -> str:
 #: "double" and "most" are ordinary English far more often than they are numbers
 #: (measured: 14 false hits on the real prose), and a lint that cries wolf gets
 #: switched off. These six shapes are almost always a measurement in disguise.
+#: Every number word that can precede "fold". Enumerated rather than matched as
+#: `[a-z]+fold`, which would flag "manifold", "scaffolding" and "unfold" — but
+#: enumerating by hand left ELEVEN of them out (eleven, thirteen…nineteen, thirty,
+#: forty, sixty…ninety), so "an elevenfold increase" carried a claim with no digits
+#: straight through the gate. Built from the parts instead, so the list cannot be
+#: partial again: a tens word, a units word, or a tens word joined to a units word.
+_UNITS = ["one", "two", "three", "four", "five", "six", "seven", "eight", "nine"]
+_TEENS = ["ten", "eleven", "twelve", "thirteen", "fourteen", "fifteen",
+          "sixteen", "seventeen", "eighteen", "nineteen"]
+_TENS = ["twenty", "thirty", "forty", "fifty", "sixty", "seventy", "eighty", "ninety"]
+_SCALES = ["hundred", "thousand", "million", "billion"]
+NUMBER_WORDS = sorted(
+    {*_UNITS, *_TEENS, *_TENS, *_SCALES,
+     *(f"{t}{sep}{u}" for t in _TENS for u in _UNITS for sep in ("", "-"))},
+    key=len, reverse=True)          # longest first, so "twenty-two" beats "two"
+
 QUANTITY_WORD = re.compile(
     r"\b(?:a (?:third|quarter|fifth|tenth)|two[- ]thirds|three[- ]quarters"
     r"|(?:one|two|three|four|five|six|seven|eight|nine) in (?:ten|five|four|three)"
     r"|[a-z]+-fold"
-    r"|(?:two|three|four|five|six|seven|eight|nine|ten|twelve|twenty|fifty"
-    r"|hundred|thousand|million)fold)\b", re.I)
+    r"|(?:" + "|".join(NUMBER_WORDS) + r")fold)\b", re.I)
 #: Ordinals and idioms that share a spelling with a fraction. Each is here because
 #: it occurred in the prose; extend this list, never loosen the rule above.
 NOT_A_QUANTITY = re.compile(r"third part(?:y|ies)|as a third\b|a third surface", re.I)
@@ -315,8 +330,12 @@ LABELLED_SOURCE = re.compile(r"^(?:external|measured):\s*\S")
 #: declarations invents a section that nobody wrote and — because the pattern is
 #: non-greedy and spans newlines — swallows the prose after it as far as the next
 #: genuine `@ YYYY-MM-DD ... -->`, which may be several headings away. Match the
-#: fence first so a ``` block is not shredded by the single-backtick alternative.
-CODE_SPAN = re.compile(r"```.*?```|`[^`\n]*`", re.S)
+#: fence first so a fenced block is not shredded by the single-backtick alternative,
+#: and match BOTH fence characters: Markdown fences with ``` or ~~~, and masking only
+#: the first left a ~~~ example standing in as a section's real declaration.
+CODE_SPAN = re.compile(
+    r"(?P<fence>`{3,}|~{3,}).*?(?P=fence)"      # a fenced block, EITHER fence character
+    r"|`[^`\n]*`", re.S)                        # or an inline span
 
 
 def _without_code(text: str) -> str:

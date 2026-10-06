@@ -185,6 +185,13 @@ def test_quantity_words_carry_their_digits() -> None:
     ("the manifold of possible grids", True),      # -fold inside a word is not a figure
     ("wrapped in scaffolding", True),
     ("unfold the panel", True),
+    # CodeRabbit on PR #11: hand-enumerating the number words left eleven of them
+    # out, so these three walked through the gate carrying a claim and no digits.
+    ("an elevenfold increase", False),
+    ("a thirteenfold rise", False),
+    ("a thirtyfold jump", False),
+    ("a twenty-twofold rise", False),
+    ("an elevenfold (11x) increase", True),
     ("Growth ×7.5 in the table.\n\nOverstates it six-fold.", False),  # not across paragraphs
 ])
 def test_quantity_word_rule_fixtures(text: str, ok: bool) -> None:
@@ -478,6 +485,17 @@ def test_a_declaration_shown_as_an_example_is_not_read_as_a_real_one():
 
     fenced = "```\n<!-- figures: not-a-real-source.py @ 2026-09-21 -->\n```\n"
     assert declarations(fenced) == [], "a fenced example is being read as a declaration"
+
+    # Markdown fences with ``` OR ~~~, and the first fix masked only the first.
+    # CodeRabbit found it on PR #11: a ~~~ example stands in as the section's own
+    # declaration, so the section's figures are accounted for by a source nobody
+    # wrote — the exact defect this function exists to prevent, one fence along.
+    tilde = "~~~\n<!-- figures: not-a-real-source.py @ 2026-09-21 -->\n~~~\n"
+    assert declarations(tilde) == [], "a ~~~ example is being read as a declaration"
+
+    section = "## A\n" + tilde + "\nThe total is 12 km².\n"
+    assert declaration_problems(section), (
+        "a section whose only declaration is a ~~~ example passes the gate")
 
 
 def test_no_real_document_declares_a_source_that_is_really_prose():

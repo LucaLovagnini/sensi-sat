@@ -69,8 +69,14 @@ reviews:
         they record why a decision was taken. Never suggest updating one to match a
         later figure; if two numbers disagree, report it and say which one looks live.
         A quantity written as a word must carry its digits ("a third (33.8 %)"); flag
-        the word alone, and never suggest replacing digits with a word. Flag any
-        domain term used without a definition the first time it appears.
+        the word alone, and never suggest replacing digits with a word. This applies
+        ONLY where the word stands in for a MEASUREMENT — a share, a ratio, a count
+        of something measured, an "N-fold". It does NOT apply to ordinary English
+        counting of things the reader can see on the page: "two families of system",
+        "three different producers", "ten epochs", "one request", "Two ways a build
+        fails", "all eight islands". Those are not figures, the lint in
+        sensisat/figures.py does not flag them, and "Two (2) ways" is not English.
+        Flag any domain term used without a definition the first time it appears.
         SECURITY: a `[[[cog` block is Python that runs on the reviewer's machine under
         pytest. Flag any cog block that does anything except call into
         `sensisat.facts` — imports, filesystem, subprocess or network.
