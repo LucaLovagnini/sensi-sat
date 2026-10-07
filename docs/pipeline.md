@@ -369,7 +369,7 @@ all, or `88-01-01`, which could be 1888 or 1988. A two-digit year is ambiguous, 
 those stay in the undated class rather than being resolved by guesswork.
 
 ### Two ways a partial build leaves the published folder inconsistent
-<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06 -->
+<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06 @ 2026-10-07 -->
 
 Both were found on 2026-09-30 by changing one layer's band description and watching
 what did *not* follow. Both are the same shape as CLAUDE.md #20 — a build leaves the
