@@ -139,8 +139,17 @@ def is_build_intermediate(name: str) -> bool:
             and not name.endswith(".confidence.tif"))
 
 
-def _asset_href(layer: str, island: str) -> str:
-    return f"{layer}/{MOSAIC}.tif"
+def mosaic_path(base_dir: Path, layer: str) -> Path:
+    """The published raster for a layer: ONE file covering all eight islands.
+
+    Every item's data asset names this, never the per-island COG the item's
+    statistics were computed from. Those are build intermediates
+    (`is_build_intermediate`), `publish.py` does not ship them, and an item linking
+    to one publishes a href that resolves in the source tree and 404s in the
+    published one — which is what happened between 2026-09-24 and 2026-10-07, and
+    survived only because the pre-migration objects were never deleted from R2.
+    """
+    return Path(base_dir) / layer / f"{MOSAIC}.tif"
 
 
 def _slug(island: str) -> str:
@@ -219,13 +228,22 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
     # lets a partial build re-catalogue the layers it did NOT rebuild instead of
     # dropping them from the catalogue entirely.
     with rasterio.open(path) as src:
-        shape = [src.height, src.width]
-        transform = list(src.transform)[:6]
-        epsg = src.crs.to_epsg() if src.crs else None
+        # The island's own extent. This is the ITEM's bbox: a reader asking what
+        # covers Gran Canaria gets Gran Canaria's bounds and Gran Canaria's
+        # statistics, while the asset it fetches is the whole archipelago.
+        bounds = tuple(src.bounds)
         dtypes = src.dtypes
         nodata = src.nodata
         descriptions = src.descriptions
-        bounds = tuple(src.bounds)
+    # proj:* describes the ASSET, so it is read from the mosaic the asset names,
+    # not from the intermediate the statistics came from. If the mosaic is not
+    # written yet the href still names it — `assets-resolve` is what reports that,
+    # loudly, rather than this quietly cataloguing a different file.
+    mosaic = mosaic_path(base_dir, spec.name)
+    with rasterio.open(mosaic if mosaic.exists() else path) as src:
+        shape = [src.height, src.width]
+        transform = list(src.transform)[:6]
+        epsg = src.crs.to_epsg() if src.crs else None
     item = pystac.Item(
         id=f"{spec.name}-{_slug(island)}",
         geometry=mapping(box(*bounds)),
@@ -261,7 +279,7 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
     proj.bbox = list(bounds)
 
     asset = pystac.Asset(
-        href=str(Path(path).resolve()),
+        href=str(mosaic.resolve()),
         media_type=pystac.MediaType.COG,
         roles=["data"],
         title=spec.title,

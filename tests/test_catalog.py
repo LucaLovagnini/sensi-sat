@@ -26,8 +26,17 @@ def built_layer(tmp_path):
         band_descriptions=["year first built", "provenance"],
         properties={"footprint_km2": 0.14, "caveat": "demolished buildings vanish"},
     )
-    path = write_cog(tmp_path / "test.tif", data, transform, "EPSG:4326",
+    # Laid out the way a real build does: the per-island COG and the archipelago
+    # mosaic side by side under the layer's directory. The mosaic matters because
+    # every item's data asset names IT, not the island file beside it — a fixture
+    # without one produced items whose href resolved in no published tree at all,
+    # which is the defect found on 2026-10-07.
+    layer_dir = tmp_path / "buildings-dated"
+    layer_dir.mkdir(exist_ok=True)
+    path = write_cog(layer_dir / "gran-canaria.tif", data, transform, "EPSG:4326",
                      band_descriptions=built.band_descriptions)
+    write_cog(layer_dir / "archipelago.tif", data, transform, "EPSG:4326",
+              band_descriptions=built.band_descriptions)
     return built, path, tmp_path
 
 
@@ -115,7 +124,7 @@ def test_asset_hrefs_resolve_from_the_item_that_carries_them(built_layer, tmp_pa
 def test_companion_files_are_published_as_their_own_asset(built_layer, tmp_path):
     """The confidence grid is on disk; it has to be findable without guessing names."""
     built, path, base = built_layer
-    companion = base / "test.confidence.tif"
+    companion = base / "buildings-dated" / "gran-canaria.confidence.tif"
     companion.write_bytes(path.read_bytes())
 
     item = catalog.item_for(layers.LAYERS["density-current"], "Gran Canaria",

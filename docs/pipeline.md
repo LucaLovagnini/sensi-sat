@@ -387,10 +387,11 @@ true — and all eight files existed throughout.
 
 **Corrected 2026-10-06.** This paragraph first said the eight items "all point at the
 same file". They do not: each names its own island's intermediate, `../tenerife.tif`.
-The correction matters because it reverses a conclusion — the per-island COGs are not
-spare copies left behind by the mosaic, they are what the published catalogue links
-to, and deleting them as orphans breaks every item. See §"The catalogue links to files
-the publisher does not ship" below. `--catalog-only`
+The correction mattered because it reversed a conclusion: at the time, the per-island
+COGs were not spare copies left behind by the mosaic, they were what the published
+catalogue linked to, so deleting them as orphans would have broken every item. That
+link is now to the mosaic — see the section below — but the items still carry their
+own island's bbox, which is the part this paragraph is about. `--catalog-only`
 does not repair it either, for the same reason — it re-runs exactly this walk. The
 repair is a full build of the layer (`--layer <name>` with no `--island`), which
 regenerates all eight intermediates and so all eight items — but only if all eight
@@ -440,32 +441,47 @@ from sensisat.config import PROCESSED
 
 then `python scripts/sync_docs.py`, and re-attest if the figure moved.
 
-### The catalogue links to files the publisher does not ship
-<!-- figures: sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-06 -->
+### The catalogue linked to files the publisher does not ship — fixed 2026-10-07
+<!-- figures: sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; tests/test_publish.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-07 -->
 
-Found 2026-10-06, while preparing to prune what was believed to be dead weight.
+Found while preparing to prune what was believed to be dead weight, which is the
+only reason it was found at all.
 
-Every STAC item names its own island's intermediate — `buildings-dated-tenerife`
-carries `href: ../tenerife.tif` — while `publish.py` ships **one** raster per layer,
-`archipelago.tif`. So the published items link to files the published tree does not
-contain. On the live bucket those links answer 200 only because the per-island objects
-uploaded before the archipelago migration were never deleted. **All 56 were verified
-present by HEAD request**, and the pruning that was about to remove them would have
-404'd every item in the catalogue at once.
+Every STAC item named its own island's intermediate — `buildings-dated-tenerife`
+carried `href: ../tenerife.tif` — while `publish.py` ships **one** raster per layer,
+`archipelago.tif`. So the published items linked to files the published tree does not
+contain. On the live bucket those links answered 200 only because the per-island
+objects uploaded before the archipelago migration had never been deleted. **All 56
+were verified present by HEAD request**, and the pruning about to remove them would
+have 404'd every item in the catalogue at once.
 
-`catalog.py` carries the fix already written and never wired in: `_asset_href(layer,
-island)` returns `f"{layer}/{MOSAIC}.tif"`, and the module docstring states the design
-— "the asset gets the archipelago, and the item's bbox says which part is that item's".
-Nothing calls it. The href comes from `Path(path).resolve()`, which is the per-island
-file the statistics were computed from.
+The design had been written down three times and wired in nowhere: `catalog.py`'s
+module docstring says "the asset gets the archipelago, and the item's bbox says which
+part is that item's"; `is_build_intermediate` says the per-island COGs are built but
+not published; `build.py` writes mosaics before items *because* "every item's asset
+href names one". A helper returning that href existed and had no callers. The href
+came from the per-island path instead.
 
-**Why no gate caught it, and this is the general lesson.** `assets-resolve` runs
-inside `build.py`, against `data/processed/`, where the per-island intermediates are
-present by construction — they were just written. Nothing resolves hrefs against
-`dist/`, which is the tree a reader actually gets. The gate proves the catalogue is
-usable *where it was built*, and that is not the claim anyone needs. CLAUDE.md #14
-says a valid catalogue is not a usable one; this adds that a catalogue usable in the
-source tree is not a published one.
+**The fix.** `mosaic_path()` replaces that helper and is actually called. The item's
+`bbox` and `geometry` still come from the island's own COG — a reader asking what
+covers Tenerife gets Tenerife's extent and Tenerife's statistics — while `proj:shape`,
+`proj:transform` and the asset href now describe the file the asset *is*. Tenerife's
+item reads `../archipelago.tif` with `proj:shape` 19148 x 53991 and its own bbox.
+The per-island confidence companions are unaffected: they are published, so naming
+them is correct.
+
+**Why no gate caught it, and this is the transferable part.** `assets-resolve` runs
+inside `build.py` against `data/processed/`, where the intermediates are present by
+construction — they were written moments earlier. Nothing resolved an href against
+the set of files that actually ship. The gate proved the catalogue usable *where it
+was built*, which is not the claim a reader needs. CLAUDE.md #14 says a valid
+catalogue is not a usable one; this adds that one usable in the source tree is not a
+published one.
+
+`test_every_item_links_only_to_files_that_are_published` closes it, and deliberately
+asserts against `is_build_intermediate` — the predicate that *decides* what ships —
+rather than against a directory listing, so it holds whether or not `dist/` has been
+assembled, and moves automatically if that predicate ever changes.
 
 ### Size — the one criterion not met as written
 

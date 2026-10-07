@@ -11,6 +11,7 @@ import json
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -182,3 +183,47 @@ def test_one_rule_decides_the_island_slug():
     # publish.py must not grow its own copy of the rule again.
     assert "_slug" not in (ROOT / "scripts" / "publish.py").read_text(), (
         "publish.py imports _slug again — it has no per-island paths left to build")
+
+
+def test_every_item_links_only_to_files_that_are_published():
+    """The published catalogue must not link to a build intermediate.
+
+    Found 2026-10-07. Every STAC item named its own island's COG — Tenerife's item
+    carried `href: ../tenerife.tif` — while `publish.py` ships one raster per layer,
+    `archipelago.tif`. So the published items linked to files the published tree does
+    not contain. On the live bucket those links answered 200 only because the objects
+    uploaded before the archipelago migration had never been deleted; pruning them as
+    orphans, which is what prompted this check, would have 404'd every item at once.
+
+    `assets-resolve` cannot see it. That gate runs inside build.py against
+    `data/processed/`, where the intermediates are present by construction — they
+    were just written. It proves the catalogue is usable WHERE IT WAS BUILT, which is
+    not the claim a reader needs. CLAUDE.md #14 says a valid catalogue is not a usable
+    one; this adds that one usable in the source tree is not a published one.
+
+    So the invariant is asserted against the predicate that decides what ships, not
+    against a directory listing: no item may resolve to a file `publish.py` would
+    leave behind. That holds whether or not dist/ has been assembled.
+    """
+    import pystac
+
+    from sensisat.catalog import is_build_intermediate
+
+    root = PROCESSED / "catalog.json"
+    if not root.exists():
+        pytest.skip("no catalogue in this checkout")
+
+    unpublished = []
+    checked = 0
+    for child in pystac.Catalog.from_file(str(root)).get_children():
+        for item in child.get_items():
+            item_dir = Path(item.get_self_href()).parent
+            for key, asset in item.assets.items():
+                target = (item_dir / asset.href).resolve()
+                checked += 1
+                if is_build_intermediate(target.name):
+                    unpublished.append(f"  {item.id}.{key} -> {target.name}")
+    assert checked, "no assets found to check"
+    assert not unpublished, (
+        "published items link to files publish.py does not ship:\n"
+        + "\n".join(unpublished[:12]))
