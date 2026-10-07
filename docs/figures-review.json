@@ -88,7 +88,7 @@
     "sensisat/datasets/cadastre.py @ 2026-09-19",
     "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24",
     "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06 @ 2026-10-07",
-    "sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-06"
+    "sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; tests/test_publish.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-07"
    ],
    "docs/validation.md": [
     "scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -1944,6 +1944,7 @@
      "147",
      "16",
      "185",
+     "19148",
      "2",
      "2.1–2.6",
      "2.2",
@@ -1975,6 +1976,7 @@
      "52",
      "52.0",
      "539",
+     "53991",
      "54.1 MiB",
      "55 %",
      "56",
@@ -2444,11 +2446,11 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "fad05be0d977ee1cb14ba19f20e2607af2101ee1538885de32743c2efb3deec4",
+ "fingerprint": "1defbe905ff909037b4f44db90b136a8b376a97cca3b370d3700f47b8bb79101",
  "judgements": {
-  "declarations_plausible": "The new subsection declares catalog.py/publish.py/qa.py plus the HEAD requests that produced its 200, 404 and object count. The 2.2 KiB measurement was taken today under a declaration naming only yesterday's measurements; it now names the before-and-after index sizes and carries 2026-10-07.",
-  "generated_from_right_fact": "size_published() 67.852 -> 67.85 MiB, which is index.json losing 2,282 bytes in the contract step; renders as 67.9 -> 67.8 in pipeline.md's two size regions. figure-provenance's table moves 86 -> 87 declarations, the one added for the new subsection.",
-  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set, same six live-value collisions. The new 67.8 MiB collision is declared in figure_collisions.json as the 2026-09-30 incident figure, not a live claim; neither number was rewritten and the prose now says the agreement is a coincidence."
+  "declarations_plausible": "pipeline §7 gains 19148 and 53991, the mosaic's height and width, verified against data/processed/buildings-dated/archipelago.tif; its declaration now also names tests/test_publish.py, which holds the new invariant, and carries 2026-10-07.",
+  "generated_from_right_fact": "Nothing generated moved — the catalogue fix changed item metadata, not a published quantity. 24 regions, live values identical.",
+  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set."
  },
  "reviewed": "2026-10-07",
  "reviewer": "Luca Lovagnini (read the delta)"
