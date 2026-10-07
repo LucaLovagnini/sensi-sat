@@ -227,3 +227,106 @@ def test_every_item_links_only_to_files_that_are_published():
     assert not unpublished, (
         "published items link to files publish.py does not ship:\n"
         + "\n".join(unpublished[:12]))
+
+
+def test_publish_refuses_links_a_reader_cannot_follow(tmp_path):
+    """The gate that would have caught the 2026-09-24 defect the day it shipped.
+
+    Runs on a fixture, not on dist/, so it proves the rule in a checkout with no
+    build. Three cases, because "resolves" is two separate properties and both have
+    to hold: the target must exist, AND it must sit inside the published tree. An
+    href climbing out to data/processed/ resolves on the machine that built it and
+    on no host anywhere.
+    """
+    import json
+
+    import numpy as np
+    from publish import broken_published_links
+    from rasterio.transform import from_origin
+
+    from sensisat import catalog, layers
+    from sensisat.grid import PIXEL_DEG
+    from sensisat.raster import write_cog
+
+    data = tmp_path / "dist" / "data"
+    layer_dir = data / "buildings-dated"
+    layer_dir.mkdir(parents=True)
+    arr = np.zeros((2, 64, 64), "uint8")
+    t = from_origin(-15.5, 28.1, PIXEL_DEG, PIXEL_DEG)
+    island = write_cog(layer_dir / "gran-canaria.tif", arr, t, "EPSG:4326")
+    mosaic = write_cog(layer_dir / "archipelago.tif", arr, t, "EPSG:4326")
+
+    item = catalog.item_for(layers.LAYERS["buildings-dated"], "Gran Canaria", {},
+                            island, base_dir=data)
+    catalog.save(catalog.build_catalog(
+        [catalog.collection_for(layers.LAYERS["buildings-dated"], [item])]), data)
+    (data / "index.json").write_text(json.dumps(
+        {"layers": {"buildings-dated": {"asset": "buildings-dated/archipelago.tif"}}}))
+    island.unlink()                         # what publish.py does: intermediates stay behind
+    assert broken_published_links(data) == [], "a correct published tree was refused"
+
+    # 1. The original defect: the mosaic is what is linked, so without it, every link fails.
+    mosaic.rename(tmp_path / "away.tif")
+    broken = broken_published_links(data)
+    assert any("not published" in b for b in broken), broken
+    assert any("index.json:buildings-dated" in b for b in broken), (
+        "the viewer's own link was not checked")
+    (tmp_path / "away.tif").rename(mosaic)
+
+    # 2. An href that resolves only on the build machine, by climbing out of dist/.
+    outside = tmp_path / "processed.tif"
+    write_cog(outside, arr, t, "EPSG:4326")
+    item_json = next(data.rglob("buildings-dated-gran-canaria.json"))
+    doc = json.loads(item_json.read_text())
+    doc["assets"]["data"]["href"] = "../../../../processed.tif"
+    item_json.write_text(json.dumps(doc))
+    assert (item_json.parent / "../../../../processed.tif").resolve().exists()
+    broken = broken_published_links(data)
+    assert any("outside the published tree" in b for b in broken), broken
+
+
+def test_prune_refuses_what_the_live_site_still_links_to():
+    """The deletion that would have taken the catalogue down, refused by construction.
+
+    On 2026-10-06 the plan said to prune 56 "orphaned" per-island COGs. Every live
+    STAC item linked to one. The order that makes them deletable — upload the items
+    that point at the mosaic, THEN prune — was only a sentence in a PR description.
+    This asserts the script enforces it: the same keys are refused while the live
+    catalogue still links to them, and freed once it does not. No network: the trees
+    are dictionaries.
+    """
+    from prune_r2 import link_targets, refusals
+
+    def tree(item_href: str) -> dict[str, str]:
+        return {
+            "catalog.json": json.dumps({"links": [
+                {"rel": "child", "href": "./buildings-dated/collection.json"}]}),
+            "buildings-dated/collection.json": json.dumps({"links": [
+                {"rel": "item", "href": "./buildings-dated-tenerife/buildings-dated-tenerife.json"}]}),
+            "buildings-dated/buildings-dated-tenerife/buildings-dated-tenerife.json":
+                json.dumps({"assets": {"data": {"href": item_href}}}),
+            "index.json": json.dumps({"layers": {
+                "buildings-dated": {"asset": "buildings-dated/archipelago.tif"}}}),
+        }
+
+    before, after = tree("../tenerife.tif"), tree("../archipelago.tif")
+    key = "buildings-dated/tenerife.tif"
+    published = {"buildings-dated/archipelago.tif"}
+
+    live_before = link_targets(before.__getitem__, "")
+    assert key in live_before, "the walk missed the item's own asset"
+
+    # Corrected items built locally but NOT yet uploaded: the live site still links.
+    local_after = link_targets(after.__getitem__, "")
+    refused = refusals([key], published, local_after, live_before)
+    assert key in refused and "LIVE" in refused[key], (
+        "pruning before the upload was allowed — the 2026-10-06 outage")
+
+    # Uploaded: nothing links to it anywhere, so it really is an orphan now.
+    live_after = link_targets(after.__getitem__, "")
+    assert refusals([key], published, local_after, live_after) == {}
+
+    # And a published file is never an orphan, whatever links to it.
+    assert "published" in refusals(["buildings-dated/archipelago.tif"],
+                                   published, local_after, live_after)[
+        "buildings-dated/archipelago.tif"]

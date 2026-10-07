@@ -45,7 +45,14 @@ def test_item_declares_its_grid_and_bands(built_layer):
     item = catalog.item_for(layers.LAYERS["buildings-dated"], "Gran Canaria",
                             built.properties, path, base_dir=base)
     assert item.properties["proj:code"] == "EPSG:4326"
-    assert item.properties["proj:shape"] == [256, 256]
+    # Shape and transform live on the ASSET, not the item: since 2026-10-07 one
+    # item's assets do not share a grid — `data` is the archipelago mosaic while a
+    # confidence companion is one island — and an item-level value would silently
+    # apply to both. The item keeps proj:bbox, which IS this island's.
+    assert "proj:shape" not in item.properties, (
+        "an item-level shape applies to every asset that does not override it")
+    assert item.assets["data"].extra_fields["proj:shape"] == [256, 256]
+    assert item.properties["proj:bbox"] == list(item.bbox)
     bands = item.assets["data"].extra_fields["raster:bands"]
     assert len(bands) == 2
     assert bands[1]["description"] == "provenance"
@@ -167,3 +174,34 @@ def test_a_partial_build_does_not_erase_the_other_layers(built_layer, tmp_path, 
     import pystac
     written = pystac.Catalog.from_file(str(dest / "catalog.json"))
     assert {c.id for c in written.get_children()} == set(items)
+
+
+def test_the_data_asset_names_the_published_mosaic_not_the_intermediate(built_layer, tmp_path):
+    """Regression guard that needs no build on disk, so it runs in every checkout.
+
+    Between 2026-09-24 and 2026-10-07 every item's data asset named its island's
+    intermediate COG, which publish.py never ships. The existing resolve test could
+    not see it — the island file sits beside the item in the fixture, so the href
+    resolved — and the on-disk invariant in test_publish.py skips wherever no
+    catalogue has been built (CodeRabbit, PR #14). This builds the catalogue from the
+    fixture and asserts what the link resolves TO, against the predicate that decides
+    what ships.
+    """
+    import pystac
+
+    from sensisat.catalog import is_build_intermediate
+
+    built, path, base = built_layer
+    item = catalog.item_for(layers.LAYERS["buildings-dated"], "Gran Canaria",
+                            built.properties, path, base_dir=base)
+    catalog.save(catalog.build_catalog(
+        [catalog.collection_for(layers.LAYERS["buildings-dated"], [item])]), base)
+
+    written = pystac.Catalog.from_file(str(base / "catalog.json"))
+    (only,) = [i for c in written.get_children() for i in c.get_items()]
+    target = (Path(only.get_self_href()).parent / only.assets["data"].href).resolve()
+    assert target.name == "archipelago.tif", f"data asset names {target.name}"
+    assert not is_build_intermediate(target.name), (
+        f"the published item links to {target.name}, which publish.py does not ship")
+    # The item is still about one island: its bbox is the island's, not the mosaic's.
+    assert only.properties["island"] == "Gran Canaria"

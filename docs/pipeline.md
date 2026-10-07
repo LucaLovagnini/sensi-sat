@@ -369,7 +369,7 @@ all, or `88-01-01`, which could be 1888 or 1988. A two-digit year is ambiguous, 
 those stay in the undated class rather than being resolved by guesswork.
 
 ### Two ways a partial build leaves the published folder inconsistent
-<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06 @ 2026-10-07 -->
+<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06; size_published() before and after the catalogue fix, 2026-10-07 @ 2026-10-07 -->
 
 Both were found on 2026-09-30 by changing one layer's band description and watching
 what did *not* follow. Both are the same shape as CLAUDE.md #20 — a build leaves the
@@ -408,13 +408,14 @@ documents, not before. So a single build measures the index it inherited and is
 right. **The undercount needs two builds**: the first deletes the index, nothing
 republishes it, and the second syncs the documents against a tree that is already
 missing a published file. That is the state this repository was in on 2026-09-30,
-and it wrote **67.8 MiB where the true figure was 67.9**. (Those two numbers are
-frozen at that date. Read them beside the size table above with care: the published
-total has since moved, because the contract step of 2026-10-06 took the per-island
-assets out of `index.json` and 2.2 KiB with them, so today's true figure and that
-day's wrong one coincide. The collision is recorded in
-`tests/fixtures/figure_collisions.json` rather than resolved by rewriting either —
-CLAUDE.md #24.) It is small, it is in a
+and it wrote **67.8 MiB where the true figure was 67.9**. (Both numbers are frozen at that
+date. Read them beside the size table above with care, because **this figure sits on a
+rounding edge** — close enough to the midpoint between 67.8 and 67.9 that changes of a
+few kilobytes flip which one the table shows. It has flipped three times: the
+2026-09-30 incident; the contract step taking 2.2 KiB out of `index.json` on
+2026-10-06; and the STAC items growing by 3.1 KiB on 2026-10-07, when their links were
+pointed at the mosaic and each asset was given its own grid. Whichever the table shows today, it says nothing about which of these two
+was right on 2026-09-30.) It is small, it is in a
 document, and nothing downstream disagrees with it, because every check re-measures
 the same incomplete tree. The order matters for the fix as much as for the diagnosis:
 no amount of care *within* one build closes it, because the run that writes the wrong
@@ -488,7 +489,7 @@ assembled, and moves automatically if that predicate ever changes.
 M2's plan asked for the published output to stay in **single-digit MiB**. The total is
 
 <!--[[[cog cog.out("**" + km2(f.size_published(), 1) + " MiB**") ]]]-->
-**67.8 MiB**
+**67.9 MiB**
 <!--[[[end]]]-->
 
 That target was set before the sealing layer had been measured, and it is worth
@@ -508,7 +509,7 @@ cog.outl(f"| **total published** | **{km2(f.size_published(), 1)}** |")
 | six layers (buildings, both settlement eras, greenhouses, trend, loss) | **28.8** |
 | `density-current` — the sealing map itself | 12.7 |
 | `density-current` — the per-pixel confidence companion | 25.5 |
-| **total published** | **67.8** |
+| **total published** | **67.9** |
 <!--[[[end]]]-->
 
 **It was 54.1 MiB when M2 closed and 60.2 MiB when the figure gate shipped.** Two

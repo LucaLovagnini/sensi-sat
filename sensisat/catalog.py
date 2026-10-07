@@ -210,6 +210,23 @@ def _description_values(spec, props: dict, stats: dict | None) -> dict:
     return out
 
 
+def _describe_grid(item: pystac.Item, key: str, source: Path) -> None:
+    """State one asset's own shape and transform, read from the file it points at.
+
+    Needed because the assets of an item no longer share a grid: `data` is the
+    archipelago mosaic and a confidence companion covers one island. Item-level
+    projection values apply to every asset that does not override them, so leaving
+    these at item level would tell a client the confidence raster is 53991 pixels
+    wide when it is 3897.
+    """
+    if not source.exists():                 # assets-resolve reports the missing file
+        return
+    with rasterio.open(source) as src:
+        asset_proj = ProjectionExtension.ext(item.assets[key])
+        asset_proj.shape = [src.height, src.width]
+        asset_proj.transform = list(src.transform)[:6]
+
+
 def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
              companions: dict[str, Path] | None = None,
              stats: dict | None = None) -> pystac.Item:
@@ -241,8 +258,6 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
     # loudly, rather than this quietly cataloguing a different file.
     mosaic = mosaic_path(base_dir, spec.name)
     with rasterio.open(mosaic if mosaic.exists() else path) as src:
-        shape = [src.height, src.width]
-        transform = list(src.transform)[:6]
         epsg = src.crs.to_epsg() if src.crs else None
     item = pystac.Item(
         id=f"{spec.name}-{_slug(island)}",
@@ -272,10 +287,15 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
     )
     item.stac_extensions.append(PROCESSING_EXT)
 
+    # The projection extension says an ITEM-level value applies to every asset that
+    # does not override it. Since 2026-10-07 the assets of one item do not share a
+    # grid: `data` is the archipelago mosaic, while a confidence companion is its
+    # own island (3341 x 3897 against 19148 x 53991 for density-current/El Hierro).
+    # So only what is genuinely common lives at item level — the CRS, and the bbox,
+    # which is this island's extent and the thing the item is actually about — and
+    # shape and transform are stated per asset, where they are true.
     proj = ProjectionExtension.ext(item, add_if_missing=True)
     proj.code = f"EPSG:{epsg}" if epsg else None
-    proj.shape = shape
-    proj.transform = transform
     proj.bbox = list(bounds)
 
     asset = pystac.Asset(
@@ -285,6 +305,7 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
         title=spec.title,
     )
     item.add_asset("data", asset)
+    _describe_grid(item, "data", mosaic if mosaic.exists() else path)
 
     # Companions are published beside the layer and belong in the same item, so a
     # reader can find them without knowing our file-naming convention.
@@ -295,6 +316,9 @@ def item_for(spec, island: str, properties: dict, path: Path, *, base_dir: Path,
             roles=["metadata"],
             title=f"{spec.title} — {key}",
         ))
+        # Its own island's grid, not the mosaic's — a confidence companion for
+        # El Hierro is 3341 x 3897 where the mosaic is 19148 x 53991.
+        _describe_grid(item, key, Path(companion_path))
 
     unit = UNITS.get(spec.encoding, "")
     bands = []

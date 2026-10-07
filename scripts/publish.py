@@ -308,6 +308,49 @@ def report() -> float:
     return total
 
 
+def broken_published_links(data_dir: Path) -> list[str]:
+    """Every link in the PUBLISHED tree that a reader would find broken.
+
+    Checks what a reader gets, not what was built. `assets-resolve` (in build.py)
+    resolves hrefs against data/processed/, where every build intermediate exists by
+    construction — so between 2026-09-24 and 2026-10-07 it passed while all 56 STAC
+    items linked to per-island COGs that this script never ships. They resolved on
+    the live bucket only because objects from before the migration had never been
+    deleted. This runs on dist/data/ after it is assembled, and a link must not only
+    resolve but stay INSIDE the published tree: `../../data/processed/x.tif` exists
+    on the machine that built it and nowhere a reader can reach.
+
+    Covers both things that link to rasters: STAC asset hrefs, and the per-layer
+    asset in index.json, which is what the viewer actually fetches.
+    """
+    import pystac
+
+    data_dir = Path(data_dir).resolve()
+    broken = []
+
+    def check(where: str, target: Path) -> None:
+        target = target.resolve()
+        if not target.is_relative_to(data_dir):
+            broken.append(f"  {where} -> {target} (outside the published tree)")
+        elif not target.exists():
+            broken.append(f"  {where} -> {target.relative_to(data_dir)} (not published)")
+
+    root = data_dir / "catalog.json"
+    if root.exists():
+        for child in pystac.Catalog.from_file(str(root)).get_children():
+            for item in child.get_items():
+                item_dir = Path(item.get_self_href()).parent
+                for key, asset in item.assets.items():
+                    check(f"{item.id}.{key}", item_dir / asset.href)
+
+    index = data_dir / "index.json"
+    if index.exists():
+        for name, layer in json.loads(index.read_text())["layers"].items():
+            if layer.get("asset"):
+                check(f"index.json:{name}", data_dir / layer["asset"])
+    return broken
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__,
                                  formatter_class=argparse.RawDescriptionHelpFormatter)
@@ -355,6 +398,13 @@ def main() -> int:
     print(f"  index.json: {len(index['layers'])} layers, {n_islands} island entries, "
           f"{(DATA / 'index.json').stat().st_size / 1024:.1f} KiB "
           f"(replaces a 64-request STAC walk)")
+
+    broken = broken_published_links(DATA)
+    if broken:
+        print(f"\n  FAIL: {len(broken)} published links point at nothing a reader can fetch:")
+        print("\n".join(broken[:12]))
+        print("  dist/ is assembled but must not be uploaded — fix the links first.")
+        return 4
 
     total = report()
     if total > args.budget_mib:
