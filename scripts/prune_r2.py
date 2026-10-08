@@ -78,6 +78,14 @@ def link_targets(read, root: str) -> set[str]:
     for layer in index.get("layers", {}).values():
         if layer.get("asset"):
             keys.add(posixpath.normpath(layer["asset"]))
+        # The per-island asset was removed from index.json in the contract step, but
+        # an index published BEFORE that step still carries one per island — and the
+        # live one does until the contracted index is uploaded. Reading only the
+        # current shape would call those files free while the live index links to
+        # them (CodeRabbit, PR #14). A key linked from ANY index shape is a link.
+        for entry in layer.get("islands", {}).values():
+            if entry.get("asset"):
+                keys.add(posixpath.normpath(entry["asset"]))
     return keys
 
 
@@ -94,12 +102,26 @@ def _get(url: str) -> str:
 
 
 def _exists(key: str) -> bool:
+    """True on 200, False ONLY on a confirmed 404; anything else stops the prune.
+
+    It used to return False on any failure, so a 403 or a timeout read as "already
+    gone" and a dry run could finish green having checked nothing (CodeRabbit,
+    PR #14). That is not hypothetical here: Cloudflare answered this script's first
+    run with 403 for every request, because of its User-Agent. Absence must be a
+    fact the server stated, never an inference from not hearing back.
+    """
+    import urllib.error
+
     req = urllib.request.Request(f"{LIVE}/{key}", method="HEAD", headers=HEADERS)
     try:
         with urllib.request.urlopen(req, timeout=30):          # noqa: S310
             return True
-    except Exception:
-        return False
+    except urllib.error.HTTPError as err:
+        if err.code == 404:
+            return False
+        raise SystemExit(f"HEAD {key} answered {err.code}; refusing to guess whether it exists") from err
+    except OSError as err:
+        raise SystemExit(f"HEAD {key} failed ({err}); refusing to guess whether it exists") from err
 
 
 def refusals(candidates: list[str], published: set[str], local_links: set[str],

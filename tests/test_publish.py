@@ -326,7 +326,54 @@ def test_prune_refuses_what_the_live_site_still_links_to():
     live_after = link_targets(after.__getitem__, "")
     assert refusals([key], published, local_after, live_after) == {}
 
+    # CodeRabbit, PR #14: the corrected ITEMS uploaded but the index not yet — which
+    # is what an upload interrupted after the items and before index.json (uploaded
+    # last) leaves behind. The live index is still the pre-contract "both" shape and
+    # links every island's COG from islands[*].asset.
+    half = dict(after)
+    half["index.json"] = json.dumps({"layers": {"buildings-dated": {
+        "asset": "buildings-dated/archipelago.tif",
+        "islands": {"Tenerife": {"asset": "buildings-dated/tenerife.tif"}}}}})
+    refused = refusals([key], published, local_after, link_targets(half.__getitem__, ""))
+    assert key in refused and "LIVE" in refused[key], (
+        "a key the live index still links to was called free")
+
     # And a published file is never an orphan, whatever links to it.
     assert "published" in refusals(["buildings-dated/archipelago.tif"],
                                    published, local_after, live_after)[
         "buildings-dated/archipelago.tif"]
+
+
+
+def test_prune_does_not_read_a_failed_check_as_absence(monkeypatch):
+    """Only a 404 means "gone". A 403 or a timeout means "unknown", and stops.
+
+    Not hypothetical: Cloudflare answered this script's first run with 403 on every
+    request because of its User-Agent. When `_exists` turned every failure into
+    False, that run would have reported all 56 objects "already gone" and finished
+    green having checked nothing (CodeRabbit, PR #14).
+    """
+    import io
+    import urllib.error
+    import urllib.request
+
+    import prune_r2
+
+    def answer(code):
+        def fake(req, timeout=None):
+            raise urllib.error.HTTPError(req.full_url, code, "x", {}, io.BytesIO())
+        return fake
+
+    monkeypatch.setattr(urllib.request, "urlopen", answer(404))
+    assert prune_r2._exists("k") is False
+
+    for code in (403, 500):
+        monkeypatch.setattr(urllib.request, "urlopen", answer(code))
+        with pytest.raises(SystemExit, match=str(code)):
+            prune_r2._exists("k")
+
+    def timeout(req, timeout=None):
+        raise TimeoutError("timed out")
+    monkeypatch.setattr(urllib.request, "urlopen", timeout)
+    with pytest.raises(SystemExit, match="refusing to guess"):
+        prune_r2._exists("k")
