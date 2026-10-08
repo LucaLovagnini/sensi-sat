@@ -11,6 +11,7 @@ import json
 import shutil
 import subprocess
 import sys
+from pathlib import Path
 
 import pytest
 
@@ -114,56 +115,265 @@ def test_every_published_running_total_rises():
     assert not problems, "a published running total decreases:\n" + "\n".join(problems)
 
 
-def test_the_index_serves_both_viewers_so_there_is_no_flag_day():
-    """index.json sits at ONE URL that every viewer fetches, whatever its vintage.
+def test_the_per_island_asset_is_gone_and_the_per_island_statistics_are_not():
+    """The CONTRACT of expand-migrate-contract, done 2026-10-06.
 
-    The deployed viewer reads `layers[id].islands[island].asset`; the archipelago
-    viewer reads `layers[id].asset`. A file carrying only one of those breaks
-    whichever side is deployed second, and breaks it SILENTLY — the page still
-    answers 200 and the layers simply never draw. That happened on 2026-09-24, and
-    the mitigation at the time was a `v2/` prefix plus a constant in app.js marked
-    BRANCH ONLY, which is a note rather than a defence.
+    This test replaces `test_the_index_serves_both_viewers_so_there_is_no_flag_day`,
+    whose docstring said deleting it is how this decision gets made deliberately.
+    So: it was made. index.json sits at ONE URL every viewer fetches, and between
+    2026-09-25 and 2026-10-06 it carried BOTH shapes — `layers[id].asset` for the
+    archipelago viewer and `layers[id].islands[island].asset` for the one deployed
+    before it — so the data and the bundle could be deployed in either order. On
+    2026-10-06 production was verified serving the archipelago viewer (bundle
+    byte-identical to the build, `allIslands` present in it and absent from the
+    previous one), which left the per-island asset with no reader.
 
-    Emitting both shapes means the data and the bundle can be deployed in either
-    order, or weeks apart. Verified in a browser: `main`'s bundle drives all seven
-    layers and all eight islands off this file, and so does the new one.
-
-    This is the EXPAND of expand-migrate-contract. The per-island keys go once
-    production is verified on the archipelago viewer and the old objects are pruned;
-    deleting this test is how that decision gets made deliberately.
+    The DANGEROUS half of this test is the second assertion, not the first. The
+    per-island `bbox` and `stats` are not compatibility shims: the far regime sums
+    the published figures of the islands a view touches, so deleting the islands
+    dict along with the asset would silently empty every zoomed-out readout — the
+    2026-09-24 failure again, in the other direction. Asset out, statistics in.
     """
     from publish import runtime_index
 
     from sensisat.layers import LAYERS
     index = runtime_index()
-    assert index["shape"] == "both"
+    assert index["shape"] == "archipelago", "the shape field still advertises the shim"
 
-    missing = []
+    stray, missing = [], []
     for name in LAYERS:
         layer = index["layers"].get(name)
         if layer is None:
             continue                      # not built in this checkout
         if not layer.get("asset"):
-            missing.append(f"  {name}: no layer-level asset (archipelago viewer)")
+            missing.append(f"  {name}: no layer-level asset — the viewer draws nothing")
         for island, entry in layer["islands"].items():
-            if not entry.get("asset"):
-                missing.append(f"  {name}/{island}: no per-island asset (deployed viewer)")
-    assert not missing, "index.json would break a viewer:\n" + "\n".join(missing)
+            if "asset" in entry:
+                stray.append(f"  {name}/{island}: per-island asset survived the contract")
+            if "bbox" not in entry or "stats" not in entry:
+                missing.append(f"  {name}/{island}: lost bbox or stats — the far regime needs both")
+    assert not stray, "\n".join(stray)
+    assert not missing, "\n".join(missing)
 
+def test_one_rule_decides_the_island_slug():
+    """"Gran Canaria" is stored as gran-canaria.tif, and ONE rule must decide that.
 
-def test_the_per_island_href_is_the_slug_the_catalogue_writes():
-    """"Gran Canaria" is stored as gran-canaria.tif, and one rule must decide that.
+    A second naming rule resolves for the islands whose name happens to match and
+    404s for the rest — which is how this was first written, and it gave three of
+    eight.
 
-    A second naming rule here would resolve for the islands whose name happens to
-    match and 404 for the rest — which is how this was first written, and it gave
-    three of eight.
+    It used to be asserted on the per-island asset href in index.json. The contract
+    of 2026-10-06 removed that href, and the `_slug` import from publish.py with it,
+    so the duplication cannot recur there. The rule still decides where the
+    catalogue writes items, so that is where it is checked now.
     """
-    from publish import runtime_index
-
     from sensisat.catalog import _slug
-    layer = runtime_index()["layers"].get("buildings-dated")
-    if layer is None:
+    from sensisat.config import ISLAND_BBOX
+
+    layer_dir = PROCESSED / "buildings-dated"
+    if not layer_dir.exists():
         pytest.skip("buildings-dated is not built in this checkout")
-    for island, entry in layer["islands"].items():
-        assert entry["asset"].endswith(f"/{_slug(island)}.tif"), (
-            f"{island} -> {entry['asset']}")
+
+    slugs = {_slug(i) for i in ISLAND_BBOX}
+    found = {d.name.removeprefix("buildings-dated-")
+             for d in layer_dir.iterdir() if d.is_dir()}
+    assert found, "no per-island item directories on disk"
+    assert found <= slugs, f"item directories no island slug explains: {sorted(found - slugs)}"
+
+    # publish.py must not grow its own copy of the rule again.
+    assert "_slug" not in (ROOT / "scripts" / "publish.py").read_text(), (
+        "publish.py imports _slug again — it has no per-island paths left to build")
+
+
+def test_every_item_links_only_to_files_that_are_published():
+    """The published catalogue must not link to a build intermediate.
+
+    Found 2026-10-07. Every STAC item named its own island's COG — Tenerife's item
+    carried `href: ../tenerife.tif` — while `publish.py` ships one raster per layer,
+    `archipelago.tif`. So the published items linked to files the published tree does
+    not contain. On the live bucket those links answered 200 only because the objects
+    uploaded before the archipelago migration had never been deleted; pruning them as
+    orphans, which is what prompted this check, would have 404'd every item at once.
+
+    `assets-resolve` cannot see it. That gate runs inside build.py against
+    `data/processed/`, where the intermediates are present by construction — they
+    were just written. It proves the catalogue is usable WHERE IT WAS BUILT, which is
+    not the claim a reader needs. CLAUDE.md #14 says a valid catalogue is not a usable
+    one; this adds that one usable in the source tree is not a published one.
+
+    So the invariant is asserted against the predicate that decides what ships, not
+    against a directory listing: no item may resolve to a file `publish.py` would
+    leave behind. That holds whether or not dist/ has been assembled.
+    """
+    import pystac
+
+    from sensisat.catalog import is_build_intermediate
+
+    root = PROCESSED / "catalog.json"
+    if not root.exists():
+        pytest.skip("no catalogue in this checkout")
+
+    unpublished = []
+    checked = 0
+    for child in pystac.Catalog.from_file(str(root)).get_children():
+        for item in child.get_items():
+            item_dir = Path(item.get_self_href()).parent
+            for key, asset in item.assets.items():
+                target = (item_dir / asset.href).resolve()
+                checked += 1
+                if is_build_intermediate(target.name):
+                    unpublished.append(f"  {item.id}.{key} -> {target.name}")
+    assert checked, "no assets found to check"
+    assert not unpublished, (
+        "published items link to files publish.py does not ship:\n"
+        + "\n".join(unpublished[:12]))
+
+
+def test_publish_refuses_links_a_reader_cannot_follow(tmp_path):
+    """The gate that would have caught the 2026-09-24 defect the day it shipped.
+
+    Runs on a fixture, not on dist/, so it proves the rule in a checkout with no
+    build. Three cases, because "resolves" is two separate properties and both have
+    to hold: the target must exist, AND it must sit inside the published tree. An
+    href climbing out to data/processed/ resolves on the machine that built it and
+    on no host anywhere.
+    """
+    import json
+
+    import numpy as np
+    from publish import broken_published_links
+    from rasterio.transform import from_origin
+
+    from sensisat import catalog, layers
+    from sensisat.grid import PIXEL_DEG
+    from sensisat.raster import write_cog
+
+    data = tmp_path / "dist" / "data"
+    layer_dir = data / "buildings-dated"
+    layer_dir.mkdir(parents=True)
+    arr = np.zeros((2, 64, 64), "uint8")
+    t = from_origin(-15.5, 28.1, PIXEL_DEG, PIXEL_DEG)
+    island = write_cog(layer_dir / "gran-canaria.tif", arr, t, "EPSG:4326")
+    mosaic = write_cog(layer_dir / "archipelago.tif", arr, t, "EPSG:4326")
+
+    item = catalog.item_for(layers.LAYERS["buildings-dated"], "Gran Canaria", {},
+                            island, base_dir=data)
+    catalog.save(catalog.build_catalog(
+        [catalog.collection_for(layers.LAYERS["buildings-dated"], [item])]), data)
+    (data / "index.json").write_text(json.dumps(
+        {"layers": {"buildings-dated": {"asset": "buildings-dated/archipelago.tif"}}}))
+    island.unlink()                         # what publish.py does: intermediates stay behind
+    assert broken_published_links(data) == [], "a correct published tree was refused"
+
+    # 1. The original defect: the mosaic is what is linked, so without it, every link fails.
+    mosaic.rename(tmp_path / "away.tif")
+    broken = broken_published_links(data)
+    assert any("not published" in b for b in broken), broken
+    assert any("index.json:buildings-dated" in b for b in broken), (
+        "the viewer's own link was not checked")
+    (tmp_path / "away.tif").rename(mosaic)
+
+    # 2. An href that resolves only on the build machine, by climbing out of dist/.
+    outside = tmp_path / "processed.tif"
+    write_cog(outside, arr, t, "EPSG:4326")
+    item_json = next(data.rglob("buildings-dated-gran-canaria.json"))
+    doc = json.loads(item_json.read_text())
+    doc["assets"]["data"]["href"] = "../../../../processed.tif"
+    item_json.write_text(json.dumps(doc))
+    assert (item_json.parent / "../../../../processed.tif").resolve().exists()
+    broken = broken_published_links(data)
+    assert any("outside the published tree" in b for b in broken), broken
+
+
+def test_prune_refuses_what_the_live_site_still_links_to():
+    """The deletion that would have taken the catalogue down, refused by construction.
+
+    On 2026-10-06 the plan said to prune 56 "orphaned" per-island COGs. Every live
+    STAC item linked to one. The order that makes them deletable — upload the items
+    that point at the mosaic, THEN prune — was only a sentence in a PR description.
+    This asserts the script enforces it: the same keys are refused while the live
+    catalogue still links to them, and freed once it does not. No network: the trees
+    are dictionaries.
+    """
+    from prune_r2 import link_targets, refusals
+
+    def tree(item_href: str) -> dict[str, str]:
+        return {
+            "catalog.json": json.dumps({"links": [
+                {"rel": "child", "href": "./buildings-dated/collection.json"}]}),
+            "buildings-dated/collection.json": json.dumps({"links": [
+                {"rel": "item", "href": "./buildings-dated-tenerife/buildings-dated-tenerife.json"}]}),
+            "buildings-dated/buildings-dated-tenerife/buildings-dated-tenerife.json":
+                json.dumps({"assets": {"data": {"href": item_href}}}),
+            "index.json": json.dumps({"layers": {
+                "buildings-dated": {"asset": "buildings-dated/archipelago.tif"}}}),
+        }
+
+    before, after = tree("../tenerife.tif"), tree("../archipelago.tif")
+    key = "buildings-dated/tenerife.tif"
+    published = {"buildings-dated/archipelago.tif"}
+
+    live_before = link_targets(before.__getitem__, "")
+    assert key in live_before, "the walk missed the item's own asset"
+
+    # Corrected items built locally but NOT yet uploaded: the live site still links.
+    local_after = link_targets(after.__getitem__, "")
+    refused = refusals([key], published, local_after, live_before)
+    assert key in refused and "LIVE" in refused[key], (
+        "pruning before the upload was allowed — the 2026-10-06 outage")
+
+    # Uploaded: nothing links to it anywhere, so it really is an orphan now.
+    live_after = link_targets(after.__getitem__, "")
+    assert refusals([key], published, local_after, live_after) == {}
+
+    # CodeRabbit, PR #14: the corrected ITEMS uploaded but the index not yet — which
+    # is what an upload interrupted after the items and before index.json (uploaded
+    # last) leaves behind. The live index is still the pre-contract "both" shape and
+    # links every island's COG from islands[*].asset.
+    half = dict(after)
+    half["index.json"] = json.dumps({"layers": {"buildings-dated": {
+        "asset": "buildings-dated/archipelago.tif",
+        "islands": {"Tenerife": {"asset": "buildings-dated/tenerife.tif"}}}}})
+    refused = refusals([key], published, local_after, link_targets(half.__getitem__, ""))
+    assert key in refused and "LIVE" in refused[key], (
+        "a key the live index still links to was called free")
+
+    # And a published file is never an orphan, whatever links to it.
+    assert "published" in refusals(["buildings-dated/archipelago.tif"],
+                                   published, local_after, live_after)[
+        "buildings-dated/archipelago.tif"]
+
+
+
+def test_prune_does_not_read_a_failed_check_as_absence(monkeypatch):
+    """Only a 404 means "gone". A 403 or a timeout means "unknown", and stops.
+
+    Not hypothetical: Cloudflare answered this script's first run with 403 on every
+    request because of its User-Agent. When `_exists` turned every failure into
+    False, that run would have reported all 56 objects "already gone" and finished
+    green having checked nothing (CodeRabbit, PR #14).
+    """
+    import io
+    import urllib.error
+    import urllib.request
+
+    import prune_r2
+
+    def answer(code):
+        def fake(req, timeout=None):
+            raise urllib.error.HTTPError(req.full_url, code, "x", {}, io.BytesIO())
+        return fake
+
+    monkeypatch.setattr(urllib.request, "urlopen", answer(404))
+    assert prune_r2._exists("k") is False
+
+    for code in (403, 500):
+        monkeypatch.setattr(urllib.request, "urlopen", answer(code))
+        with pytest.raises(SystemExit, match=str(code)):
+            prune_r2._exists("k")
+
+    def timeout(req, timeout=None):
+        raise TimeoutError("timed out")
+    monkeypatch.setattr(urllib.request, "urlopen", timeout)
+    with pytest.raises(SystemExit, match="refusing to guess"):
+        prune_r2._exists("k")

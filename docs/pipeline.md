@@ -369,7 +369,7 @@ all, or `88-01-01`, which could be 1888 or 1988. A two-digit year is ambiguous, 
 those stay in the undated class rather than being resolved by guesswork.
 
 ### Two ways a partial build leaves the published folder inconsistent
-<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06 -->
+<!-- figures: scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06; size_published() before and after the catalogue fix, 2026-10-07 @ 2026-10-07 -->
 
 Both were found on 2026-09-30 by changing one layer's band description and watching
 what did *not* follow. Both are the same shape as CLAUDE.md #20 — a build leaves the
@@ -381,8 +381,17 @@ any island whose file is absent. Since C2 those per-island COGs are intermediate
 the published asset is the shared `archipelago.tif` — so on a cleaned tree the walk
 finds nothing and the items on disk are silently kept as they were. Changing one
 island's build therefore left **1 item describing the new band description and 7 still
-describing the old one, all 8 pointing at the same file**. `assets-resolve` cannot see
-it: every href resolves, because they all resolve to the same mosaic. `--catalog-only`
+describing the old one**. `assets-resolve` cannot see it, because that gate asks only
+whether an href points at a file that exists, never whether what it says is still
+true — and all eight files existed throughout.
+
+**Corrected 2026-10-06.** This paragraph first said the eight items "all point at the
+same file". They do not: each names its own island's intermediate, `../tenerife.tif`.
+The correction mattered because it reversed a conclusion: at the time, the per-island
+COGs were not spare copies left behind by the mosaic, they were what the published
+catalogue linked to, so deleting them as orphans would have broken every item. That
+link is now to the mosaic — see the section below — but the items still carry their
+own island's bbox, which is the part this paragraph is about. `--catalog-only`
 does not repair it either, for the same reason — it re-runs exactly this walk. The
 repair is a full build of the layer (`--layer <name>` with no `--island`), which
 regenerates all eight intermediates and so all eight items — but only if all eight
@@ -399,7 +408,14 @@ documents, not before. So a single build measures the index it inherited and is
 right. **The undercount needs two builds**: the first deletes the index, nothing
 republishes it, and the second syncs the documents against a tree that is already
 missing a published file. That is the state this repository was in on 2026-09-30,
-and it wrote **67.8 MiB where the true figure was 67.9**. It is small, it is in a
+and it wrote **67.8 MiB where the true figure was 67.9**. (Both numbers are frozen at that
+date. Read them beside the size table above with care, because **this figure sits on a
+rounding edge** — close enough to the midpoint between 67.8 and 67.9 that changes of a
+few kilobytes flip which one the table shows. It has flipped three times: the
+2026-09-30 incident; the contract step taking 2.2 KiB out of `index.json` on
+2026-10-06; and the STAC items growing by 3.1 KiB on 2026-10-07, when their links were
+pointed at the mosaic and each asset was given its own grid. Whichever the table shows today, it says nothing about which of these two
+was right on 2026-09-30.) It is small, it is in a
 document, and nothing downstream disagrees with it, because every check re-measures
 the same incomplete tree. The order matters for the fix as much as for the diagnosis:
 no amount of care *within* one build closes it, because the run that writes the wrong
@@ -425,6 +441,48 @@ from sensisat.config import PROCESSED
 ```
 
 then `python scripts/sync_docs.py`, and re-attest if the figure moved.
+
+### The catalogue linked to files the publisher does not ship — fixed 2026-10-07
+<!-- figures: sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; tests/test_publish.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-07 -->
+
+Found while preparing to prune what was believed to be dead weight, which is the
+only reason it was found at all.
+
+Every STAC item named its own island's intermediate — `buildings-dated-tenerife`
+carried `href: ../tenerife.tif` — while `publish.py` ships **one** raster per layer,
+`archipelago.tif`. So the published items linked to files the published tree does not
+contain. On the live bucket those links answered 200 only because the per-island
+objects uploaded before the archipelago migration had never been deleted. **All 56
+were verified present by HEAD request**, and the pruning about to remove them would
+have 404'd every item in the catalogue at once.
+
+The design had been written down three times and wired in nowhere: `catalog.py`'s
+module docstring says "the asset gets the archipelago, and the item's bbox says which
+part is that item's"; `is_build_intermediate` says the per-island COGs are built but
+not published; `build.py` writes mosaics before items *because* "every item's asset
+href names one". A helper returning that href existed and had no callers. The href
+came from the per-island path instead.
+
+**The fix.** `mosaic_path()` replaces that helper and is actually called. The item's
+`bbox` and `geometry` still come from the island's own COG — a reader asking what
+covers Tenerife gets Tenerife's extent and Tenerife's statistics — while `proj:shape`,
+`proj:transform` and the asset href now describe the file the asset *is*. Tenerife's
+item reads `../archipelago.tif` with `proj:shape` 19148 x 53991 and its own bbox.
+The per-island confidence companions are unaffected: they are published, so naming
+them is correct.
+
+**Why no gate caught it, and this is the transferable part.** `assets-resolve` runs
+inside `build.py` against `data/processed/`, where the intermediates are present by
+construction — they were written moments earlier. Nothing resolved an href against
+the set of files that actually ship. The gate proved the catalogue usable *where it
+was built*, which is not the claim a reader needs. CLAUDE.md #14 says a valid
+catalogue is not a usable one; this adds that one usable in the source tree is not a
+published one.
+
+`test_every_item_links_only_to_files_that_are_published` closes it, and deliberately
+asserts against `is_build_intermediate` — the predicate that *decides* what ships —
+rather than against a directory listing, so it holds whether or not `dist/` has been
+assembled, and moves automatically if that predicate ever changes.
 
 ### Size — the one criterion not met as written
 

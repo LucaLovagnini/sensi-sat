@@ -12,6 +12,18 @@
   // the site was still unannounced and no citation of the old URL could exist yet.
   "workers_dev": false,
 
+  // NEVER deploy a second Worker from THIS file, with --name or any other flag.
+  // The `routes` below claim sensisat.org and www.sensisat.org as CUSTOM DOMAINS,
+  // and a custom domain belongs to exactly one Worker. `--name` overrides the name
+  // and nothing else, so a preview deployed this way inherits those routes and
+  // points the canonical hostname at itself — the production outage, caused by the
+  // command meant to avoid it. A preview needs its own config: a different name, no
+  // routes at all, and "workers_dev": true, because a Worker with no route and no
+  // subdomain has no address. `wrangler.preview.jsonc` held exactly that between
+  // 2026-09-25 and 2026-10-06 and was deleted with the rest of the migration
+  // scaffolding; this note is the part of it worth keeping, and it is here rather
+  // than there because here is where the mistake gets made.
+
   // Preview URLs survive "workers_dev": false only if asked for explicitly -- wrangler
   // warns about this on deploy and then disables them. They are the `wrangler versions
   // upload` path: a real deployment on real Cloudflare infrastructure, with real limits,

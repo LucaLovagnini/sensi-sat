@@ -1,6 +1,6 @@
 {
  "counts": {
-  "declarations": 86,
+  "declarations": 87,
   "generated_regions": 24,
   "registry_entries": 63,
   "sections_with_figures": 82,
@@ -87,7 +87,8 @@
     "sensisat/qa.py @ 2026-09-19",
     "sensisat/datasets/cadastre.py @ 2026-09-19",
     "scripts/verify_m2.py; scripts/build.py; sensisat/mosaic.py; data/processed/statistics/layers.json; measured:archipelago mosaic sizes and the share of the archipelago bounding box the island boxes cover, 2026-09-24 @ 2026-09-24",
-    "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, and the two index serialisations compared byte for byte, 2026-10-06 @ 2026-10-06"
+    "scripts/build.py; scripts/publish.py; sensisat/facts.py; sensisat/catalog.py; measured:size_published() with and without index.json, the two index serialisations compared byte for byte, and the index measured before and after the contract step (53,202 -> 50,920 bytes), 2026-10-06; size_published() before and after the catalogue fix, 2026-10-07 @ 2026-10-07",
+    "sensisat/catalog.py; scripts/publish.py; sensisat/qa.py; tests/test_publish.py; measured:HEAD requests against data.sensisat.org, 2026-10-06 @ 2026-10-07"
    ],
    "docs/validation.md": [
     "scripts/m3_score.py; docs/figures/data/m3_labels.json; docs/figures/data/m3_labels_30m.json @ 2026-09-20",
@@ -137,7 +138,7 @@
     ],
     [
      "import sensisat.figures as g\nfs = g.figure_set()\ntok = fs[\"tokens\"]\nn_sections = sum(len(v) for v in fs[\"sections\"].values())\nn_decl = sum(len(v) for v in fs[\"declarations\"].values())\nn_gen = sum(len(v) for v in fs[\"generated\"].values())\ncog.outl(\"| surface | unit of accounting | today |\")\ncog.outl(\"|---|---|---|\")\ncog.outl(f\"| `viewer/about-the-data.html` — the public page | every token | {len(tok['viewer/about-the-data.html'])} declared tokens, plus generated regions |\")\nfor _rel in sorted(k for k in tok if k.startswith(\"viewer/\") and k.endswith(\".js\")):\n    cog.outl(f\"| `{_rel}` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | {len(tok[_rel])} declared tokens |\")\ncog.outl(f\"| `README.md` | every token | {len(tok['README.md'])} declared tokens |\")\ncog.outl(f\"| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\")\ncog.outl(f\"| `docs/**/*.md` and `CLAUDE.md` | the section | {n_sections} sections carrying figures, {n_decl} declarations |\")\ncog.outl(f\"| generated regions, all prose | `cog` from `facts.py` | {n_gen} |\")\ncog.outl(f\"| `sensisat/provenance.HISTORICAL` | the registry | {len(fs['registry'])} entries |\")\ncog.outl(f\"| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |\")",
-     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 82 sections carrying figures, 86 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 24 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
+     "| surface | unit of accounting | today |\n|---|---|---|\n| `viewer/about-the-data.html` — the public page | every token | 60 declared tokens, plus generated regions |\n| `viewer/app.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 5 declared tokens |\n| `viewer/count.js` — strings the UI renders | every token; live values via `viewer/facts.generated.js` | 0 declared tokens |\n| `README.md` | every token | 9 declared tokens |\n| `sensisat/layers.py` → STAC descriptions | templates filled by `catalog._fill` at write time | 2 placeholders |\n| `docs/**/*.md` and `CLAUDE.md` | the section | 82 sections carrying figures, 87 declarations |\n| generated regions, all prose | `cog` from `facts.py` | 24 |\n| `sensisat/provenance.HISTORICAL` | the registry | 63 entries |\n| `docs/figures/data/` | a script that names the file, or the manifest | 36 files, 13 in the manifest |"
     ]
    ],
    "docs/pipeline.md": [
@@ -301,7 +302,7 @@
    "size_mib(loss-events)": 1.908,
    "size_mib(settlement-era-a)": 6.601,
    "size_mib(settlement-era-b)": 4.708,
-   "size_published()": 67.852,
+   "size_published()": 67.853,
    "size_six_layers()": 28.785,
    "undated_share()": 36.557
   },
@@ -1943,8 +1944,11 @@
      "147",
      "16",
      "185",
+     "19148",
      "2",
      "2.1–2.6",
+     "2.2",
+     "200",
      "21",
      "21.1 %",
      "22 %",
@@ -1955,6 +1959,7 @@
      "27.2",
      "299",
      "3",
+     "3.1",
      "3.6 MiB",
      "30 m",
      "32",
@@ -1963,6 +1968,7 @@
      "353",
      "39.5",
      "4.3",
+     "404",
      "41.5 MiB",
      "474,292",
      "5.0",
@@ -1971,6 +1977,7 @@
      "52",
      "52.0",
      "539",
+     "53991",
      "54.1 MiB",
      "55 %",
      "56",
@@ -1979,6 +1986,7 @@
      "60.2 MiB",
      "63.3",
      "66–68 %",
+     "67.8",
      "67.8 MiB",
      "67.9",
      "7",
@@ -2440,12 +2448,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "0bb03ed4639709890470fc9eda471e2303453391e8b4574023a93f7d87ac670b",
+ "fingerprint": "cdef4833bee4b3697002425a0d9d8a429c0ec19f65d3dc6ec8a07fc7b17d2661",
  "judgements": {
-  "declarations_plausible": "concepts §8 gained external: for the UTM zone scheme and the antimeridian (not measured here); pipeline §7's subsection now names the 2026-10-06 measurements (size_published with and without index.json, and the two index serialisations) and carries that date.",
-  "generated_from_right_fact": "concepts §8's block moved to facts.pixel_metres/pixel_area_range/pixel_area_overstatement; rendered output is byte-identical to the 2026-10-06 attestation, and test_grid.py now recomputes it from the constants.",
-  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set, same six live-value collisions."
+  "declarations_plausible": "§7 gains 3.1 (the KiB the items grew) and a bare 67.8 (the rounding-edge sentence). The subsection's declaration now names size_published() before and after the catalogue fix.",
+  "generated_from_right_fact": "size_published() 67.85 -> 67.853 MiB: the STAC items grew 3.1 KiB with their mosaic links and per-asset grids. Renders 67.8 -> 67.9 in pipeline.md's headline and size table.",
+  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set. The 67.8 MiB collision was removed because the live value moved off it."
  },
- "reviewed": "2026-10-06",
+ "reviewed": "2026-10-08",
  "reviewer": "Luca Lovagnini (read the delta)"
 }
