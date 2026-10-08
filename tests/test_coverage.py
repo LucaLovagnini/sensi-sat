@@ -1,9 +1,19 @@
-"""The coverage grid: how much is built, per coarse cell.
+"""Why the readout cannot count the pixels the map is drawing — pinned as tests.
 
-Every test here is named for a failure that actually happened, because several of
-them happened to the throwaway scripts that designed this. Expected values are
-worked out from the primitives (`row_areas_m2`) rather than from the code under
-test, and the rasters are small enough to reason about by hand.
+This file used to test `sensisat/coverage.py`, a grid of how much is built per
+coarse cell, designed to let the viewer count at any zoom. It was retired on
+2026-09-25 when the per-year bands it needed came to 3,631 KiB per layer, and the
+module itself was deleted on 2026-10-08. What survives is the EVIDENCE that
+decided the design, because it holds whatever ships: COG overviews are built for
+drawing, and drawing and measuring want opposite things from them.
+
+  * `mode` overviews inflate a count — a coarse pixel is "built" if any child is;
+  * the inflation depends on clustering, so no single correction factor undoes it;
+  * declaring 0 as nodata makes `average` overviews overstate in the same way;
+  * `average` rounding to an integer type does not drift with depth.
+
+Expected values come from the primitives (`row_areas_m2`), never from the code
+under test, and the rasters are small enough to reason about by hand.
 """
 
 from __future__ import annotations
@@ -14,8 +24,6 @@ import rasterio
 from affine import Affine
 from rasterio.enums import Resampling
 
-from sensisat.config import EARTH_EQUATORIAL_M_PER_DEG, EARTH_MERIDIONAL_M_PER_DEG
-from sensisat.coverage import CELL_DEG, cell_factor, coverage_grid
 from sensisat.raster import row_areas_m2, write_cog
 
 PX = 8.983152841195216e-05          # the shared 10 m grid
@@ -24,145 +32,6 @@ LAT, LON = 28.10, -15.44            # over Gran Canaria, so latitudes are realis
 
 def grid_transform(px: float = PX) -> Affine:
     return Affine(px, 0.0, LON, 0.0, -px, LAT)
-
-
-# --------------------------------------------------------------- the cell size
-
-def test_cell_factor_follows_the_grid_it_is_given():
-    """~99 m on the 10 m grid, ~six pixels on loss-events' 20 m grid, and ONE on
-    density-trend's ~92 m grid — where the coverage grid is the layer itself. The
-    factor must be read from the transform, never assumed."""
-    assert cell_factor(grid_transform(PX)) == (11, 11)
-    assert cell_factor(grid_transform(PX * 2)) == (6, 6)
-    assert cell_factor(grid_transform(0.000833333)) == (1, 1)
-
-
-def test_the_cell_size_is_the_one_the_measurements_assume():
-    """`CELL_DEG` is not a free parameter. Cells straddling the edge of a view are
-    counted whole, so the cell size sets the border error and therefore the zoom at
-    which the viewer must stop summing cells and count real pixels instead —
-    measured at ~99 m cells as under 1 % above roughly 20 cells wide and 31 % at
-    about 5. Changing it invalidates that crossover, so this pins the value and the
-    pixel count it comes to on the shared 10 m grid.
-    """
-    assert CELL_DEG == 0.001
-    fy, fx = cell_factor(grid_transform(), CELL_DEG)
-    assert (fy, fx) == (11, 11)
-    # NOT square on the ground. The grid is in degrees, and a degree of longitude at
-    # 28 degN is cos(28) = 0.88 of a degree of latitude, so a cell is 110 m north-south
-    # and about 97 m east-west -- and the east-west side shrinks with latitude, from
-    # 97.5 m over El Hierro to 95.8 m over Lanzarote. Saying "~99 m cells" is wrong;
-    # the honest description is "about a hectare".
-    ns = fy * PX * EARTH_MERIDIONAL_M_PER_DEG
-    assert ns == pytest.approx(109.8, abs=0.1)
-    ew_28 = fx * PX * EARTH_EQUATORIAL_M_PER_DEG * np.cos(np.radians(28.1))
-    assert ew_28 == pytest.approx(97.0, abs=0.5)
-    assert ns * ew_28 / 1e4 == pytest.approx(1.07, abs=0.02)      # hectares
-
-
-def test_a_raster_smaller_than_one_cell_is_refused():
-    with pytest.raises(ValueError, match="smaller than one"):
-        coverage_grid(np.ones((4, 4), np.uint8), grid_transform(), kind="binary")
-
-
-# ------------------------------------------------------------- what it counts
-
-def test_the_grid_sums_to_the_area_of_the_built_pixels():
-    """The property the whole design rests on: summing every cell reproduces the
-    layer's area. Measured on the real buildings-dated grid, this is 104.33 km2
-    against a published 104.33."""
-    t = grid_transform()
-    rng = np.random.default_rng(0)
-    data = (rng.random((44, 44)) < 0.2).astype(np.uint8)
-    grid, _ = coverage_grid(data, t, kind="binary")
-    expected = float(((data > 0) * row_areas_m2(data.shape, t)).sum())
-    assert grid.sum() == pytest.approx(expected, rel=1e-12)
-    assert grid.shape == (4, 4)
-
-
-def test_any_non_zero_pixel_counts_once_not_as_a_whole_cell():
-    """The failure this grid exists to prevent. One building in a cell must
-    contribute ONE pixel of ground, not the cell's whole area — that confusion is
-    what makes counting the map's own zoomed-out pixels read 3,310 km2 instead of
-    104."""
-    t = grid_transform()
-    data = np.zeros((11, 11), np.uint8)
-    data[5, 5] = 1
-    grid, _ = coverage_grid(data, t, kind="binary")
-    one_pixel = float(row_areas_m2((11, 1), t)[5, 0])
-    whole_cell = float(row_areas_m2((11, 1), t).sum()) * 11      # 11 rows x 11 columns
-    assert grid.shape == (1, 1)
-    assert grid[0, 0] == pytest.approx(one_pixel, rel=1e-12)
-    # and emphatically NOT the whole cell: one pixel of 121
-    assert grid[0, 0] == pytest.approx(whole_cell / 121, rel=1e-3)
-
-
-def test_the_three_kinds_are_not_interchangeable():
-    """extent and surface are different quantities (CLAUDE.md #3). A half-sealed
-    raster covers the same ground as a fully built one but holds half the surface."""
-    t = grid_transform()
-    half = np.full((11, 11), 50, np.uint8)          # 50 % sealed
-    extent, _ = coverage_grid(half, t, kind="binary")
-    surface, _ = coverage_grid(half, t, kind="fraction", scale=0.01)
-    assert surface[0, 0] == pytest.approx(extent[0, 0] / 2, rel=1e-12)
-
-    amount = np.full((11, 11), 7.0)                 # already m2 per pixel
-    got, _ = coverage_grid(amount, t, kind="amount")
-    assert got[0, 0] == pytest.approx(7.0 * 121, rel=1e-12)
-
-
-def test_unknown_kind_is_refused():
-    with pytest.raises(ValueError, match="unknown kind"):
-        coverage_grid(np.ones((11, 11), np.uint8), grid_transform(), kind="sealed?")
-
-
-def test_partial_edge_cells_are_dropped_not_half_filled():
-    """A cell holding less ground than its neighbours while looking identical is a
-    difference nothing downstream could see."""
-    t = grid_transform()
-    data = np.ones((25, 25), np.uint8)              # 2 whole cells + 3 spare pixels
-    grid, coarse = coverage_grid(data, t, kind="binary")
-    assert grid.shape == (2, 2)
-    assert coarse.a == pytest.approx(t.a * 11)
-    corner = float(((np.ones((22, 22)) > 0) * row_areas_m2((22, 1), t)).sum())
-    assert grid.sum() == pytest.approx(corner, rel=1e-12)
-
-
-# ------------------------------------- the harness itself, which was wrong twice
-
-def aligned_window(row, col, size, factor):
-    """A window that a cell-by-cell comparison may legitimately use.
-
-    Exists because the script that first validated this compared 891 pixels of grid
-    against 900 pixels of truth and reported errors that did not exist. Aligning the
-    ORIGIN is not enough; the width must be a whole number of cells too.
-    """
-    if row % factor or col % factor or size % factor:
-        raise ValueError(
-            f"window ({row},{col}) {size}x{size} is not a whole number of "
-            f"{factor}-pixel cells — comparing it would measure the test, not the grid")
-    return row, col, size
-
-
-def test_the_comparison_harness_refuses_a_misaligned_window():
-    assert aligned_window(11, 22, 44, 11) == (11, 22, 44)
-    with pytest.raises(ValueError, match="not a whole number"):
-        aligned_window(11, 22, 45, 11)              # width off by one pixel
-    with pytest.raises(ValueError, match="not a whole number"):
-        aligned_window(5, 22, 44, 11)               # origin off by five
-
-
-def test_exact_on_every_cell_aligned_window():
-    """Aligned, the grid is not an approximation of the answer — it is the answer."""
-    t = grid_transform()
-    rng = np.random.default_rng(3)
-    data = (rng.random((110, 110)) < 0.1).astype(np.uint8)
-    grid, _ = coverage_grid(data, t, kind="binary")
-    areas = row_areas_m2(data.shape, t)
-    for size in (11, 22, 55, 110):
-        r, c, s = aligned_window(0, 0, size, 11)
-        exact = float(((data[r:r + s, c:c + s] > 0) * areas[r:r + s]).sum())
-        assert grid[: s // 11, : s // 11].sum() == pytest.approx(exact, rel=1e-12)
 
 
 # --------------------------------------- why we do not count what the map draws
@@ -202,27 +71,60 @@ def test_counting_mode_overviews_would_inflate_the_answer(tmp_path):
         "levels) — if that is intentional, the map's zoom-out behaviour changed too")
 
 
-def test_the_coverage_grid_does_not_inflate_where_overviews_do(tmp_path):
-    """The same sparse island, measured both ways. This is the whole argument."""
+def _clustered_island(size=1024, share=0.005):
+    """The same number of built pixels as `_sparse_island`, packed into one block."""
+    a = np.zeros((size, size), np.uint8)
+    n = int(size * size * share)                    # exactly as many as _sparse_island
+    side = int(np.ceil(n ** 0.5))
+    rows, rest = divmod(n, side)
+    a[:rows, :side] = 120
+    a[rows, :rest] = 120
+    return a
+
+
+def _inflation_at_coarsest(tmp_path, name, data):
     t = grid_transform()
-    data = _sparse_island()
-    grid, _ = coverage_grid(data, t, kind="binary")
-    # against the ground the grid actually covers: 1024 px is 93 whole cells of 11
-    # plus a one-pixel strip, dropped by design. Comparing against the full raster
-    # instead measures the drop, not the grid — which is the mistake this file exists
-    # to stop being made twice.
-    kept = (data.shape[0] // 11) * 11
-    retained = float(((data[:kept, :kept] > 0) * row_areas_m2((kept, 1), t)).sum())
-    assert grid.sum() == pytest.approx(retained, rel=1e-12)
-    assert retained < float(((data > 0) * row_areas_m2(data.shape, t)).sum())
+    path = write_cog(tmp_path / f"{name}.tif", data, t, "EPSG:4326", resampling=Resampling.mode)
+    with rasterio.open(path) as src:
+        full = float(((src.read(1) > 0) * row_areas_m2(data.shape, t)).sum())
+        levels = src.overviews(1)
+    with rasterio.open(path, OVERVIEW_LEVEL=len(levels) - 1) as src:
+        coarse = src.read(1)
+        counted = float(((coarse > 0) * row_areas_m2(coarse.shape, src.transform)).sum())
+    return counted / full
 
 
-# ------------------------------- the companion must survive being read zoomed out
+def test_overview_inflation_depends_on_clustering_so_no_correction_factor_exists(tmp_path):
+    """Why the readout cannot count the map's pixels and divide by a constant.
+
+    viewer.md and count.js both cite this file for two claims: that `mode` overviews
+    inflate a count (the test above), and that the inflation depends on how clustered
+    the buildings are — 23.9x on dense Gran Canaria against 101.7x on scattered El
+    Hierro at 32x — so no single correction factor can undo it. Until 2026-10-08 no
+    test asserted the second claim; the documents said this file "pins both" and it
+    pinned one. Found while retiring sensisat/coverage.py, by checking which test
+    carried each claim before deleting any.
+
+    Same built area, two arrangements. If a correction factor existed, the two
+    inflations would match.
+    """
+    sparse, dense = _sparse_island(), _clustered_island()
+    assert (sparse > 0).sum() == (dense > 0).sum(), (
+        "the fixtures must hold the same built area or the comparison means nothing")
+    scattered = _inflation_at_coarsest(tmp_path, "scattered", sparse)
+    clustered = _inflation_at_coarsest(tmp_path, "clustered", dense)
+    assert clustered < 2, f"a compact block barely inflates; got {clustered:.1f}x"
+    assert scattered > clustered * 5, (
+        f"scattered {scattered:.1f}x vs clustered {clustered:.1f}x — if these converge,"
+        " a single correction factor would work and the far regime could be revisited")
+
+
+# ------------------------- average overviews: what 0 means, and what rounding does
 
 def _coverage_like(size=512, seed=5):
-    """A grid shaped like a real coverage companion: mostly empty, a scatter of cells
-    holding square metres. Values fit uint16 because a cell of ~1 ha holds at most
-    about 10,000 m2."""
+    """A continuous grid shaped like the density layers: mostly empty ground, with a
+    scatter of cells holding square metres of built surface. Values fit uint16
+    because a cell of ~1 ha holds at most about 10,000 m2."""
     rng = np.random.default_rng(seed)
     a = np.zeros((size, size), np.uint16)
     idx = rng.choice(size * size, int(size * size * 0.2), replace=False)
@@ -243,14 +145,20 @@ def _total_at_each_level(path):
     return full, out
 
 
-def test_nodata_must_be_unset_or_the_companion_inflates_like_the_layer_it_fixes(tmp_path):
-    """The single most important detail in the whole design.
+def test_nodata_must_be_unset_or_average_overviews_overstate(tmp_path):
+    """For any layer whose overviews use `average` and whose 0 is a real value.
 
-    GDAL excludes nodata from an aggregation. If 0 meant nodata on a grid whose zeros
-    are *real measurements* — ground with nothing built on it — the empty cells would
-    drop out of the average, every overview would read as the mean of only the
-    non-empty cells, and this grid would overstate exactly like the `mode` overviews
-    it exists to replace.
+    GDAL excludes nodata from an aggregation. If 0 means nodata on a grid whose zeros
+    are *real measurements* — ground with nothing built or sealed on it — the empty
+    cells drop out of the average, every overview reads as the mean of only the
+    non-empty cells, and the zoomed-out picture overstates.
+
+    Written for the retired coverage grid; it governs `density-current` (% sealed)
+    and `density-trend` (m2 built), the two layers built with `average` overviews.
+    Both are published with nodata=0 as of 2026-10-08, and measured over Gran Canaria
+    they overstate when zoomed out — 4.46 % sealed drawn as 9.60 % at 32x, 65.96 m2
+    drawn as 85.57 at 16x. Display only: no published figure counts overview pixels.
+    Recorded in the project plan; the fix changes how empty ground is drawn.
     """
     t = grid_transform()
     data = _coverage_like()
