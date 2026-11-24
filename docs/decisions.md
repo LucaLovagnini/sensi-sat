@@ -34,6 +34,13 @@ place it went stale.
 
 Terms used below, defined once (`docs/concepts.md` has the longer versions):
 
+- **Raster**: a map stored as a grid of cells, one value per cell, like an image
+  whose "colours" are measurements. Every layer this project publishes is a
+  raster.
+- **Pixel**: one cell of that grid, covering a fixed patch of ground. What the
+  stored value means depends on the layer: a year, a percentage, a yes or no.
+- **Epoch**: one of the dates at which a product made an observation. GHSL and WSF
+  Tracker report change epoch by epoch, not year by year.
 - **Cadastre** (Spanish: *Catastro*): Spain's official property register. It
   records each building's footprint and the year it was built or comprehensively
   rebuilt (`docs/data-evaluation.md` §11).
@@ -77,10 +84,17 @@ for the rasters, no Worker script) is in `docs/design/scaling.md` §6. Cited in
 CLAUDE.md (the overview's declaration), `docs/design/scaling.md` and
 `docs/design/figure-provenance.md`.
 
-### Decision 5 — growth-only encoding: one "year first built" raster per layer (confirmed)
+### Decision 5 — growth-only encoding: the timelines store when a pixel was first built (confirmed)
 
-Each layer stores, per pixel, the first year it was built. The time slider is then
-a colour threshold and fetches nothing. Demolition is not drawn. Losses go to a
+The three timeline layers store, per pixel, when it was first seen built:
+`buildings-dated` the cadastre's year, `settlement-era-a` WSF Evolution's year, and
+`settlement-era-b` Tracker's epoch. The cadastre's year means built **or
+comprehensively rebuilt** (`docs/data-evaluation.md` §11), so a renovation can move
+a building later. The other layers store something else: `covered-agriculture` a
+greenhouse mask, `density-current` the percentage of ground sealed, `density-trend`
+GHSL's built surface per epoch, and `loss-events` the period in which cover was
+lost. For the timelines the time slider is a colour threshold and fetches nothing.
+Demolition is not drawn on them. Losses go to a
 separate `loss-events` collection, fed from the Copernicus change layers rather
 than drawn by hand. The parked alternative was a two-image "first built / last
 built" view, to be revived only if loss proved material. M0 measured loss and
@@ -105,8 +119,12 @@ tests.
 
 Tracker had been published only months before, with no accuracy figures, so M0
 tested it before relying on it: an epoch histogram per island, its baseline share,
-and continuity with the older products. It passed (`docs/data-evaluation.md`, the M0
-summary). Cited in `scripts/analysis_10_wsf_tracker.py`.
+and continuity with the older products. **On its own terms it passed**: plausible
+growth, no spikes from changes of method, and no confusion with fresh lava. **The
+continuity test did not.** Tracker's 2016 baseline is far larger than WSF 2015,
+measured only months earlier, so the two cannot be spliced into one series. That
+finding is what decision 13 answers (`docs/data-evaluation.md`, the M0 summary and
+§6). Cited in `scripts/analysis_10_wsf_tracker.py`.
 
 ### Decision 12 — OpenLayers as the map library (confirmed; was provisional)
 
