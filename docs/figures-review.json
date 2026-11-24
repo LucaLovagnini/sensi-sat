@@ -49,6 +49,7 @@
     "scripts/analysis_20_cadastre_date_validity.py; external:Catastro methodology note and the INSPIRE Buildings specification @ 2026-09-20",
     "scripts/analysis_21_ghsl_vs_cadastre_timing.py @ 2026-09-20"
    ],
+   "docs/decisions.md": [],
    "docs/design/figure-provenance.md": [
     "sensisat/figures.py; tests/test_documented_numbers.py; scripts/review_figures.py; measured:the runs of this mechanism on 2026-09-21, recorded in the M4c commits @ 2026-09-21",
     "sensisat/facts.py; scripts/analysis_03_seam_factors.py; docs/figures/data/m0_seam_factors.csv @ 2026-09-21",
@@ -1544,6 +1545,7 @@
      "90 MiB"
     ]
    },
+   "docs/decisions.md": {},
    "docs/design/figure-provenance.md": {
     "## 1. The problem in one paragraph": [
      "2.1×",
@@ -2448,12 +2450,12 @@
    "viewer/count.js": []
   }
  },
- "fingerprint": "cdef4833bee4b3697002425a0d9d8a429c0ec19f65d3dc6ec8a07fc7b17d2661",
+ "fingerprint": "0f175cf9e4f64e7f5f7c104c7a649b6751bccfe5f6f275215575a0b65b7ca8fa",
  "judgements": {
-  "declarations_plausible": "§7 gains 3.1 (the KiB the items grew) and a bare 67.8 (the rounding-edge sentence). The subsection's declaration now names size_published() before and after the catalogue fix.",
-  "generated_from_right_fact": "size_published() 67.85 -> 67.853 MiB: the STAC items grew 3.1 KiB with their mosaic links and per-asset grids. Renders 67.8 -> 67.9 in pipeline.md's headline and size table.",
-  "registry_holds_no_live_claim": "Unchanged — 63 entries, same set. The 67.8 MiB collision was removed because the live value moved off it."
+  "declarations_plausible": "docs/decisions.md is new and declares nothing, because it states no figures (checked with figures_in: empty in every section); its entries point to the documents holding the evidence. CLAUDE.md's edited Current state and Layout sections keep their figure sets unchanged (the 19 token is kept).",
+  "generated_from_right_fact": "Unchanged: no cog region added, removed or edited; the delta's only entries are docs/decisions.md with no sections carrying figures and no declarations.",
+  "registry_holds_no_live_claim": "Unchanged: same HISTORICAL keys as the 2026-10-08 attestation; nothing added."
  },
- "reviewed": "2026-10-08",
- "reviewer": "Luca Lovagnini (read the delta)"
+ "reviewed": "2026-11-24",
+ "reviewer": "Claude Opus 5.5 (Claude Code session, read the delta against the 2026-10-08 attestation)"
 }

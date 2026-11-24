@@ -54,8 +54,14 @@ definition — a *reforma integral* resets the year. This is the measured cause 
 24–33 % of "new construction" that was already standing in 2015, and it is a
 definition we misread, not a data fault (`data-evaluation.md` §11).
 
-The plan lives at `~/.claude/plans/ok-i-think-that-purrfect-horizon.md`; §9b is the
-state snapshot to read first, §4 holds all 19 decisions.
+**The decisions are in `docs/decisions.md`.** The plan that held them
+(`~/.claude/plans/ok-i-think-that-purrfect-horizon.md`, kept outside the repo on
+purpose) was deleted by Claude Code's automatic cleanup of old sessions and plans,
+found 2026-11-24. Retention is now set in Luca's user settings
+(`cleanupPeriodDays`). Its §4 held all 19 decisions, which the code still cites by
+number; the register reconstructs every one that can be placed, marks the numbers
+that cannot, and says where the plan's other sections survive. **M5 has no
+surviving spec and needs re-planning.**
 
 ### Google Earth Engine is no longer used
 
@@ -97,6 +103,7 @@ a question not indexed here is a question a fresh session will not know to look 
 | file | answers | published? |
 |---|---|---|
 | `docs/concepts.md` | what a raster, projection, COG, extent-vs-surface *is* | internal |
+| `docs/decisions.md` | what a cited decision (decision 7, decision M1.2) means and where its evidence is; where the lost plan's other sections survive | internal |
 | `docs/data-evaluation.md` | M0: which datasets to trust and why; §10 the bucketed pre-1980 years; **§11 what the cadastre's year actually means**; §12 GHSL vs the cadastre on timing | internal |
 | `docs/design/seam-harmonization.md` | why 2015/2016 is declared and never blended | internal |
 | `docs/pipeline.md` | M2: the seven layers, the grid, the QA gates, the results | internal |
