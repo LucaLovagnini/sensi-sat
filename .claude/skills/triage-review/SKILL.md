@@ -35,6 +35,35 @@ On Luca's machine `ghp` is the same prefix as a command (`~/.local/bin/ghp`):
 `ghp api user --jq .login` is the check above. Where `ghp` is not installed, spell
 the prefix out.
 
+## 0b. Make sure the review ran — trigger it, every time
+
+**CodeRabbit does not review this repository on its own any more.** Since
+2026-11-24 it skips automatic reviews because the repository has too few stars,
+and its check then concludes **skipped**. GitHub counts a skipped required check
+as passed, so branch protection lets the pull request merge with no review at all
+(CLAUDE.md #11: a skipped check is not a passed check). A paused review is the
+same trap in another form: it posts **success** with "Review paused".
+
+So, for every pull request, and again after every push that adds commits:
+
+```bash
+# what CodeRabbit recorded on the head commit; it uses a check run or a commit status
+head=$(gh pr view <N> --json headRefOid --jq .headRefOid)
+gh api repos/LucaLovagnini/sensi-sat/commits/$head/check-runs \
+  --jq '.check_runs[]|select(.name=="CodeRabbit")|"\(.status) \(.conclusion) \(.output.title)"'
+gh api repos/LucaLovagnini/sensi-sat/commits/$head/status \
+  --jq '.statuses[]|select(.context=="CodeRabbit")|"\(.state) \(.description)"'
+
+# anything other than a completed review: ask for one (prefix the token, as in step 0)
+gh pr comment <N> --body "@coderabbitai review"
+```
+
+Wait until the head commit says **"Review completed"**, which takes a few minutes,
+then continue to step 1. Skipped, paused or missing means not reviewed, whatever
+GitHub's merge button says. The same rule holds at the end: **merge only when the
+commit being merged carries "Review completed"** and every thread is answered. A
+review of an earlier commit does not cover fixes pushed after it.
+
 ## 1. Read everything before answering anything
 
 **Read every page.** A read that stops at the first page silently drops findings, and

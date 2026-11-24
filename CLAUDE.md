@@ -296,6 +296,17 @@ gate (M4c).** Walk it in order; each line is a command or a look.
     unavailable and share-alike unnecessary. The STAC collections say `CC-BY-4.0`
     (`python scripts/build.py --catalog-only` rewrites the catalogue from disk).
 
+## Planning: work lives in GitHub issues
+
+**Adopted 2026-11-24**, after the plan file under `~/.claude/plans/` was deleted by
+Claude Code's cleanup of old sessions. Every piece of pending work is an issue on
+the repository; the plan for it is written into the issue or its pull request, not
+left in a local file. A plan-mode draft is a working copy: once approved, its
+substance goes into the issue. Settled decisions go to `docs/decisions.md`.
+**Issues are public**, like everything in this repository: no personal details, no
+account identifiers, nothing about which credentials a machine uses. That stays in
+local notes.
+
 ## Review lifecycle
 
 **Every change reaches `main` through a pull request reviewed by a second model.**
@@ -306,12 +317,18 @@ the code — its own prompts, retrieval and linters — but not a guaranteed dif
 model family: CodeRabbit states that code is sent to "OpenAI and/or Anthropic".
 
 1. Work on a branch, never on `main`; push it and open a pull request.
-2. CodeRabbit reviews automatically and posts a commit status.
+2. **Trigger the review by hand** — comment `@coderabbitai review` on the pull request.
+   Since 2026-11-24 CodeRabbit skips automatic reviews here because the repository
+   has too few stars, and its check then concludes *skipped*, which GitHub counts as
+   passed. Wait for "Review completed" on the head commit; `/triage-review` has the
+   commands, and re-triggers after every push.
 3. Answer every thread with `/triage-review <PR>`: verify the claim, then **fixed**
    (with the commit), **rejected** (with the evidence) or **parked** (with the issue),
    reply, and only then resolve.
-4. Merge. Branch protection on `main` refuses the merge until CodeRabbit's status has
-   run and every conversation is resolved. **It never requires CodeRabbit to approve**:
+4. Merge, **only when the commit being merged says "Review completed"**. Branch
+   protection refuses the merge until CodeRabbit's status exists and every
+   conversation is resolved, but it cannot tell a skipped or paused review from a
+   real one, so this check is ours (#11). **It never requires CodeRabbit to approve**:
    an advisory model that can block at random trains everyone to click past it. The
    requirement is that the review *ran* and every comment was *answered* — a skipped
    review must not read as a passed one (#11).
