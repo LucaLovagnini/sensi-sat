@@ -35,6 +35,52 @@ On Luca's machine `ghp` is the same prefix as a command (`~/.local/bin/ghp`):
 `ghp api user --jq .login` is the check above. Where `ghp` is not installed, spell
 the prefix out.
 
+## 0b. Make sure the review ran — trigger it, every time
+
+**CodeRabbit does not review this repository on its own any more.** Since
+2026-11-24 it skips automatic reviews because the repository has too few stars,
+and its check then concludes **skipped**. GitHub counts a skipped required check
+as passed, so branch protection lets the pull request merge with no review at all
+(CLAUDE.md #11: a skipped check is not a passed check). A paused review is the
+same trap in another form: it posts **success** with "Review paused".
+
+So, for every pull request, and again after every push that adds commits:
+
+```bash
+# what CodeRabbit recorded on the head commit; it uses a check run or a commit status
+head=$(gh pr view <N> --json headRefOid --jq .headRefOid)
+gh api repos/LucaLovagnini/sensi-sat/commits/$head/check-runs \
+  --jq '.check_runs[]|select(.name=="CodeRabbit")|"\(.status) \(.conclusion) \(.output.title) | \((.output.summary//"")|split("\n")[0])"'
+gh api repos/LucaLovagnini/sensi-sat/commits/$head/status \
+  --jq '.statuses[]|select(.context=="CodeRabbit")|"\(.state) \(.description)"'
+
+# anything other than a completed review: ask for one (prefix the token, as in step 0)
+gh pr comment <N> --body "@coderabbitai review"
+```
+
+The two forms say "done" in different places, both seen on 2026-11-24:
+
+| form | a real, finished review | not a review |
+|---|---|---|
+| check run (#16) | `completed success Finished \| Result: Success - Review completed` | conclusion `skipped`; `neutral` with "Review rate limited"; still `in_progress` |
+| commit status (#15) | `success Review completed` | description "Review paused", or no status at all |
+
+**Reviews are rationed.** On the free plan for public repositories CodeRabbit allowed
+about one review an hour (observed 2026-11-24: #16 reviewed at 19:44, #17 refused at
+19:46 with "next included review available in 57 minutes"). A refused review
+concludes `neutral`, which GitHub also counts as passed. So: push all the fixes for
+a round before re-triggering, review one pull request at a time, and when the
+result says rate limited, trigger again once the time it names has passed.
+
+The phrase to look for is **"Review completed"**: in a check run it is in the
+summary's first line (the title just says "Finished"), and in a commit status it
+is the description. CodeRabbit's "Review triggered" reply to the comment is only
+an acknowledgement. Wait for the phrase, which takes a few minutes, then continue
+to step 1. Skipped, paused or missing means not reviewed, whatever
+GitHub's merge button says. The same rule holds at the end: **merge only when the
+commit being merged carries "Review completed"** and every thread is answered. A
+review of an earlier commit does not cover fixes pushed after it.
+
 ## 1. Read everything before answering anything
 
 **Read every page.** A read that stops at the first page silently drops findings, and
